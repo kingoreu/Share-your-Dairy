@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.dairy.dairy.SettingsController"
+      fx:controller="com.share.dairy.BuddyDiaryController"
       alignment="CENTER" spacing="10">
 
     <Label fx:id="titleLabel" text="내 정보 설정" style="-fx-font-size: 18px"/>
