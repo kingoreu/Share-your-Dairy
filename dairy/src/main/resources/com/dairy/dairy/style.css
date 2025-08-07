@@ -1,0 +1,23 @@
+.toggle-button {
+    -fx-background-radius: 20;
+    -fx-font-family: 'Pixel';
+    -fx-pref-width: 100;
+}
+
+/* 비활성 상태 기본 색 */
+#weekToggle {
+    -fx-background-color: #f8bbd0;
+    -fx-text-fill: white;
+}
+#days15Toggle, #monthToggle {
+    -fx-background-color: black;
+    -fx-text-fill: #f8bbd0;
+}
+
+/* 선택된 버튼 스타일 */
+.toggle-button:selected {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-border-color: #f8bbd0;
+    -fx-border-width: 2;
+}

@@ -1,27 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.dairy.dairy.MoodGraphController"
-      spacing="20" alignment="CENTER" style="-fx-padding: 20;">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.dairy.dairy.MoodGraphController"
+            stylesheets= "style.css"
+            style="-fx-background-color: #fde7f0;">
 
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="1주" onAction="#loadWeekData"/>
-        <Button text="15일" onAction="#load15DaysData"/>
-        <Button text="1달" onAction="#loadMonthData"/>
-    </HBox>
+    <!-- 상단: 제목 -->
+    <top>
+        <VBox alignment="CENTER">
+            <Label text="Mood  Graph"
+                   style="-fx-font-size: 28px; -fx-font-family: 'Pixel'; -fx-padding: 20; -fx-text-fill: black;"/>
+            <Separator />
+        </VBox>
+    </top>
 
-    <LineChart fx:id="moodChart" title="감정 그래프"
-               legendVisible="false"
-               animated="true">
-        <xAxis>
-            <NumberAxis label="날짜 (일)" />
-        </xAxis>
-        <yAxis>
-            <NumberAxis label="감정 점수 (1~10)" lowerBound="1" upperBound="10" tickUnit="1"/>
-        </yAxis>
-    </LineChart>
-</VBox>
+    <!-- 좌측: 버튼 메뉴 -->
+    <left>
+        <VBox spacing="20" alignment="CENTER" style="-fx-padding: 30;">
+            <ToggleButton fx:id="weekToggle" text="1week" onAction="#loadWeekData" />
+            <ToggleButton fx:id="days15Toggle" text="15days" onAction="#load15DaysData" />
+            <ToggleButton fx:id="monthToggle" text="1month" onAction="#loadMonthData" />
+        </VBox>
+    </left>
+
+    <!-- 센터: 감정 그래프 -->
+    <center>
+        <LineChart fx:id="moodChart" title="" legendVisible="false" style="-fx-background-color: #fde7f0;">
+            <xAxis>
+                <CategoryAxis label="Date"
+                              style="-fx-tick-label-fill: #2196f3; -fx-font-family: 'Pixel';"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis lowerBound="0" upperBound="5" tickUnit="1"
+                            label=""
+                            style="-fx-tick-label-fill: #2196f3; -fx-font-family: 'Pixel';"/>
+            </yAxis>
+        </LineChart>
+    </center>
+</BorderPane>
