@@ -5,7 +5,9 @@
 <?import javafx.geometry.Insets?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.dairy.dairy.MainController">
+            fx:controller="com.share.dairy.MainController">
+
+
 
     <!-- 왼쪽 메뉴 -->
     <left>
@@ -26,4 +28,5 @@
     <center>
         <StackPane fx:id="contentArea"/>
     </center>
+
 </BorderPane>

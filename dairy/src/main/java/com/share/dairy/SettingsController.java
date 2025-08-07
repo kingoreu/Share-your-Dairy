@@ -1,15 +1,15 @@
-package com.dairy.dairy;
+package com.share.dairy;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class MyDiaryController {
+public class SettingsController {
 
     @FXML
     private Label titleLabel;
 
     @FXML
     public void initialize() {
-        System.out.println("MyDiaryController 초기화됨");
+        System.out.println("SettingsController 초기화됨");
     }
 }
