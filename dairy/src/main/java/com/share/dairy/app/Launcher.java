@@ -1,4 +1,4 @@
-package com.share.dairy;
+package com.share.dairy.app;
 
 import javafx.application.Application;
 

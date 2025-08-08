@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.share.dairy.HomeController"
+      fx:controller="com.share.dairy.controller.HomeController"
       alignment="CENTER" spacing="20">
 
     <Label fx:id="welcomeLabel" text="공유일기 Home 화면입니다." style="-fx-font-size: 20px"/>

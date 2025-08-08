@@ -4,7 +4,7 @@
 <?import javafx.scene.shape.Rectangle?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.share.dairy.MainController"
+            fx:controller="com.share.dairy.controller.MainController"
             prefWidth="800" prefHeight="600"
             styleClass="root-pane">
   <children>
@@ -12,13 +12,14 @@
     <!-- 1) 배경 -->
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
       <image>
-        <Image url="@/com/share/dairy/images/room_background.jpg"/>
+        <!-- Main.fxml 기준으로 ../mainFrame_images 폴더 -->
+        <Image url="@../mainFrame_images/room_background.jpg"/>
       </image>
     </ImageView>
 
     <!-- 2) 투명 클릭 영역(Shape) -->
     <Rectangle fx:id="wardrobeHotspot"
-               layoutX="50"  layoutY="80"
+               layoutX="50" layoutY="80"
                width="150" height="300"
                fill="transparent"
                onMouseClicked="#onWardrobeClicked"/>
@@ -54,14 +55,14 @@
           styleClass="content-pane"
           visible="false"/>
 
-    <!-- 4) 캐릭터 (제일 위) -->
+    <!-- 4) 캐릭터 -->
     <ImageView fx:id="characterImg"
                pickOnBounds="true"
                layoutX="320" layoutY="300"
                fitWidth="160" fitHeight="200"
                onMouseClicked="#onCharacterClicked">
       <image>
-        <Image url="@/com/share/dairy/images/character.png"/>
+        <Image url="@../mainFrame_images/character.png"/>
       </image>
     </ImageView>
 

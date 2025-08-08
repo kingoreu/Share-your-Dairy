@@ -1,4 +1,4 @@
-package com.share.dairy;
+package com.share.dairy.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
