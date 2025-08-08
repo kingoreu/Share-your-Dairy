@@ -8,17 +8,16 @@ import java.io.IOException;
 
 public class HelloApplication extends Application {
     @Override
-    public void start(Stage stage) throws IOException {
-        // Main.fxml 절대경로로 로드
-        FXMLLoader fxmlLoader = new FXMLLoader(
-            getClass().getResource("/com/share/dairy/Main.fxml")
-        );
-        Scene scene = new Scene(fxmlLoader.load(), 1000, 700);
-        stage.setTitle("공유일기");
-        stage.setScene(scene);
-        stage.show();
-    }
-
+public void start(Stage stage) throws IOException {
+    FXMLLoader fxmlLoader = new FXMLLoader(
+        getClass().getResource("/com/share/dairy/Main.fxml")
+    );
+    // Main.fxml 에 맞춘 800×600 으로 씬 크기 설정
+    Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+    stage.setTitle("공유일기");
+    stage.setScene(scene);
+    stage.show();
+}
     public static void main(String[] args) {
         launch();
     }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.MainController"
@@ -15,56 +16,36 @@
       </image>
     </ImageView>
 
-    <!-- 2) 투명 오버레이 핫스팟 -->
-    <ImageView fx:id="wardrobeHotspot"
-               pickOnBounds="true"
-               layoutX="50" layoutY="80"
-               fitWidth="150" fitHeight="300"
-               onMouseClicked="#onWardrobeClicked">
-      <image>
-        <Image url="@/com/share/dairy/images/wardrobe_hot.jpg"/>
-      </image>
-    </ImageView>
+    <!-- 2) 투명 클릭 영역(Shape) -->
+    <Rectangle fx:id="wardrobeHotspot"
+               layoutX="50"  layoutY="80"
+               width="150" height="300"
+               fill="transparent"
+               onMouseClicked="#onWardrobeClicked"/>
 
-    <ImageView fx:id="windowHotspot"
-               pickOnBounds="true"
+    <Rectangle fx:id="windowHotspot"
                layoutX="220" layoutY="80"
-               fitWidth="180" fitHeight="200"
-               onMouseClicked="#onWindowClicked">
-      <image>
-        <Image url="@/com/share/dairy/images/window_hot.jpg"/>
-      </image>
-    </ImageView>
+               width="180" height="200"
+               fill="transparent"
+               onMouseClicked="#onWindowClicked"/>
 
-    <ImageView fx:id="laptopHotspot"
-               pickOnBounds="true"
+    <Rectangle fx:id="laptopHotspot"
                layoutX="420" layoutY="200"
-               fitWidth="200" fitHeight="120"
-               onMouseClicked="#onLaptopClicked">
-      <image>
-        <Image url="@/com/share/dairy/images/laptop_hot.jpg"/>
-      </image>
-    </ImageView>
+               width="200" height="120"
+               fill="transparent"
+               onMouseClicked="#onLaptopClicked"/>
 
-    <ImageView fx:id="bookshelfHotspot"
-               pickOnBounds="true"
+    <Rectangle fx:id="bookshelfHotspot"
                layoutX="650" layoutY="60"
-               fitWidth="120" fitHeight="280"
-               onMouseClicked="#onBookshelfClicked">
-      <image>
-        <Image url="@/com/share/dairy/images/bookshelf_hot.jpg"/>
-      </image>
-    </ImageView>
+               width="120" height="280"
+               fill="transparent"
+               onMouseClicked="#onBookshelfClicked"/>
 
-    <ImageView fx:id="radioHotspot"
-               pickOnBounds="true"
+    <Rectangle fx:id="radioHotspot"
                layoutX="100" layoutY="450"
-               fitWidth="100" fitHeight="80"
-               onMouseClicked="#onRadioClicked">
-      <image>
-        <Image url="@/com/share/dairy/images/radio_hot.jpg"/>
-      </image>
-    </ImageView>
+               width="100" height="80"
+               fill="transparent"
+               onMouseClicked="#onRadioClicked"/>
 
     <!-- 3) 콘텐츠 영역 -->
     <Pane fx:id="contentPane"
