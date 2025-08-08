@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Rectangle?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.MainController"
-            prefWidth="800" prefHeight="600"
-            styleClass="root-pane">
-  <children>
+            prefWidth="800" prefHeight="600">
 
+  <children>
     <!-- 1) 배경 -->
-    <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
+    <ImageView fitWidth="800" fitHeight="600" preserveRatio="flase">
       <image>
-        <!-- Main.fxml 기준으로 ../mainFrame_images 폴더 -->
         <Image url="@../mainFrame_images/room_background.jpg"/>
       </image>
     </ImageView>
 
     <!-- 2) 투명 클릭 영역(Shape) -->
     <Rectangle fx:id="wardrobeHotspot"
-               layoutX="50" layoutY="80"
+               layoutX="50"  layoutY="80"
                width="150" height="300"
                fill="transparent"
                onMouseClicked="#onWardrobeClicked"/>
@@ -48,11 +48,10 @@
                fill="transparent"
                onMouseClicked="#onRadioClicked"/>
 
-    <!-- 3) 콘텐츠 영역 -->
+    <!-- 3) 콘텐츠 영역 (초기엔 숨김) -->
     <Pane fx:id="contentPane"
           layoutX="100" layoutY="100"
-          prefWidth="800" prefHeight="600"
-          styleClass="content-pane"
+          prefWidth="600" prefHeight="380"
           visible="false"/>
 
     <!-- 4) 캐릭터 -->
@@ -65,6 +64,5 @@
         <Image url="@../mainFrame_images/character.png"/>
       </image>
     </ImageView>
-
   </children>
 </AnchorPane>
