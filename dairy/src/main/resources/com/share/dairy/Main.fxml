@@ -1,32 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.share.dairy.MainController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.MainController"
+            prefWidth="800" prefHeight="600"
+            styleClass="root-pane">
+  <children>
 
+    <!-- 1) 배경 -->
+    <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
+      <image>
+        <Image url="@images/room_background.jpg"/>
+      </image>
+    </ImageView>
 
+    <!-- 2) 투명 오버레이 핫스팟 -->
+    <ImageView fx:id="wardrobeHotspot"
+               pickOnBounds="true"
+               layoutX="50"  layoutY="80"
+               fitWidth="150" fitHeight="300"
+               onMouseClicked="#onWardrobeClicked">
+      <image>
+        <Image url="@images/wardrobe_hot.jpg"/>
+      </image>
+    </ImageView>
 
-    <!-- 왼쪽 메뉴 -->
-    <left>
-        <VBox spacing="10">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <Button text="Home" onAction="#showHome"/>
-            <Button text="My Diary" onAction="#showMyDiary"/>
-            <Button text="Our Diary" onAction="#showOurDiary"/>
-            <Button text="Buddy Diary" onAction="#showBuddyDiary"/>
-            <Button text="Settings" onAction="#showSettings"/>
-            <Button text="Mood Graph" onAction="#showMoodGraph"/>
-        </VBox>
-    </left>
+    <ImageView fx:id="windowHotspot"
+               pickOnBounds="true"
+               layoutX="220" layoutY="80"
+               fitWidth="180" fitHeight="200"
+               onMouseClicked="#onWindowClicked">
+      <image>
+        <Image url="@images/window_hot.jpg"/>
+      </image>
+    </ImageView>
 
-    <!-- 메인 콘텐츠 영역 -->
-    <center>
-        <StackPane fx:id="contentArea"/>
-    </center>
+    <ImageView fx:id="laptopHotspot"
+               pickOnBounds="true"
+               layoutX="420" layoutY="200"
+               fitWidth="200" fitHeight="120"
+               onMouseClicked="#onLaptopClicked">
+      <image>
+        <Image url="@images/laptop_hot.jpg"/>
+      </image>
+    </ImageView>
 
-</BorderPane>
+    <ImageView fx:id="bookshelfHotspot"
+               pickOnBounds="true"
+               layoutX="650" layoutY="60"
+               fitWidth="120" fitHeight="280"
+               onMouseClicked="#onBookshelfClicked">
+      <image>
+        <Image url="@images/bookshelf_hot.jpg"/>
+      </image>
+    </ImageView>
+
+    <ImageView fx:id="radioHotspot"
+               pickOnBounds="true"
+               layoutX="100" layoutY="450"
+               fitWidth="100" fitHeight="80"
+               onMouseClicked="#onRadioClicked">
+      <image>
+        <Image url="@images/radio_hot.jpg"/>
+      </image>
+    </ImageView>
+
+    <!-- 3) 콘텐츠 영역 -->
+    <Pane fx:id="contentPane"
+          layoutX="100" layoutY="100"
+          prefWidth="800" prefHeight="600"
+          styleClass="content-pane"
+          visible="false"/>
+
+    <!-- 4) 캐릭터 (제일 위) -->
+    <ImageView fx:id="characterImg"
+               pickOnBounds="true"
+               layoutX="320" layoutY="300"
+               fitWidth="160" fitHeight="200"
+               onMouseClicked="#onCharacterClicked">
+      <image>
+        <Image url="@images/character.png"/>
+      </image>
+    </ImageView>
+
+  </children>
+</AnchorPane>

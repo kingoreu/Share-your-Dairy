@@ -1,11 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.share.dairy.BuddyDiaryController"
-      alignment="CENTER" spacing="20">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.MoodGraphController"
+            stylesheets= "style.css"
+            style="-fx-background-color: #fde7f0;">
 
-    <Label fx:id="titleLabel" text="친구 다이어리 보기" style="-fx-font-size: 18px"/>
-</VBox>
+<!-- 상단: 제목 -->
+    <top>
+        <VBox alignment="CENTER">
+            <Label text="Mood  Graph"
+                   style="-fx-font-size: 28px; -fx-font-family: 'Pixel'; -fx-padding: 20; -fx-text-fill: black;"/>
+            <Separator />
+        </VBox>
+    </top>
+
+    <!-- 좌측: 버튼 메뉴 -->
+    <left>
+        <VBox spacing="20" alignment="CENTER" style="-fx-padding: 30;">
+            <ToggleButton fx:id="weekToggle" text="1week" onAction="#loadWeekData" />
+            <ToggleButton fx:id="days15Toggle" text="15days" onAction="#load15DaysData" />
+            <ToggleButton fx:id="monthToggle" text="1month" onAction="#loadMonthData" />
+        </VBox>
+    </left>
+
+</BorderPane>

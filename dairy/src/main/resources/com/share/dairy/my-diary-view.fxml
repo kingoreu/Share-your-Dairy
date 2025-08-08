@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.share.dairy.BuddyDiaryController"
+      fx:controller="com.share.dairy.MyDiaryController"
       alignment="CENTER" spacing="20">
 
     <Label fx:id="titleLabel" text="내 다이어리 목록" style="-fx-font-size: 18px"/>
