@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.share.dairy.SettingsController"
+      alignment="CENTER" spacing="10">
+
+    <Label fx:id="titleLabel" text="내 정보 설정" style="-fx-font-size: 18px"/>
+
+    <Label text="닉네임: 구리구리"/>
+    <Label text="캐릭터: Raccoon"/>
+    <Label text="이메일: Value@.com"/>
+</VBox>
