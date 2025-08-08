@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "HelloApplication",
+      "request": "launch",
+      "mainClass": "com.share.dairy.HelloApplication",
+      "projectName": "dairy",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml"
+    },
+    {
+      "type": "java",
+      "name": "Launcher",
+      "request": "launch",
+      "mainClass": "com.share.dairy.Launcher",
+      "projectName": "dairy",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml"
+    },
+    {
+      "type": "java",
+      "name": "Current File",
+      "request": "launch",
+      "mainClass": "${file}",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml"
+    }
+  ]
+}

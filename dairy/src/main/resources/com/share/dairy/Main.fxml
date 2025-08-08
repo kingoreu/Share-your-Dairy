@@ -11,18 +11,18 @@
     <!-- 1) 배경 -->
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
       <image>
-        <Image url="@images/room_background.jpg"/>
+        <Image url="@/com/share/dairy/images/room_background.jpg"/>
       </image>
     </ImageView>
 
     <!-- 2) 투명 오버레이 핫스팟 -->
     <ImageView fx:id="wardrobeHotspot"
                pickOnBounds="true"
-               layoutX="50"  layoutY="80"
+               layoutX="50" layoutY="80"
                fitWidth="150" fitHeight="300"
                onMouseClicked="#onWardrobeClicked">
       <image>
-        <Image url="@images/wardrobe_hot.jpg"/>
+        <Image url="@/com/share/dairy/images/wardrobe_hot.jpg"/>
       </image>
     </ImageView>
 
@@ -32,7 +32,7 @@
                fitWidth="180" fitHeight="200"
                onMouseClicked="#onWindowClicked">
       <image>
-        <Image url="@images/window_hot.jpg"/>
+        <Image url="@/com/share/dairy/images/window_hot.jpg"/>
       </image>
     </ImageView>
 
@@ -42,7 +42,7 @@
                fitWidth="200" fitHeight="120"
                onMouseClicked="#onLaptopClicked">
       <image>
-        <Image url="@images/laptop_hot.jpg"/>
+        <Image url="@/com/share/dairy/images/laptop_hot.jpg"/>
       </image>
     </ImageView>
 
@@ -52,7 +52,7 @@
                fitWidth="120" fitHeight="280"
                onMouseClicked="#onBookshelfClicked">
       <image>
-        <Image url="@images/bookshelf_hot.jpg"/>
+        <Image url="@/com/share/dairy/images/bookshelf_hot.jpg"/>
       </image>
     </ImageView>
 
@@ -62,7 +62,7 @@
                fitWidth="100" fitHeight="80"
                onMouseClicked="#onRadioClicked">
       <image>
-        <Image url="@images/radio_hot.jpg"/>
+        <Image url="@/com/share/dairy/images/radio_hot.jpg"/>
       </image>
     </ImageView>
 
@@ -80,7 +80,7 @@
                fitWidth="160" fitHeight="200"
                onMouseClicked="#onCharacterClicked">
       <image>
-        <Image url="@images/character.png"/>
+        <Image url="@/com/share/dairy/images/character.png"/>
       </image>
     </ImageView>
 

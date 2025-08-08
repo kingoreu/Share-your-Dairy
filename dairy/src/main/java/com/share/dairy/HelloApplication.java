@@ -9,7 +9,10 @@ import java.io.IOException;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Main.fxml"));
+        // Main.fxml 절대경로로 로드
+        FXMLLoader fxmlLoader = new FXMLLoader(
+            getClass().getResource("/com/share/dairy/Main.fxml")
+        );
         Scene scene = new Scene(fxmlLoader.load(), 1000, 700);
         stage.setTitle("공유일기");
         stage.setScene(scene);
@@ -20,4 +23,3 @@ public class HelloApplication extends Application {
         launch();
     }
 }
-
