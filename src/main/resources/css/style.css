@@ -1,0 +1,138 @@
+/* =========================
+   0) 컬러 팔레트(참고 주석)
+   pink-base: #fdeaf4
+   pink-100 : #f6d7e4
+   pink-200 : #f2cddd
+   pink-300 : #ffdbe7
+   pink-500 : #f48cab
+   text-dk  : #333333
+   grid-bl  : #e9f1fb
+   ========================= */
+
+/* 1. 전역 폰트 & 글자색 */
+.root {
+    -fx-font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+/* 2. (옵션) 루트 컨테이너가 투명해야 할 때 */
+.root-pane {
+    -fx-background-color: transparent;
+}
+
+/* 3. 콘텐츠 카드 공통 */
+.content-pane {
+    -fx-background-color: rgba(255,255,255,0.8);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 8, 0, 0, 2);
+}
+
+/* 4. 내부 ListView 등 투명 배경 */
+.content-pane .list-view {
+    -fx-control-inner-background: transparent;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+/* 5. 기본 컨트롤 */
+.button {
+    -fx-background-color: white;
+    -fx-border-color: #d9d9d9;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 8 14;
+    -fx-cursor: hand;
+}
+.button:hover   { -fx-background-color: #ffe4ec; }
+.button:pressed { -fx-background-color: #f6d7e4; }
+
+.text-field, .text-area {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #ccc;
+    -fx-padding: 6 8;
+}
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #f48cab;
+    -fx-background-color: white;
+}
+
+/* 6. 상단 바(홈 아이콘, 타이틀) */
+#homeButton {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+#titleLabel {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+/* 캡슐형 토글 버튼 */
+.toggle-button.chip {
+    -fx-background-color: #f2cddd;
+    -fx-background-radius: 18;
+    -fx-background-insets: 0;
+    -fx-padding: 12 16;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2b2b2b;
+    -fx-content-display: LEFT;      /* graphic + text 좌우 배치 */
+    -fx-graphic-text-gap: 12;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0, 0, 2);
+}
+.toggle-button.chip:hover    { -fx-background-color: #f6d7e4; }
+.toggle-button.chip:selected { -fx-background-color: #f8e3ec; }
+
+/* 포커스 파란 테두리 제거 */
+.toggle-button.chip:focused {
+    -fx-effect: none;
+    -fx-border-color: transparent;
+}
+
+/* 왼쪽 네모 아이콘 박스 */
+.toggle-button.chip .chip-icon {
+    -fx-min-width: 34; -fx-min-height: 34;
+    -fx-max-width: 34; -fx-max-height: 34;
+    -fx-background-color: #141414;      /* 미선택: 검정 네모 */
+    -fx-background-radius: 10;
+    -fx-alignment: center;
+}
+.toggle-button.chip .chip-check {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffdbe7;              /* 미선택: 연핑크 체크 */
+}
+
+/* 선택 시 색 전환 */
+.toggle-button.chip:selected .chip-icon  { -fx-background-color: #ffdbe7; }
+.toggle-button.chip:selected .chip-check { -fx-text-fill: #e38aa5; }
+
+/* 칩 크기 프리셋 (원하면 사용) */
+.chip-sm { -fx-padding: 10 14; -fx-font-size: 12px; }
+.chip-lg { -fx-padding: 14 18; -fx-font-size: 16px; }
+
+/* 8. Mood Graph(라인차트) 톤 맞추기 */
+.chart-plot-background { 
+    -fx-background-color: #ffffff; 
+    -fx-background-radius: 18; 
+}
+.chart-content { -fx-padding: 18; }
+.chart-vertical-grid-lines, .chart-horizontal-grid-lines { -fx-stroke: #e9f1fb; } /* 연한 보조선 */
+.chart-legend { -fx-background-color: transparent; }
+
+/* 시리즈 색 (기본 0번 시리즈) */
+.default-color0.chart-series-line  { -fx-stroke: #f48cab; -fx-stroke-width: 3; }
+.default-color0.chart-line-symbol  { -fx-background-color: #f48cab, white; -fx-background-insets: 0, 2; }
+
+/* 축 라벨 컬러/크기 */
+.axis .tick-label { -fx-text-fill: #4a7cc2; -fx-font-size: 14px; }
+.axis .label      { -fx-text-fill: #4a7cc2; -fx-font-size: 16px; -fx-font-weight: bold; }
+
+/* 9. 스크롤 */
+.scroll-pane { -fx-background: transparent; -fx-padding: 5; }
