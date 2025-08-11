@@ -14,4 +14,6 @@ module dairy {
     opens com.share.dairy.controller to javafx.fxml;
     exports com.share.dairy.app;
     opens com.share.dairy.app to javafx.fxml;
+    opens MainFrame_images;
+
 }
