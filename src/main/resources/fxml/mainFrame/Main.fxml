@@ -1,29 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Rectangle?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.MainController"
+            prefWidth="800" prefHeight="600">
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.share.dairy.controller.MainController">
+    <children>
+        <!-- 1) 배경 -->
+        <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
+            <image>
+                <!-- 절대 경로: 클래스패스 루트(/) 기준 -->
+                <Image url="@/mainFrame_images/room_background.jpg"/>
+            </image>
+        </ImageView>
 
-    <!-- 왼쪽 메뉴 -->
-    <left>
-        <VBox spacing="10">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <Button text="Home" onAction="#showHome"/>
-            <Button text="My Diary" onAction="#showMyDiary"/>
-            <Button text="Our Diary" onAction="#showOurDiary"/>
-            <Button text="Buddy Diary" onAction="#showBuddyDiary"/>
-            <Button text="Settings" onAction="#showSettings"/>
-            <Button text="Mood Graph" onAction="#showMoodGraph"/>
-        </VBox>
-    </left>
+        <!-- 2) 투명 클릭 영역(Shape) -->
+        <Rectangle fx:id="wardrobeHotspot"
+                   layoutX="50"  layoutY="80"
+                   width="150" height="300"
+                   fill="transparent"
+                   onMouseClicked="#onWardrobeClicked"/>
 
-    <!-- 메인 콘텐츠 영역 -->
-    <center>
-        <StackPane fx:id="contentArea"/>
-    </center>
-</BorderPane>
+        <Rectangle fx:id="windowHotspot"
+                   layoutX="220" layoutY="80"
+                   width="180" height="200"
+                   fill="transparent"
+                   onMouseClicked="#onWindowClicked"/>
+
+        <Rectangle fx:id="laptopHotspot"
+                   layoutX="420" layoutY="200"
+                   width="200" height="120"
+                   fill="transparent"
+                   onMouseClicked="#onLaptopClicked"/>
+
+        <Rectangle fx:id="bookshelfHotspot"
+                   layoutX="650" layoutY="60"
+                   width="120" height="280"
+                   fill="transparent"
+                   onMouseClicked="#onBookshelfClicked"/>
+
+        <Rectangle fx:id="radioHotspot"
+                   layoutX="100" layoutY="450"
+                   width="100" height="80"
+                   fill="transparent"
+                   onMouseClicked="#onRadioClicked"/>
+
+        <!-- 3) 콘텐츠 영역 (초기엔 숨김) -->
+        <Pane fx:id="contentPane"
+              AnchorPane.topAnchor="0.0"
+              AnchorPane.rightAnchor="0.0"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0"
+              visible="false"
+              pickOnBounds="true"/>
+
+        <!-- 4) 캐릭터 -->
+        <ImageView fx:id="characterImg"
+                   pickOnBounds="true"
+                   layoutX="320" layoutY="300"
+                   fitWidth="160" fitHeight="200"
+                   onMouseClicked="#onCharacterClicked"
+        >
+            <image>
+                <!-- 절대 경로 -->
+                <Image url="@/mainFrame_images/character.png"/>
+            </image>
+        </ImageView>
+    </children>
+</AnchorPane>
