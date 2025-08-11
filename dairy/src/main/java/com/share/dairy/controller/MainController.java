@@ -22,26 +22,26 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // 초기 상태: 메인 오버레이 보이고, contentPane 숨김
+        // 초기 상태
         contentPane.setVisible(false);
         contentPane.setManaged(false);
-        setOverlayVisible(true);
+        contentPane.setPickOnBounds(true);               // 뒤 클릭 차단
+        contentPane.setStyle("-fx-background-color: white;");
 
-        // Z-Order 보장
+        // Z-Order
         wardrobeHotspot.toFront();
         windowHotspot.toFront();
         laptopHotspot.toFront();
         bookshelfHotspot.toFront();
         radioHotspot.toFront();
         characterImg.toFront();
+        setOverlayVisible(true);
 
-        // ESC로 닫기: scene 생긴 뒤 한 번만 등록
+        // ESC로 닫기: scene 생긴 뒤 '한 번'만 등록
         contentPane.sceneProperty().addListener((obs, oldScene, scene) -> {
             if (scene != null) {
                 scene.setOnKeyPressed(e -> {
-                    if (e.getCode() == KeyCode.ESCAPE) {
-                        closeContent();
-                    }
+                    if (e.getCode() == KeyCode.ESCAPE) closeContent();
                 });
             }
         });
@@ -64,13 +64,9 @@ public class MainController {
             contentPane.getChildren().setAll(view);
             contentPane.setVisible(true);
             contentPane.setManaged(true);
-
-            // contentPane 배경 지정(배경 비침 방지)
-            contentPane.setStyle("-fx-background-color: white;");
-            contentPane.setPickOnBounds(true);
             contentPane.toFront();
 
-            // 전환 뷰가 컨테이너 채우도록 바인딩
+            // 전환 뷰가 컨테이너 꽉 채우도록
             if (view instanceof javafx.scene.layout.Region r) {
                 r.prefWidthProperty().bind(contentPane.widthProperty());
                 r.prefHeightProperty().bind(contentPane.heightProperty());
