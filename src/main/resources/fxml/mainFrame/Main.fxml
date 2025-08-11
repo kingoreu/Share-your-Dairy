@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.MainController">
+
+    <!-- 왼쪽 메뉴 -->
+    <left>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Button text="Home" onAction="#showHome"/>
+            <Button text="My Diary" onAction="#showMyDiary"/>
+            <Button text="Our Diary" onAction="#showOurDiary"/>
+            <Button text="Buddy Diary" onAction="#showBuddyDiary"/>
+            <Button text="Settings" onAction="#showSettings"/>
+            <Button text="Mood Graph" onAction="#showMoodGraph"/>
+        </VBox>
+    </left>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <center>
+        <StackPane fx:id="contentArea"/>
+    </center>
+</BorderPane>

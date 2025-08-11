@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.share.dairy.controller.BuddyDiaryController"
+      alignment="CENTER" spacing="20">
+
+    <Label fx:id="titleLabel" text="친구 다이어리 보기" style="-fx-font-size: 18px"/>
+</VBox>
