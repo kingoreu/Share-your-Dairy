@@ -1,5 +1,7 @@
 package com.share.dairy.controller;
 
+import com.share.dairy.app.Router;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -49,7 +51,10 @@ public class MainController {
 
     @FXML private void onWardrobeClicked(MouseEvent e)   { /* TODO */ }
     @FXML private void onWindowClicked(MouseEvent e)     { loadView("/fxml/moodGraph/mood-graph-view.fxml"); }
-    @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/my_diary/my-diary-view.fxml"); }
+    @FXML private void onLaptopClicked(MouseEvent e) {
+        Platform.runLater(() -> Router.go("DiaryHub"));
+    }
+    // @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/my_diary/my-diary-view.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/diary/our_diary/home-view.fxml"); }
     @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }

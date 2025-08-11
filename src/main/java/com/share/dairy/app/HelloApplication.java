@@ -37,6 +37,8 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        Router.init(stage);
+
         // 클래스패스 루트 기준으로 절대경로 사용
         Parent root = FXMLLoader.load(
                 getClass().getResource("/fxml/mainFrame/Main.fxml")
@@ -45,6 +47,7 @@ public class HelloApplication extends Application {
         stage.setTitle("공유일기");
         stage.setScene(scene);
         stage.show();
+
     }
 
     @Override

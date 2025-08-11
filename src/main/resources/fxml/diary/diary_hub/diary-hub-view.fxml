@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.DiaryHubController"
+            style="-fx-background-color: #fde7f0;">
+    <top>
+        <VBox spacing="6">
+            <Label text="DIARY" style="-fx-font-size:28px; -fx-padding:16 16 0 16; -fx-font-weight:bold;"/>
+            <Separator/>
+        </VBox>
+    </top>
+    <left>
+        <VBox spacing="8" style="-fx-padding:16;">
+            <Button text="MY DIARY"   onAction="#showMyDiary"/>
+            <Button text="OUR DIARY"  onAction="#showOurDiary"/>
+            <Button text="BUDDY DIARY" onAction="#showBuddyDiary"/>
+
+        </VBox>
+    </left>
+    <center>
+        <!-- 여기 내용이 버튼에 따라 바뀜 -->
+        <StackPane fx:id="content" style="-fx-padding:16;"/>
+    </center>
+</BorderPane>
