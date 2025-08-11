@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Toggle;
+
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 

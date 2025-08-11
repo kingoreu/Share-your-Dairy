@@ -49,7 +49,7 @@ public class MainController {
     // 클릭 이벤트 핸들러
     @FXML private void onWardrobeClicked(MouseEvent e)   { /* TODO */ }
     @FXML private void onWindowClicked(MouseEvent e)     { loadView("/fxml/moodGraph/mood-graph-view.fxml"); }
-    @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/my_diary/my-diary-view.fxml"); }
+    @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/diary_hub/diary-hub-view.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/diary/our_diary/home-view.fxml"); }
     @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }

@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 
 
 public class HelloApplication extends Application {
+    
 @Override
 public void start(Stage stage) throws Exception {
     // 클래스패스 루트 기준으로 절대경로 사용
