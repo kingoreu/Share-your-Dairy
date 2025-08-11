@@ -3,14 +3,14 @@ package com.share.dairy.util;
 import java.sql.*;
 
 public class DBConnection {
-    private static final String PROPERTIES_FILE = "/db_properties/db.properties";
+    private static final String PROPERTIES_FILE = "/application.properties";
 
     static {
         try {
             var props = new java.util.Properties();
             try (var input = DBConnection.class.getResourceAsStream(PROPERTIES_FILE)) {
                 if (input == null) {
-                    throw new RuntimeException("db.properties 파일을 찾을 수 없습니다.");
+                    throw new RuntimeException("application.properties 파일을 찾을 수 없습니다.");
                 }
                 props.load(input);
             }
