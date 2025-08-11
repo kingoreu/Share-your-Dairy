@@ -46,7 +46,7 @@ public class MainController {
             }
         });
     }
-
+    // 클릭 이벤트 핸들러
     @FXML private void onWardrobeClicked(MouseEvent e)   { /* TODO */ }
     @FXML private void onWindowClicked(MouseEvent e)     { loadView("/fxml/moodGraph/mood-graph-view.fxml"); }
     @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/my_diary/my-diary-view.fxml"); }
@@ -54,6 +54,7 @@ public class MainController {
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/diary/our_diary/home-view.fxml"); }
     @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }
 
+    // 뷰 전환 로직
     private void loadView(String fxmlPath) {
         try {
             var url = getClass().getResource(fxmlPath);
@@ -79,7 +80,7 @@ public class MainController {
             ex.printStackTrace();
         }
     }
-
+    // 오버레이 가시성 설정
     private void setOverlayVisible(boolean v) {
         wardrobeHotspot.setVisible(v);
         windowHotspot.setVisible(v);
@@ -88,7 +89,7 @@ public class MainController {
         radioHotspot.setVisible(v);
         characterImg.setVisible(v);
     }
-
+    // 콘텐츠 닫기
     private void closeContent() {
         contentPane.getChildren().clear();
         contentPane.setVisible(false);

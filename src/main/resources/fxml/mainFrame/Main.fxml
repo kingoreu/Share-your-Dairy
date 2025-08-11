@@ -19,30 +19,31 @@
     </ImageView>
 
     <!-- 2) 투명 클릭 영역(Shape) -->
-    <Rectangle fx:id="wardrobeHotspot"
+     <!-- 옷장 -->
+    <Rectangle fx:id="wardrobeHotspot"  
                layoutX="50"  layoutY="80"
                width="150" height="300"
                fill="transparent"
                onMouseClicked="#onWardrobeClicked"/>
-
+    <!-- 창문 -->
     <Rectangle fx:id="windowHotspot"
                layoutX="220" layoutY="80"
                width="180" height="200"
                fill="transparent"
                onMouseClicked="#onWindowClicked"/>
-
+    <!-- 노트북 -->
     <Rectangle fx:id="laptopHotspot"
                layoutX="420" layoutY="200"
                width="200" height="120"
                fill="transparent"
                onMouseClicked="#onLaptopClicked"/>
-
+    <!-- 책장 -->
     <Rectangle fx:id="bookshelfHotspot"
                layoutX="650" layoutY="60"
                width="120" height="280"
                fill="transparent"
                onMouseClicked="#onBookshelfClicked"/>
-
+    <!-- 라디오 -->
     <Rectangle fx:id="radioHotspot"
                layoutX="500" layoutY="520"
                width="100" height="60"
@@ -66,7 +67,7 @@
                onMouseClicked="#onCharacterClicked"
                >
        <image>
-        <!-- 절대 경로 -->
+        <!-- 절대 경로 캐릭터-->
         <Image url="@/mainFrame_images/character.png"/>
       </image>
     </ImageView>
