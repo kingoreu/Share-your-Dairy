@@ -7,7 +7,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.MoodGraphController"
-            stylesheets= "style.css"
+            stylesheets= "@/css/style.css"
             style="-fx-background-color: #fde7f0;">
 
     <!-- 상단: 제목 -->

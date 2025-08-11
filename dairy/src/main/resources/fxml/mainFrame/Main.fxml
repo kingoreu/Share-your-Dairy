@@ -10,10 +10,11 @@
             prefWidth="800" prefHeight="600">
 
   <children>
-    <!-- 1) 배경 -->
-    <ImageView fitWidth="800" fitHeight="600" preserveRatio="flase">
+     <!-- 1) 배경 -->
+    <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
       <image>
-        <Image url="@../mainFrame_images/room_background.jpg"/>
+        <!-- 절대 경로: 클래스패스 루트(/) 기준 -->
+        <Image url="@/mainFrame_images/room_background.jpg"/>
       </image>
     </ImageView>
 
@@ -50,18 +51,23 @@
 
     <!-- 3) 콘텐츠 영역 (초기엔 숨김) -->
     <Pane fx:id="contentPane"
-          layoutX="100" layoutY="100"
-          prefWidth="600" prefHeight="380"
-          visible="false"/>
+      AnchorPane.topAnchor="0.0"
+      AnchorPane.rightAnchor="0.0"
+      AnchorPane.bottomAnchor="0.0"
+      AnchorPane.leftAnchor="0.0"
+      visible="false"
+      pickOnBounds="true"/>
 
     <!-- 4) 캐릭터 -->
     <ImageView fx:id="characterImg"
                pickOnBounds="true"
                layoutX="320" layoutY="300"
                fitWidth="160" fitHeight="200"
-               onMouseClicked="#onCharacterClicked">
-      <image>
-        <Image url="@../mainFrame_images/character.png"/>
+               onMouseClicked="#onCharacterClicked"
+               >
+       <image>
+        <!-- 절대 경로 -->
+        <Image url="@/mainFrame_images/character.png"/>
       </image>
     </ImageView>
   </children>
