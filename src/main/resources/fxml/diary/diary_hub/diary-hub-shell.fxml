@@ -10,7 +10,6 @@
             fx:controller="com.share.dairy.controller.DiaryHubController"
             prefWidth="960" prefHeight="640">
 
-    <!-- Styles -->
     <stylesheets>
         <URL value="@/css/style.css"/>
     </stylesheets>
@@ -18,22 +17,15 @@
     <!-- Top Bar -->
     <top>
         <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 18;">
-            <Button fx:id="homeButton"
-                    onAction="#showMyDiary"
-                    style="-fx-background-color: transparent; -fx-padding: 6;">
-                <tooltip>
-                    <Tooltip text="Home"/>
-                </tooltip>
+            <Button onAction="#showDiaryHub" style="-fx-background-color: transparent; -fx-padding: 6;">
+                <tooltip><Tooltip text="Home"/></tooltip>
                 <graphic>
                     <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
-                        <image>
-                            <Image url="@/icons/home.png"/>
-                        </image>
+                        <image><Image url="@/icons/home.png"/></image>
                     </ImageView>
                 </graphic>
             </Button>
-
-            <Label fx:id="titleLabel" text="Diary Hub" styleClass="title"/>
+            <Label text="Diary Hub" styleClass="title"/>
             <Pane HBox.hgrow="ALWAYS"/>
             <Button text="New Diary" onAction="#showMyDiary"/>
         </HBox>
@@ -49,29 +41,11 @@
         </VBox>
     </left>
 
-    <!-- Center Content -->
+    <!-- Center -->
     <center>
+        <!-- ★ FAB를 고정하고, 가운데 화면만 교체할 전환 컨테이너 -->
         <StackPane fx:id="content" BorderPane.alignment="CENTER">
-
-            <!-- Scrollable card list (default landing) -->
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-                <content>
-                    <VBox fx:id="listBox" spacing="16" style="-fx-padding: 24;">
-                        <!-- 샘플 아이템 (런타임에 컨트롤러에서 동적으로 채워도 됨) -->
-                        <!--
-                        <HBox spacing="12" styleClass="card">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="TITLE" styleClass="card-title"/>
-                                <Label text="CONTENTS" wrapText="true"/>
-                            </VBox>
-                            <Label text="DATE 2025.08.01" styleClass="caption"/>
-                        </HBox>
-                        -->
-                    </VBox>
-                </content>
-            </ScrollPane>
-
-            <!-- Floating Action Button -->
+            <StackPane fx:id="centerHolder"/> <!-- 전환 대상 -->
             <Button fx:id="fabNew"
                     onAction="#showMyDiary"
                     styleClass="fab"
@@ -79,17 +53,13 @@
                 <StackPane.margin>
                     <Insets top="20" right="20" bottom="20" left="20"/>
                 </StackPane.margin>
-                <tooltip>
-                    <Tooltip text="New diary"/>
-                </tooltip>
+                <tooltip><Tooltip text="New diary"/></tooltip>
                 <graphic>
                     <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
                         <image><Image url="@/icons/pen.png"/></image>
                     </ImageView>
                 </graphic>
             </Button>
-
         </StackPane>
     </center>
-
 </BorderPane>

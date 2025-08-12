@@ -18,7 +18,7 @@ public class Router {
     private static final Deque<Parent> history = new ArrayDeque<>();
 
     private static final Map<String, String> ROUTES = Map.of(
-        "Home",     "/fxml/mainFrame/Main.fxml",
+        "Home",     "resources/fxml/mainFrame/Main.fxml",
         "DiaryHub", "/fxml/diary/diary_hub/diary-hub-view.fxml"
     );
 

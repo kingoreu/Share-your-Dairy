@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.share.dairy.controller.HubListController">
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+        <content>
+            <VBox fx:id="listBox" spacing="16" style="-fx-padding: 24;"/>
+        </content>
+    </ScrollPane>
+    <!-- 필요 시 이 화면 전용 FAB를 둘 수도 있지만, 지금은 쉘에 고정되어 있으니 생략 -->
+</StackPane>
