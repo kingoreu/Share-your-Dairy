@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<!-- 단일 카드(셀) -->
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.FriendItemController"
+            styleClass="fl-card" prefHeight="92">
+    <HBox spacing="16" alignment="CENTER_LEFT"
+          AnchorPane.topAnchor="12" AnchorPane.bottomAnchor="12"
+          AnchorPane.leftAnchor="16" AnchorPane.rightAnchor="16">
+        <StackPane prefWidth="56" prefHeight="56">
+            <ImageView fx:id="avatarView" fitWidth="56" fitHeight="56" preserveRatio="true"/>
+        </StackPane>
+        <Label fx:id="nameLabel" text="Name" styleClass="fl-name" maxWidth="Infinity"/>
+    </HBox>
+</AnchorPane>

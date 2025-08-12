@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+
+<!--
+  커스텀 컨트롤 SidebarItem의 FXML
+  - 'fx:root'를 루트로 사용 (중요)
+  - fx:controller는 쓰지 않음 (SidebarItem.java에서 setController(this)로 지정)
+  - 이렇게 해야 SidebarItem 생성자에서 fxml.setRoot(this) 호출 시 'Root already specified' 예외가 안 남
+-->
+<fx:root type="StackPane" xmlns:fx="http://javafx.com/fxml" styleClass="sidebar-item">
+    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="sidebar-item-inner">
+        <ImageView fx:id="iconView" fitWidth="28" fitHeight="28" preserveRatio="true"/>
+        <Label fx:id="textLabel" text="Item"/>
+    </HBox>
+</fx:root>
