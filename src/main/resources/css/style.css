@@ -1,0 +1,39 @@
+/* 1. 전역 폰트 세팅 */
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+/* 2. 배경 투명 */
+.root-pane {
+    -fx-background-color: transparent;
+}
+
+/* 3. 콘텐츠 영역 */
+.content-pane {
+    -fx-background-color: rgba(255,255,255,0.8);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 2);
+}
+
+/* 4. 내부 ListView 등 투명 배경 */
+.content-pane .list-view {
+    -fx-control-inner-background: transparent;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+/* 5. 버튼·텍스트필드 기본 스타일 */
+.button {
+    -fx-background-radius: 4;
+    -fx-padding: 6 12;
+}
+.text-field {
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: #ccc;
+    -fx-padding: 4 6;
+}

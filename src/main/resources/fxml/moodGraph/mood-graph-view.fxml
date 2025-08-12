@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.MoodGraphController"
+            stylesheets= "/css/style.css"
+            style="-fx-background-color: #fde7f0;">
+
+    <!-- 상단: 제목 -->
+    <top>
+        <VBox alignment="CENTER">
+            <Label text="Mood  Graph"
+                   style="-fx-font-size: 28px; -fx-font-family: 'Pixel'; -fx-padding: 20; -fx-text-fill: black;"/>
+            <Separator />
+        </VBox>
+    </top>
+
+    <!-- 좌측: 버튼 메뉴 -->
+    <left>
+        <VBox spacing="20" alignment="CENTER" style="-fx-padding: 30;">
+            <ToggleButton fx:id="weekToggle" text="1week" onAction="#loadWeekData" />
+            <ToggleButton fx:id="days15Toggle" text="15days" onAction="#load15DaysData" />
+            <ToggleButton fx:id="monthToggle" text="1month" onAction="#loadMonthData" />
+        </VBox>
+    </left>
+
+    <!-- 센터: 감정 그래프 -->
+    <center>
+        <LineChart fx:id="moodChart" title="" legendVisible="false" style="-fx-background-color: #fde7f0;">
+            <xAxis>
+                <CategoryAxis label="Date"
+                              style="-fx-tick-label-fill: #2196f3; -fx-font-family: 'Pixel';"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis lowerBound="0" upperBound="5" tickUnit="1"
+                            label=""
+                            style="-fx-tick-label-fill: #2196f3; -fx-font-family: 'Pixel';"/>
+            </yAxis>
+        </LineChart>
+    </center>
+</BorderPane>

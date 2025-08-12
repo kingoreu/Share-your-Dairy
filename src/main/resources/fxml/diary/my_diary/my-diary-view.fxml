@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.share.dairy.controller.MyDiaryController"
+      spacing="12" style="-fx-padding: 8;">
+    <HBox spacing="8">
+        <ToggleButton text="PLACE" onAction="#onPlace"/>
+        <ToggleButton text="MUSIC" onAction="#onMusic"/>
+        <ToggleButton text="TIME"  onAction="#onTime"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Button text="EDIT" onAction="#onEdit"/>
+        <Button text="SAVE" onAction="#onSave"/>
+    </HBox>
+
+    <TextField fx:id="titleField" promptText="TITLE"/>
+    <TextArea fx:id="contentArea" promptText="CONTENTS" prefRowCount="12"/>
+
+    <HBox spacing="8">
+        <TextField fx:id="placeField" promptText="Place..."/>
+        <TextField fx:id="musicField" promptText="Music..."/>
+        <TextField fx:id="timeField"  promptText="Time..."/>
+    </HBox>
+</VBox>
