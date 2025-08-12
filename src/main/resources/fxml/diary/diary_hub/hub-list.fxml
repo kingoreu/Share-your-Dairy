@@ -4,7 +4,8 @@
 <?import javafx.geometry.Insets?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.share.dairy.controller.HubListController">
+           fx:controller="com.share.dairy.controller.HubListController"
+           style="-fx-background-color: transparent;">
     <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
         <content>
             <VBox fx:id="listBox" spacing="16" style="-fx-padding: 24;"/>

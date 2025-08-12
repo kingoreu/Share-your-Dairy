@@ -26,7 +26,7 @@ public class MainController {
         contentPane.setVisible(false);
         contentPane.setManaged(false);
         contentPane.setPickOnBounds(true);               // 뒤 클릭 차단
-        contentPane.setStyle("-fx-background-color: white;");
+        contentPane.setStyle("-fx-background-color: transparent;");
 
         // Z-Order
         wardrobeHotspot.toFront();

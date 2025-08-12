@@ -118,9 +118,10 @@
 .chip-lg { -fx-padding: 14 18; -fx-font-size: 16px; }
 
 /* 8. Mood Graph(라인차트) 톤 맞추기 */
-.chart-plot-background { 
-    -fx-background-color: #ffffff; 
-    -fx-background-radius: 18; 
+ .chart-plot-background {
+   -fx-background-color: transparent;   /* 또는 #fdeaf4 */
+   -fx-background-radius: 18;
+   -fx-background-insets: 0;
 }
 .chart-content { -fx-padding: 18; }
 .chart-vertical-grid-lines, .chart-horizontal-grid-lines { -fx-stroke: #e9f1fb; } /* 연한 보조선 */
@@ -155,3 +156,36 @@
   -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10,0,0,3);
 }
 .diary-card .label { -fx-text-fill: #333; -fx-font-size: 14px; }
+
+/* 허브 전체 배경 */
+.hub-root { -fx-background-color: #fdeaf4; }
+
+/* center 회색 제거 */
+#content, #centerHolder { -fx-background-color: transparent; }
+
+/* ScrollPane도 완전 투명 (허브 리스트가 ScrollPane일 때) */
+.scroll-pane { -fx-background: transparent; -fx-padding: 5; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
+
+.button.fab { -fx-padding: 0; -fx-border-color: transparent; }
+.button.fab:pressed { -fx-translate-y: 1; }
+
+/* 상단 구분선 */
+.top-sep .line {
+  -fx-background-color: #e8cfdc;
+  -fx-background-insets: 0;
+  -fx-padding: 0.75;
+}
+
+/* 좌측 사이드바: 연분홍 배경 + 오른쪽 1px 경계 */
+.sidebar {
+  -fx-background-color: #f8e3ec;
+  -fx-border-color: transparent #e6c9d7 transparent transparent; /* top right bottom left */
+  -fx-border-width: 0 1 0 0;
+}
+
+
+/* center 패딩(여백) 조금 주면 카드가 숨쉬어요 */
+#centerHolder { -fx-padding: 24 24 40 24; }
+
+/* (참고) 카드/버튼 기존 규칙은 그대로 사용 */
