@@ -35,6 +35,12 @@
       <artifactId>bootstrapfx-core</artifactId>
       <version>0.4.0</version>
     </dependency>
+    <!-- JSON 파싱 라이브러리 -->
+    <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <version>3.2.6</version> <!-- Use the latest stable version if possible -->
+    </dependency>
 
     <!-- Test -->
     <dependency>
@@ -50,6 +56,8 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  
 
   <build>
     <plugins>
