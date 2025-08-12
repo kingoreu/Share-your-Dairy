@@ -10,7 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
+import java.util.Map;
 
 public class HelloApplication extends Application {
     
@@ -23,9 +23,9 @@ public class HelloApplication extends Application {
             springContext = new SpringApplicationBuilder(ServerApplication.class)
                     .properties(Map.of(
                             "server.port", "8080",
-                            "spring.datasource.url", "jdbc:mysql://localhost:3306/diary?serverTimezone=Asia/Seoul",
+                            "spring.datasource.url", "jdbc:mysql://localhost:3306/dairy?serverTimezone=Asia/Seoul",
                             "spring.datasource.username", "root",
-                            "spring.datasource.password", "sohyun"
+                            "spring.datasource.password", "1234"
                     ))
                     .run();
         });
