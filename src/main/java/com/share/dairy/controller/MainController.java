@@ -1,7 +1,5 @@
 package com.share.dairy.controller;
 
-import com.share.dairy.app.Router;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,41 +22,39 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // 초기 상태: 메인 오버레이 보이고, contentPane 숨김
+        // 초기 상태
         contentPane.setVisible(false);
         contentPane.setManaged(false);
-        setOverlayVisible(true);
+        contentPane.setPickOnBounds(true);               // 뒤 클릭 차단
+        contentPane.setStyle("-fx-background-color: transparent;");
 
-        // Z-Order 보장
+        // Z-Order
         wardrobeHotspot.toFront();
         windowHotspot.toFront();
         laptopHotspot.toFront();
         bookshelfHotspot.toFront();
         radioHotspot.toFront();
         characterImg.toFront();
+        setOverlayVisible(true);
 
-        // ESC로 닫기: scene 생긴 뒤 한 번만 등록
+        // ESC로 닫기: scene 생긴 뒤 '한 번'만 등록
         contentPane.sceneProperty().addListener((obs, oldScene, scene) -> {
             if (scene != null) {
                 scene.setOnKeyPressed(e -> {
-                    if (e.getCode() == KeyCode.ESCAPE) {
-                        closeContent();
-                    }
+                    if (e.getCode() == KeyCode.ESCAPE) closeContent();
                 });
             }
         });
     }
-
+    // 클릭 이벤트 핸들러
     @FXML private void onWardrobeClicked(MouseEvent e)   { /* TODO */ }
     @FXML private void onWindowClicked(MouseEvent e)     { loadView("/fxml/moodGraph/mood-graph-view.fxml"); }
-    @FXML private void onLaptopClicked(MouseEvent e) {
-        Platform.runLater(() -> Router.go("DiaryHub"));
-    }
-    // @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/my_diary/my-diary-view.fxml"); }
+    @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/diary_hub/diary-hub-shell.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/diary/our_diary/home-view.fxml"); }
     @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }
 
+    // 뷰 전환 로직
     private void loadView(String fxmlPath) {
         try {
             var url = getClass().getResource(fxmlPath);
@@ -69,13 +65,9 @@ public class MainController {
             contentPane.getChildren().setAll(view);
             contentPane.setVisible(true);
             contentPane.setManaged(true);
-
-            // contentPane 배경 지정(배경 비침 방지)
-            contentPane.setStyle("-fx-background-color: white;");
-            contentPane.setPickOnBounds(true);
             contentPane.toFront();
 
-            // 전환 뷰가 컨테이너 채우도록 바인딩
+            // 전환 뷰가 컨테이너 꽉 채우도록
             if (view instanceof javafx.scene.layout.Region r) {
                 r.prefWidthProperty().bind(contentPane.widthProperty());
                 r.prefHeightProperty().bind(contentPane.heightProperty());
@@ -88,7 +80,7 @@ public class MainController {
             ex.printStackTrace();
         }
     }
-
+    // 오버레이 가시성 설정
     private void setOverlayVisible(boolean v) {
         wardrobeHotspot.setVisible(v);
         windowHotspot.setVisible(v);
@@ -97,7 +89,7 @@ public class MainController {
         radioHotspot.setVisible(v);
         characterImg.setVisible(v);
     }
-
+    // 콘텐츠 닫기
     private void closeContent() {
         contentPane.getChildren().clear();
         contentPane.setVisible(false);

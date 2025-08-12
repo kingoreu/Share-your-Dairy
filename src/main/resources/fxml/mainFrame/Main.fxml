@@ -9,66 +9,67 @@
             fx:controller="com.share.dairy.controller.MainController"
             prefWidth="800" prefHeight="600">
 
-    <children>
-        <!-- 1) 배경 -->
-        <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
-            <image>
-                <!-- 절대 경로: 클래스패스 루트(/) 기준 -->
-                <Image url="@../../MainFrame_images/room_background.jpg"/>
-            </image>
-        </ImageView>
+  <children>
+     <!-- 1) 배경 -->
+    <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
+      <image>
+        <!-- 절대 경로: 클래스패스 루트(/) 기준 -->
+        <Image url="@/mainFrame_images/room_background.jpg"/>
+      </image>
+    </ImageView>
 
-        <!-- 2) 투명 클릭 영역(Shape) -->
-        <Rectangle fx:id="wardrobeHotspot"
-                   layoutX="50"  layoutY="80"
-                   width="150" height="300"
-                   fill="transparent"
-                   onMouseClicked="#onWardrobeClicked"/>
+    <!-- 2) 투명 클릭 영역(Shape) -->
+     <!-- 옷장 -->
+    <Rectangle fx:id="wardrobeHotspot"  
+               layoutX="50"  layoutY="80"
+               width="150" height="300"
+               fill="transparent"
+               onMouseClicked="#onWardrobeClicked"/>
+    <!-- 창문 -->
+    <Rectangle fx:id="windowHotspot"
+               layoutX="220" layoutY="80"
+               width="180" height="200"
+               fill="transparent"
+               onMouseClicked="#onWindowClicked"/>
+    <!-- 노트북 -->
+    <Rectangle fx:id="laptopHotspot"
+               layoutX="420" layoutY="200"
+               width="200" height="120"
+               fill="transparent"
+               onMouseClicked="#onLaptopClicked"/>
+    <!-- 책장 -->
+    <Rectangle fx:id="bookshelfHotspot"
+               layoutX="650" layoutY="60"
+               width="120" height="280"
+               fill="transparent"
+               onMouseClicked="#onBookshelfClicked"/>
+    <!-- 라디오 -->
+    <Rectangle fx:id="radioHotspot"
+               layoutX="500" layoutY="520"
+               width="100" height="60"
+               fill="transparent"
+               onMouseClicked="#onRadioClicked"/>
 
-        <Rectangle fx:id="windowHotspot"
-                   layoutX="220" layoutY="80"
-                   width="180" height="200"
-                   fill="transparent"
-                   onMouseClicked="#onWindowClicked"/>
+    <!-- 3) 콘텐츠 영역 (초기엔 숨김) -->
+    <Pane fx:id="contentPane"
+      AnchorPane.topAnchor="0.0"
+      AnchorPane.rightAnchor="0.0"
+      AnchorPane.bottomAnchor="0.0"
+      AnchorPane.leftAnchor="0.0"
+      visible="false"
+      pickOnBounds="true"/>
 
-        <Rectangle fx:id="laptopHotspot"
-                   layoutX="420" layoutY="200"
-                   width="200" height="120"
-                   fill="transparent"
-                   onMouseClicked="#onLaptopClicked"/>
-
-        <Rectangle fx:id="bookshelfHotspot"
-                   layoutX="650" layoutY="60"
-                   width="120" height="280"
-                   fill="transparent"
-                   onMouseClicked="#onBookshelfClicked"/>
-
-        <Rectangle fx:id="radioHotspot"
-                   layoutX="500" layoutY="520"
-                   width="100" height="60"
-                   fill="transparent"
-                   onMouseClicked="#onRadioClicked"/>
-
-        <!-- 3) 콘텐츠 영역 (초기엔 숨김) -->
-        <Pane fx:id="contentPane"
-              AnchorPane.topAnchor="0.0"
-              AnchorPane.rightAnchor="0.0"
-              AnchorPane.bottomAnchor="0.0"
-              AnchorPane.leftAnchor="0.0"
-              visible="false"
-              pickOnBounds="true"/>
-
-        <!-- 4) 캐릭터 -->
-        <ImageView fx:id="characterImg"
-                   pickOnBounds="true"
-                   layoutX="320" layoutY="300"
-                   fitWidth="160" fitHeight="200"
-                   onMouseClicked="#onCharacterClicked"
-        >
-            <image>
-                <!-- 절대 경로 -->
-                <Image url="@/MainFrame_images/character.png"/>
-            </image>
-        </ImageView>
-    </children>
+    <!-- 4) 캐릭터 -->
+    <ImageView fx:id="characterImg"
+               pickOnBounds="true"
+               layoutX="320" layoutY="300"
+               fitWidth="160" fitHeight="200"
+               onMouseClicked="#onCharacterClicked"
+               >
+       <image>
+        <!-- 절대 경로 캐릭터-->
+        <Image url="@/mainFrame_images/character.png"/>
+      </image>
+    </ImageView>
+  </children>
 </AnchorPane>

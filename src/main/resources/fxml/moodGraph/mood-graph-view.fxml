@@ -4,11 +4,19 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import java.net.URL?> 
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.MoodGraphController"
-            stylesheets= "/css/style.css"
-            style="-fx-background-color: #fde7f0;">
+            style="-fx-background-color: #fdeaf4;">
+
+    <!-- ✅ CSS 연결 (올바른 문법) -->
+    <stylesheets>
+        <!-- FXML과 같은 패키지면 @style.css, 다른 위치면 경로 맞춰줘 -->
+        <!-- 예) resources/com/share/dairy/css/style.css 라면 -->
+        <URL value="@/css/style.css"/>
+    </stylesheets>
 
     <!-- 상단: 제목 -->
     <top>
@@ -20,26 +28,55 @@
     </top>
 
     <!-- 좌측: 버튼 메뉴 -->
-    <left>
-        <VBox spacing="20" alignment="CENTER" style="-fx-padding: 30;">
-            <ToggleButton fx:id="weekToggle" text="1week" onAction="#loadWeekData" />
-            <ToggleButton fx:id="days15Toggle" text="15days" onAction="#load15DaysData" />
-            <ToggleButton fx:id="monthToggle" text="1month" onAction="#loadMonthData" />
-        </VBox>
+<left>
+    <VBox spacing="16" alignment="CENTER" style="-fx-padding: 24;">
+        <fx:define>
+            <ToggleGroup fx:id="rangeGroup"/>
+        </fx:define>
+
+        <ToggleButton fx:id="weekToggle" text="1week"
+                      toggleGroup="$rangeGroup" onAction="#loadWeekData"
+                      styleClass="chip">
+            <graphic>
+                <StackPane styleClass="chip-icon">
+                    <Label text="✓" styleClass="chip-check"/>
+                </StackPane>
+            </graphic>
+        </ToggleButton>
+
+        <ToggleButton fx:id="days15Toggle" text="15days"
+                      toggleGroup="$rangeGroup" onAction="#load15DaysData"
+                      styleClass="chip">
+            <graphic>
+                <StackPane styleClass="chip-icon">
+                    <Label text="✓" styleClass="chip-check"/>
+                </StackPane>
+            </graphic>
+        </ToggleButton>
+
+            <ToggleButton fx:id="monthToggle" text="1month"
+                      toggleGroup="$rangeGroup" onAction="#loadMonthData"
+                         styleClass="chip">
+                  <graphic>
+                    <StackPane styleClass="chip-icon">
+                      <Label text="✓" styleClass="chip-check"/>
+                  </StackPane>
+                </graphic>
+            </ToggleButton>
+         </VBox>
     </left>
 
-    <!-- 센터: 감정 그래프 -->
+    <!-- 센터: 감정 그래프 (카드 느낌) -->
     <center>
-        <LineChart fx:id="moodChart" title="" legendVisible="false" style="-fx-background-color: #fde7f0;">
-            <xAxis>
-                <CategoryAxis label="Date"
-                              style="-fx-tick-label-fill: #2196f3; -fx-font-family: 'Pixel';"/>
-            </xAxis>
-            <yAxis>
-                <NumberAxis lowerBound="0" upperBound="5" tickUnit="1"
-                            label=""
-                            style="-fx-tick-label-fill: #2196f3; -fx-font-family: 'Pixel';"/>
-            </yAxis>
-        </LineChart>
+        <StackPane styleClass="content-pane" BorderPane.alignment="CENTER" style="-fx-padding: 16;">
+            <LineChart fx:id="moodChart" legendVisible="false">
+                <xAxis>
+                    <CategoryAxis label="Date"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis lowerBound="0" upperBound="5" tickUnit="1" label=""/>
+                </yAxis>
+            </LineChart>
+        </StackPane>
     </center>
 </BorderPane>

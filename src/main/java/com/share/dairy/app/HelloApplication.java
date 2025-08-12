@@ -1,20 +1,20 @@
 package com.share.dairy.app;
 
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
+
 import com.share.dairy.ServerApplication;
-import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
-
 import java.util.Map;
 
 public class HelloApplication extends Application {
-
-    private ConfigurableApplicationContext springContext;
+    
+      private ConfigurableApplicationContext springContext;
 
     @Override
     public void init() {
@@ -23,9 +23,9 @@ public class HelloApplication extends Application {
             springContext = new SpringApplicationBuilder(ServerApplication.class)
                     .properties(Map.of(
                             "server.port", "8080",
-                            "spring.datasource.url", "jdbc:mysql://localhost:3306/diary?serverTimezone=Asia/Seoul",
+                            "spring.datasource.url", "jdbc:mysql://localhost:3306/dairy?serverTimezone=Asia/Seoul",
                             "spring.datasource.username", "root",
-                            "spring.datasource.password", "sohyun"
+                            "spring.datasource.password", "1234"
                     ))
                     .run();
         });
@@ -34,29 +34,25 @@ public class HelloApplication extends Application {
     }
 
 
-
     @Override
     public void start(Stage stage) throws Exception {
-        Router.init(stage);
-
         // 클래스패스 루트 기준으로 절대경로 사용
-        Parent root = FXMLLoader.load(
-                getClass().getResource("/fxml/mainFrame/Main.fxml")
+         Parent root = FXMLLoader.load(
+       getClass().getResource("/fxml/mainFrame/Main.fxml")
         );
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("공유일기");
         stage.setScene(scene);
         stage.show();
-
     }
-
     @Override
     public void stop() {
-        if (springContext != null) {
+            if (springContext != null) {
             springContext.close();
-        }
-        Platform.exit();
+            }
+         Platform.exit();
     }
+
 
     public static void main(String[] args) {
         launch();

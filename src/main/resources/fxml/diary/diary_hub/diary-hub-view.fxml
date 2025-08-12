@@ -1,25 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.DiaryHubController"
-            style="-fx-background-color: #fde7f0;">
-    <top>
-        <VBox spacing="6">
-            <Label text="DIARY" style="-fx-font-size:28px; -fx-padding:16 16 0 16; -fx-font-weight:bold;"/>
-            <Separator/>
-        </VBox>
-    </top>
-    <left>
-        <VBox spacing="8" style="-fx-padding:16;">
-            <Button text="MY DIARY"   onAction="#showMyDiary"/>
-            <Button text="OUR DIARY"  onAction="#showOurDiary"/>
-            <Button text="BUDDY DIARY" onAction="#showBuddyDiary"/>
+            style="-fx-background-color: #fdeaf4;"
+            prefWidth="960" prefHeight="640">
 
-        </VBox>
-    </left>
-    <center>
-        <!-- 여기 내용이 버튼에 따라 바뀜 -->
-        <StackPane fx:id="content" style="-fx-padding:16;"/>
-    </center>
+    <!-- Styles -->
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <!-- top: HBox + Separator -->
+<top>
+    <VBox>
+        <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 18;">
+            <Button fx:id="homeButton" onAction="#showDiaryHub"
+                    style="-fx-background-color: transparent; -fx-padding: 6;">
+                <tooltip><Tooltip text="Home"/></tooltip>
+                <graphic>
+                    <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                        <image><Image url="@/icons/home.png"/></image>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Label fx:id="titleLabel" text="Diary Hub" styleClass="title"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="New Diary" onAction="#showMyDiary"/>
+        </HBox>
+        <!-- ★ 상단 구분선 -->
+        <Separator styleClass="top-sep"/>
+    </VBox>
+</top>
+
+<!-- left: 사이드바 스타일 적용 -->
+<left>
+    <VBox spacing="12" style="-fx-padding: 20;" styleClass="sidebar">
+        <Button text="MY DIARY"    onAction="#showMyDiary"/>
+        <Button text="OUR DIARY"   onAction="#showOurDiary"/>
+        <Button text="BUDDY DIARY" onAction="#showBuddyDiary"/>
+        <Separator/>
+    </VBox>
+</left>
+
+<!-- center: 회색 없애려면 둘 다 투명 -->
+<center>
+    <StackPane fx:id="content" BorderPane.alignment="CENTER">
+        <StackPane fx:id="centerHolder"/>  <!-- 전환 대상 -->
+        <Button fx:id="fabNew" onAction="#showMyDiary" styleClass="fab"
+                StackPane.alignment="BOTTOM_RIGHT">
+            <StackPane.margin>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </StackPane.margin>
+            <tooltip><Tooltip text="New diary"/></tooltip>
+            <graphic>
+                <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                    <image><Image url="@/icons/pen.png"/></image>
+                </ImageView>
+            </graphic>
+        </Button>
+    </StackPane>
+</center>
+
+
 </BorderPane>
