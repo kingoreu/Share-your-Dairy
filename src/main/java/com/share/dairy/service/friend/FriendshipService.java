@@ -1,14 +1,25 @@
 package com.share.dairy.service.friend;
+
 import com.share.dairy.dao.friend.FriendshipDao;
 import com.share.dairy.model.enums.FriendshipStatus;
+import com.share.dairy.model.friend.Friendship;
 import com.share.dairy.util.Tx;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.List;
 
 // 트리거 - 트랜잭션 처리를 위한 서비스 레이어 계층을 생성함
 // db 설정과 관련한 내용이니, 실제 기능을 만들 때는 관련 서비스 코드 추가 필요.
+@Service
 public class FriendshipService {
-    private final FriendshipDao friendshipDao = new FriendshipDao();
+
+    private final FriendshipDao friendshipDao;
+
+    public FriendshipService(FriendshipDao friendshipDao) {
+        this.friendshipDao = friendshipDao;
+    }
+
 
     // 친구 요청 보내기: 없으면 INSERT, 있으면 PENDING으로 갱신
     public void send(long senderId, long receiverId) throws SQLException {
@@ -55,5 +66,13 @@ public class FriendshipService {
             friendshipDao.respond(con, senderId, receiverId, FriendshipStatus.REJECTED);
             return null; // commit
         });
+    }
+
+    public List<Friendship> findPendingFor(long userId) throws SQLException {
+        return friendshipDao.findPendingFor(userId);
+    }
+
+    public List<Friendship> findFriendsFor(long userId) throws SQLException {
+        return friendshipDao.findFriendsFor(userId);
     }
 }
