@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/diaries/{entryId}/attachments")
+@RequestMapping("/api/diary/{entryId}/attachment")
 public class DiaryAttachmentController {
 
     private final DiaryAttachmentService service;

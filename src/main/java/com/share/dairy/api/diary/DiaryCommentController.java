@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/diary/{entryId}/comments")
+@RequestMapping("/api/diary/{entryId}/comment")
 @Validated
 public class DiaryCommentController {
 
