@@ -52,7 +52,7 @@ public class MainController {
     @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/diary_hub/diary-hub-shell.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/diary/our_diary/home-view.fxml"); }
-    @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }
+    @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/MyInfoView.fxml"); }
 
     // 뷰 전환 로직
     private void loadView(String fxmlPath) {

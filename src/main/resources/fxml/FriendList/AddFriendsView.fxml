@@ -7,7 +7,7 @@
 <!-- ADD Friends 화면 -->
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.AddFriendsController"
-            stylesheets="@../css/addfriends.css">
+            stylesheets="@../../css/addfriends.css">
 
 
     <!-- 바깥 하얀 카드 -->

@@ -6,7 +6,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.MyInfoController"
-            stylesheets="@../css/myinfo.css">
+            stylesheets="@/css/myinfo.css">
 
     <center>
         <StackPane styleClass="content-card">

@@ -6,7 +6,7 @@
 <!-- 친구 리스트 화면 (중앙 카드 + 2열 타일 + 하단 버튼) -->
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.FriendListController"
-            stylesheets="@../css/friendlist.css">
+            stylesheets="@../../css/friendlist.css">
 
     <center>
         <!-- 바깥 하얀 둥근 카드 -->
