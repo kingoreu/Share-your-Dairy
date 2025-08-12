@@ -27,14 +27,14 @@
             </Button>
             <Label text="Diary Hub" styleClass="title"/>
             <Pane HBox.hgrow="ALWAYS"/>
-            <Button text="New Diary" onAction="#showMyDiary"/>
+            <Button text="New Diary" onAction="#showDiaryHub"/>
         </HBox>
     </top>
 
     <!-- Left Menu -->
     <left>
         <VBox spacing="12" style="-fx-padding: 20;">
-            <Button text="MY DIARY"    onAction="#showMyDiary"/>
+            <Button text="MY DIARY"    onAction="#showDiaryHub"/>
             <Button text="OUR DIARY"   onAction="#showOurDiary"/>
             <Button text="BUDDY DIARY" onAction="#showBuddyDiary"/>
             <Separator/>
