@@ -5,10 +5,12 @@ import com.share.dairy.mapper.diary.DiaryAttachmentMapper;
 import com.share.dairy.model.diary.DiaryAttachment;
 import com.share.dairy.model.enums.AttachmentType;
 import com.share.dairy.util.DBConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.*;
 
+@Repository
 public class DiaryAttachmentDao {
     private final RowMapper<DiaryAttachment> mapper = new DiaryAttachmentMapper();
 

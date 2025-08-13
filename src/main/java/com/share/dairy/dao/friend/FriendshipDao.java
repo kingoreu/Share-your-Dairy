@@ -5,10 +5,12 @@ import com.share.dairy.mapper.friend.FriendshipMapper;
 import com.share.dairy.model.enums.FriendshipStatus;
 import com.share.dairy.model.friend.Friendship;
 import com.share.dairy.util.DBConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.*;
 
+@Repository
 public class FriendshipDao {
     private final RowMapper<Friendship> mapper = new FriendshipMapper();
 

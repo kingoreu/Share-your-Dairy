@@ -4,10 +4,12 @@ import com.share.dairy.mapper.RowMapper;
 import com.share.dairy.mapper.sharedDiary.SharedDiaryMemberMapper;
 import com.share.dairy.model.sharedDiary.SharedDiaryMember;
 import com.share.dairy.util.DBConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.*;
 
+@Repository
 public class SharedDiaryMemberDao {
     private final RowMapper<SharedDiaryMember> mapper = new SharedDiaryMemberMapper();
 

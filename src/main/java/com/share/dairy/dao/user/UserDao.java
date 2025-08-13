@@ -4,10 +4,12 @@ import com.share.dairy.mapper.RowMapper;
 import com.share.dairy.mapper.user.UserMapper;
 import com.share.dairy.model.user.User;
 import com.share.dairy.util.DBConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.*;
 
+@Repository
 public class UserDao {
     private final RowMapper<User> mapper = new UserMapper();
 

@@ -4,11 +4,13 @@ import com.share.dairy.mapper.RowMapper;
 import com.share.dairy.mapper.diary.DiaryEntryMapper;
 import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.util.DBConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.*;
 
 // 기본 CRUD 만 구현. 나머지 추가 기능은 알아서 추가
+@Repository
 public class DiaryEntryDao {
     private final RowMapper<DiaryEntry> mapper = new DiaryEntryMapper();
 
@@ -88,4 +90,37 @@ public class DiaryEntryDao {
             }
         }
     }
+
+    // 공유일기면 shared_diary_id 추가하여 삽입
+    public int updateSharedDiaryId(Connection con, long entryId, Long sharedDiaryId) throws SQLException {
+        String sql = "UPDATE diary_entries SET shared_diary_id=? WHERE entry_id=?";
+        try (var ps = con.prepareStatement(sql)) {
+            if (sharedDiaryId == null) ps.setNull(1, Types.BIGINT);
+            else ps.setLong(1, sharedDiaryId);
+            ps.setLong(2, entryId);
+            return ps.executeUpdate();
+        }
+    }
+
+    // 공유 일기장에 속한 글 목록
+    // 페이징 있을 경우 LIMIT,?,? 와 page, size 같은 파라미터 별도로 추가 필요
+    public List<DiaryEntry> findAllBySharedDiaryId(long sharedDiaryId) throws SQLException {
+        try (var con = DBConnection.getConnection();
+             var ps = con.prepareStatement("""
+                SELECT entry_id, user_id, entry_date, diary_content, visibility,
+                       diary_created_at, diary_updated_at, shared_diary_id
+                FROM diary_entries
+                WHERE shared_diary_id=?
+                ORDER BY entry_date DESC
+             """)) {
+            ps.setLong(1, sharedDiaryId);
+            try (var rs = ps.executeQuery()) {
+                var list = new ArrayList<DiaryEntry>();
+                while (rs.next()) list.add(mapper.map(rs));
+                return list;
+            }
+        }
+    }
+
+
 }
