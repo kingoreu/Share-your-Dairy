@@ -5,6 +5,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import java.net.URL?> 
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
@@ -19,12 +21,27 @@
     </stylesheets>
 
     <!-- 상단: 제목 -->
-    <top>
-        <VBox alignment="CENTER">
-            <Label text="Mood  Graph"
-                   style="-fx-font-size: 28px; -fx-font-family: 'Pixel'; -fx-padding: 20; -fx-text-fill: black;"/>
-            <Separator />
-        </VBox>
+     <top>
+        <BorderPane style="-fx-padding: 8 12;">
+            <left>
+                <Button fx:id="homeButton" onAction="#goHome"
+                        style="-fx-background-color: transparent; -fx-padding: 6;">
+                    <graphic>
+                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                            <image><Image url="@/icons/home.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </left>
+            <center>
+                <VBox alignment="CENTER">
+                    <Label text="Mood  Graph"
+                           style="-fx-font-size: 28px; -fx-font-family: 'Pixel'; -fx-padding: 6 0 8 0; -fx-text-fill: black;"/>
+                    <Separator />
+                    <Separator styleClass="top-sep"/>
+                </VBox>
+            </center>
+        </BorderPane>
     </top>
 
     <!-- 좌측: 버튼 메뉴 -->

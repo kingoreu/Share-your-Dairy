@@ -22,7 +22,7 @@ public class MoodRepository {
                ROUND(AVG(a.happiness_score)) AS avg_score
           FROM diary_entries e
           JOIN diary_analysis a ON a.entry_id = e.entry_id
-         WHERE e.user_id = ?
+            WHERE e.user_id = ?
            AND e.diary_created_at >= ?
            AND e.diary_created_at <  ?
          GROUP BY DATE(e.diary_created_at)
