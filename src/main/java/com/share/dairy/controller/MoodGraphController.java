@@ -18,6 +18,7 @@ import java.util.ResourceBundle;
 import com.share.dairy.repo.MoodRepository;
 import com.share.dairy.model.mood.MoodPoint;
 
+//diary analysis 테이블 user_id 추가 및 user_id로 mood 조회
 public class MoodGraphController implements Initializable {
 
     @FXML private ToggleButton weekToggle;
