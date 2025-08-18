@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import java.net.URL?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
@@ -13,30 +12,75 @@
         <URL value="@/css/style.css"/>
     </stylesheets>
 
-    <!-- Top Bar -->
+    <!-- Top Bar: 제목 정중앙 고정 (다른 곳 변경 없음) -->
     <top>
-        <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 18;">
-            <Separator styleClass="top-sep"/>
-            <Label text="Diary Hub" styleClass="title"/>
-            <Pane HBox.hgrow="ALWAYS"/>
+        <HBox spacing="12" style="-fx-padding: 14 18;">
+            <!-- 왼쪽 여백 -->
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- 제목 라벨: 가운데 정렬 + 가로로 꽉 채우기 -->
+            <Label id="titleLabel" fx:id="titleLabel" text="MY DIARY" styleClass="title"
+               maxWidth="Infinity" HBox.hgrow="ALWAYS" alignment="CENTER"/>
+
+            <!-- 오른쪽 여백 -->
+            <Region HBox.hgrow="ALWAYS"/>
         </HBox>
     </top>
 
-    <!-- Left Menu -->
+
+    <!-- Left Menu: 아이콘만 추가 -->
     <left>
-        <!-- ▼ 변경 포인트: fx:id/id="sidebar" 부여 + 맨 위에 스페이서 추가 + 하단 구분선 제거 -->
         <VBox fx:id="sidebar" id="sidebar"
               spacing="30"
               style="-fx-padding: 20 16 8 16;"
               styleClass="sidebar">
-            <Region VBox.vgrow="ALWAYS"/> <!-- 윗공간을 먹어서 버튼 3개를 아래로 밀어줌 -->
-            <Button text="MY DIARY"    onAction="#showDiaryHub"/>
-            <Button text="OUR DIARY"   onAction="#showOurDiary"/>
-            <Button text="BUDDY DIARY" onAction="#showBuddyDiary"/>
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- MY DIARY -->
+            <Button text="MY DIARY" onAction="#showDiaryHub"
+                    contentDisplay="TOP" graphicTextGap="8" alignment="CENTER">
+                <graphic>
+                    <StackPane
+                        style="-fx-min-width:44; -fx-min-height:44; -fx-max-width:44; -fx-max-height:44;
+                               -fx-background-color: white; -fx-background-radius:14;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6,0,0,2);
+                               -fx-alignment: center;">
+                        <Label text="📁" style="-fx-font-size:22;"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+
+            <!-- OUR DIARY -->
+            <Button text="OUR DIARY" onAction="#showOurDiary"
+                    contentDisplay="TOP" graphicTextGap="8" alignment="CENTER">
+                <graphic>
+                    <StackPane
+                        style="-fx-min-width:44; -fx-min-height:44; -fx-max-width:44; -fx-max-height:44;
+                               -fx-background-color: white; -fx-background-radius:14;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6,0,0,2);
+                               -fx-alignment: center;">
+                        <Label text="👥" style="-fx-font-size:22;"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+
+            <!-- BUDDY DIARY -->
+            <Button text="BUDDY DIARY" onAction="#showBuddyDiary"
+                    contentDisplay="TOP" graphicTextGap="8" alignment="CENTER">
+                <graphic>
+                    <StackPane
+                        style="-fx-min-width:44; -fx-min-height:44; -fx-max-width:44; -fx-max-height:44;
+                               -fx-background-color: white; -fx-background-radius:14;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6,0,0,2);
+                               -fx-alignment: center;">
+                        <Label text="😊" style="-fx-font-size:22;"/>
+                    </StackPane>
+                </graphic>
+            </Button>
         </VBox>
     </left>
 
-    <!-- Center: centerHolder만 유지 -->
+    <!-- Center 그대로 -->
     <center>
         <StackPane fx:id="content" BorderPane.alignment="CENTER">
             <StackPane fx:id="centerHolder"/>

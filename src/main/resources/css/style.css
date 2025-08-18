@@ -298,4 +298,40 @@
 .sidebar .toggle-button {
     -fx-translate-y: 120;   /* 필요하면 100~160 사이로 한 번에 조절 가능 */
 }
+
+/* 제목 라벨만 강제로 가운데 정렬 (다른 건 영향 없음) */
+#titleLabel {
+    -fx-max-width: Infinity;         /* 라벨이 가로 폭을 다 먹도록 */
+    -fx-alignment: center;           /* 라벨 내부 정렬 */
+    -fx-text-alignment: center;      /* 여러 줄일 때도 가운데 */
+}
+/* ===== Sidebar 아이콘 배지(버튼용) ===== */
+.sidebar .button { 
+    -fx-content-display: TOP;      /* 아이콘 위, 텍스트 아래 */
+    -fx-graphic-text-gap: 8;
+    -fx-alignment: center;
+}
+
+/* 아이콘 배경(둥근 네모 배지) */
+.icon-badge {
+    -fx-min-width: 44;  -fx-min-height: 44;
+    -fx-max-width: 44;  -fx-max-height: 44;
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 2);
+    -fx-alignment: center;
+}
+
+/* 이모지 크기/색 */
+.icon-emoji {
+    -fx-font-size: 22px;
+    -fx-text-fill: #2b1c6b;
+}
+.hub-root #titleLabel {
+  -fx-font-family: "Pixel", "Malgun Gothic", "Segoe UI", sans-serif;
+  -fx-font-size: 28px;
+  -fx-text-fill: black;
+  -fx-padding: 12 0 10 0;
+  -fx-alignment: center;
+}
 }

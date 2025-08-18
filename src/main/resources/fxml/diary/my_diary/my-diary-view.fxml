@@ -6,17 +6,13 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<!-- 루트를 StackPane으로 바꿔 FAB를 오버레이로 배치 -->
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.share.dairy.controller.MyDiaryController"
            prefWidth="960" prefHeight="640">
 
-    <!-- 기존 내용 (그대로) -->
     <VBox spacing="12" style="-fx-padding: 8;">
         <HBox spacing="8">
             <ToggleButton text="PLACE" onAction="#onPlace"/>
-            <ToggleButton text="MUSIC" onAction="#onMusic"/>
-            <ToggleButton text="TIME"  onAction="#onTime"/>
             <Pane HBox.hgrow="ALWAYS"/>
             <Button text="EDIT" onAction="#onEdit"/>
             <Button text="SAVE" onAction="#onSave"/>
@@ -25,10 +21,12 @@
         <TextField fx:id="titleField" promptText="TITLE"/>
         <TextArea fx:id="contentArea" promptText="CONTENTS" prefRowCount="12"/>
 
-        <HBox spacing="8">
-            <TextField fx:id="placeField" promptText="Place..."/>
-            <TextField fx:id="musicField" promptText="Music..."/>
-            <TextField fx:id="timeField"  promptText="Time..."/>
+        <!-- ⬇ 하단 Place 필드만 짧게 (예전 한 칸 너비) -->
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <TextField fx:id="placeField"
+                       promptText="Place..."
+                       prefWidth="260" maxWidth="260"/>
+            <Pane HBox.hgrow="ALWAYS"/>
         </HBox>
     </VBox>
 

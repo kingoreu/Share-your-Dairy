@@ -12,6 +12,15 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;   // 스페이서에 필요
 import javafx.geometry.Insets;        // 간격/패딩 조정에 필요
+import javafx.scene.control.Label;    // 제목 라벨
+import javafx.scene.Node;             // HBox 자식 순회용
+
+
+// ✅ 이모티콘 그래픽만 쓰기 위해 필요한 import (레이아웃 영향 없음)
+import javafx.scene.control.ContentDisplay;
+import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 
 import java.net.URL;
 
@@ -21,6 +30,7 @@ public class DiaryHubController {
     @FXML private StackPane centerHolder;  // 중앙 교체 대상 컨테이너
     @FXML private Button shellFab;         // 허브 셸(fxml)에 숨겨둔 FAB(없으면 null)
     @FXML private VBox sidebar;            // 왼쪽 버튼 3개 담는 VBox (fx:id 없더라도 백업 룩업 적용)
+    @FXML private Label titleLabel;        // 상단 제목
 
     // 중앙에 띄울 화면 경로들
     private static final String FXML_HUB   = "/fxml/diary/diary_hub/hub-list.fxml";
@@ -63,22 +73,47 @@ public class DiaryHubController {
             showFab(onHub);
 
             // 시작 화면
-            showDiaryHub();
+            showDiaryHub();              // 중앙 교체
+            setTitle("MY DIARY");        // 초기 제목
+
+            // ─ 제목을 강제로 정중앙 유지(네가 올린 코드 그대로) ─
+            if (titleLabel != null) {
+                titleLabel.setMaxWidth(Double.MAX_VALUE);
+                String cur = titleLabel.getStyle();
+                titleLabel.setStyle((cur == null ? "" : cur)
+                        + ";-fx-alignment:center;-fx-text-alignment:center;");
+                var p = titleLabel.getParent();
+                if (p instanceof HBox hb) {
+                    HBox.setHgrow(titleLabel, Priority.ALWAYS);
+                    for (Node child : hb.getChildren()) {
+                        if (child != titleLabel) HBox.setHgrow(child, Priority.NEVER);
+                    }
+                }
+            }
+            // ────────────────────────────────────────────────
 
             // 포커스
             content.setFocusTraversable(true);
             content.requestFocus();
 
-            // ✅ 왼쪽 버튼 3개만 조정(아래로 내림 + 구분선 제거 + 간격/패딩)
+            // 왼쪽 버튼 3개만 조정(아래로 내림 + 구분선 제거 + 간격/패딩)
             adjustSidebarButtons();
+
+            // ✅ 딱 이모티콘만 부착 (제목/레이아웃에는 아무 영향 없음)
+            applySidebarIcons();
         });
     }
 
-    /* 좌/상단 버튼 핸들러 — 중앙만 교체 */
-    @FXML private void showDiaryHub()   { setCenter(FXML_HUB); }
-    @FXML private void showMyDiary()    { setCenter(FXML_MY); }
-    @FXML private void showOurDiary()   { setCenter(FXML_OUR); }
-    @FXML private void showBuddyDiary() { setCenter(FXML_BUDDY); }
+    /* 좌/상단 버튼 핸들러 — 중앙만 교체 + 제목만 변경 */
+    @FXML private void showDiaryHub()   { setTitle("MY DIARY");    setCenter(FXML_HUB); }
+    @FXML private void showMyDiary()    { setTitle("MY DIARY");    setCenter(FXML_MY); }
+    @FXML private void showOurDiary()   { setTitle("OUR DIARY");   setCenter(FXML_OUR); }
+    @FXML private void showBuddyDiary() { setTitle("BUDDY DIARY"); setCenter(FXML_BUDDY); }
+
+    // 상단 제목 변경(Null 안전)
+    private void setTitle(String text) {
+        if (titleLabel != null) titleLabel.setText(text);
+    }
 
     // FAB 토글만 담당
     private void showFab(boolean show) {
@@ -155,7 +190,7 @@ public class DiaryHubController {
                 if (n != shellFab) {
                     n.setVisible(false);
                     n.setManaged(false);
-                    if (n.getParent() instanceof javafx.scene.layout.Pane p) {
+                    if (n.getParent() instanceof Pane p) {
                         p.getChildren().remove(n);
                     }
                 }
@@ -189,4 +224,81 @@ public class DiaryHubController {
             v.setPadding(new Insets(12, 12, 4, 12));
         } catch (Exception ignore) { /* 다른 기능 영향 없도록 조용히 */ }
     }
+
+    /** ✅ 사이드바 버튼에 이모지 배지만 붙인다(제목/레이아웃 영향 없음).
+     *   - 즉시 1회 + 다음 틱에 한 번 더 시도
+     *   - 이미 붙어있으면 재적용하지 않음
+     */
+
+    private void applySidebarIcons() {
+    Runnable attach = () -> {
+        if (content == null || (content.getScene() == null && sidebar == null)) return;
+
+        // sidebar 자식 + 백업 lookup
+        java.util.LinkedHashSet<Button> targets = new java.util.LinkedHashSet<>();
+        if (sidebar != null) {
+            for (Node n : sidebar.getChildren()) if (n instanceof Button b) targets.add(b);
+        }
+        var scene = content.getScene();
+        if (scene != null) {
+            scene.getRoot().lookupAll("#sidebar .button").forEach(n -> { if (n instanceof Button b) targets.add(b); });
+            scene.getRoot().lookupAll(".sidebar .button").forEach(n -> { if (n instanceof Button b) targets.add(b); });
+        }
+
+        for (Button b : targets) {
+            // 이미 래퍼 붙었으면 건너뜀
+            if (b.getGraphic() != null && "sidebar-wrapper".equals(b.getGraphic().getUserData())) continue;
+
+            // 이모지 매핑
+            String emoji = switch (b.getText()) {
+                case "MY DIARY"    -> "📁";
+                case "OUR DIARY"   -> "👥";
+                case "BUDDY DIARY" -> "😊";
+                default -> null;
+            };
+            if (emoji == null) continue;
+
+            // 배지(아이콘)
+            Label icon = new Label(emoji);
+            icon.setStyle("-fx-font-size:22;");
+            StackPane badge = new StackPane(icon);
+            badge.setMinSize(44, 44);
+            badge.setMaxSize(44, 44);
+            badge.setStyle(
+                "-fx-background-color:white;" +
+                "-fx-background-radius:14;" +
+                "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.12), 6,0,0,2);"
+            );
+            StackPane.setAlignment(icon, javafx.geometry.Pos.CENTER);
+
+            // 캡션(버튼 text와 바인딩 → 항상 동일)
+            Label caption = new Label();
+            caption.textProperty().bind(b.textProperty());
+            caption.setWrapText(true);
+            caption.setAlignment(javafx.geometry.Pos.CENTER);
+            caption.setStyle("-fx-padding: 6 0 0 0;"); // 살짝 간격
+
+            // 그래픽 래퍼: 배지 + 캡션
+            VBox wrapper = new VBox(6, badge, caption);
+            wrapper.setAlignment(javafx.geometry.Pos.CENTER);
+            wrapper.setUserData("sidebar-wrapper");
+
+            // 버튼에 적용(그래픽만 사용)
+            b.setGraphic(wrapper);
+            b.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
+            b.setGraphicTextGap(0);
+
+            // 잘림 방지를 위한 높이 여유
+            if (b.getMinHeight() < 112)  b.setMinHeight(112);
+            if (b.getPrefHeight() < 120) b.setPrefHeight(120);
+
+            // 텍스트 중앙정렬 유지
+            String s = b.getStyle();
+            b.setStyle((s == null ? "" : s) + "; -fx-text-alignment: center;");
+        }
+    };
+
+    attach.run();
+    javafx.application.Platform.runLater(attach);
+}
 }
