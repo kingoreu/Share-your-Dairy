@@ -1,7 +1,13 @@
 {
   "version": "0.2.0",
   "configurations": [
-    
+    {
+      "type": "java",
+      "name": "DiaryAnalysisService",
+      "request": "launch",
+      "mainClass": "com.share.dairy.service.diary_analysis.DiaryAnalysisService",
+      "projectName": "dairy"
+    },
     {
       "type": "java",
       "name": "HelloApplication",
