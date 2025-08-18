@@ -73,8 +73,9 @@
                 <xAxis>
                     <CategoryAxis label="Date"/>
                 </xAxis>
+                <!-- ✅ 행복도 스케일 1~10로 고정 -->
                 <yAxis>
-                    <NumberAxis lowerBound="0" upperBound="5" tickUnit="1" label=""/>
+                    <NumberAxis lowerBound="1" upperBound="10" tickUnit="1" label=""/>
                 </yAxis>
             </LineChart>
         </StackPane>

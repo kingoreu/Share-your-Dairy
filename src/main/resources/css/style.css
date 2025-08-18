@@ -131,6 +131,12 @@
 .default-color0.chart-series-line  { -fx-stroke: #f48cab; -fx-stroke-width: 3; }
 .default-color0.chart-line-symbol  { -fx-background-color: #f48cab, white; -fx-background-insets: 0, 2; }
 
+/* 큰 점 스타일을 클래스로 쓸 때 (원하면) */
+.big-dot {
+    -fx-background-radius: 8px;
+    -fx-padding: 8px;
+}
+
 /* 축 라벨 컬러/크기 */
 .axis .tick-label { -fx-text-fill: #4a7cc2; -fx-font-size: 14px; }
 .axis .label      { -fx-text-fill: #4a7cc2; -fx-font-size: 16px; -fx-font-weight: bold; }
