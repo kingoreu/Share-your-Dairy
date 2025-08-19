@@ -1,5 +1,7 @@
 package com.share.dairy.controller;
 
+import java.util.ResourceBundle;
+import java.net.URL;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
@@ -7,6 +9,11 @@ public abstract class OverlayChildController
         implements Initializable, MainController.NeedsOverlayHost {
 
     protected MainController.OverlayHost host;
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // 필요 없으면 비워두기
+    }
 
     @Override
     public void setOverlayHost(MainController.OverlayHost host) {

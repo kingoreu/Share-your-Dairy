@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?> 
+<?import javafx.scene.image.ImageView?>
+<?import java.net.URL?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.CalendarController"
+            style="-fx-background-color: #fdeaf4;">
+
+    <!-- CSS -->
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <!-- 상단 -->
+    <top>
+        <BorderPane style="-fx-padding: 8 12;">
+            <left>
+                <Button fx:id="homeButton" onAction="#goHome"
+                        style="-fx-background-color: transparent; -fx-padding: 6;">
+                    <graphic>
+                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                            <image><Image url="@/icons/home.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </left>
+
+            <!-- ★ HBox를 center 슬롯에 명시 -->
+            <center>
+                <HBox spacing="15" alignment="CENTER" style="-fx-padding: 12;">
+                    <Button fx:id="prevBtn" text="◀"/>
+                    <Label fx:id="monthLabel" text="2025 . 08"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <Button fx:id="nextBtn" text="▶"/>
+                </HBox>
+            </center>
+        </BorderPane>
+    </top>
+
+    <!-- 중앙 달력 -->
+    <center>
+        <GridPane fx:id="calendarGrid" hgap="8" vgap="8" style="-fx-padding: 12;"/>
+    </center>
+</BorderPane>

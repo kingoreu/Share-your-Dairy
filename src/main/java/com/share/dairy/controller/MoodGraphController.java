@@ -2,7 +2,7 @@ package com.share.dairy.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -19,7 +19,7 @@ import com.share.dairy.repo.MoodRepository;
 import com.share.dairy.model.mood.MoodPoint;
 
 //diary analysis 테이블 user_id 추가 및 user_id로 mood 조회
-public class MoodGraphController extends OverlayChildController implements Initializable {
+public class MoodGraphController extends OverlayChildController{
 
     @FXML private ToggleButton weekToggle;
     @FXML private ToggleButton days15Toggle;

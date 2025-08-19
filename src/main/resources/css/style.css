@@ -79,12 +79,12 @@
     -fx-padding: 12 16;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2b2b2b;
+    -fx-text-fill: #a58383;
     -fx-content-display: LEFT;      /* graphic + text 좌우 배치 */
     -fx-graphic-text-gap: 12;
     -fx-cursor: hand;
     -fx-border-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgb(206, 169, 169), 8, 0, 0, 2);
 }
 .toggle-button.chip:hover    { -fx-background-color: #f6d7e4; }
 .toggle-button.chip:selected { -fx-background-color: #f8e3ec; }
@@ -99,7 +99,7 @@
 .toggle-button.chip .chip-icon {
     -fx-min-width: 34; -fx-min-height: 34;
     -fx-max-width: 34; -fx-max-height: 34;
-    -fx-background-color: #141414;      /* 미선택: 검정 네모 */
+    -fx-background-color: #d3cfcf;      /* 미선택: 검정 네모 */
     -fx-background-radius: 10;
     -fx-alignment: center;
 }
