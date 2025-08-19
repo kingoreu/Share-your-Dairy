@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.HubListController">
+
+    <children>
+        <ScrollPane fitToWidth="true"
+                    AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+                    AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+            <content>
+                <!-- ✅ 카드들을 담을 컨테이너 -->
+                <VBox fx:id="listContainer"
+                      spacing="16"
+                      fillWidth="true"
+                      style="-fx-padding: 16;"/>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

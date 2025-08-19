@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.share.dairy.controller.OurDiaryController"
-      alignment="CENTER" spacing="20">
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.OurDiaryController"
+            prefWidth="960" prefHeight="640"
+            style="-fx-background-color:#FDE7F0;">
 
-    <Label fx:id="titleLabel" text="우리 다이어리 보기" style="-fx-font-size: 18px"/>
-</VBox>
+    <!-- 가운데 콘텐츠만: 카드 그리드 -->
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                style="-fx-background-color:transparent;"
+                AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+        <FlowPane fx:id="cardsFlow" hgap="24" vgap="24"
+                  style="-fx-padding:24;" prefWidth="700"/>
+    </ScrollPane>
+
+    <!-- 우하단 플로팅 New 버튼 -->
+    <Button fx:id="newBtn" text="＋" onAction="#onNew"
+            style="-fx-font-size:22; -fx-background-radius:20; -fx-padding:8 14; -fx-cursor:hand;"
+            AnchorPane.rightAnchor="24" AnchorPane.bottomAnchor="24"/>
+</AnchorPane>

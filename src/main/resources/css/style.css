@@ -1,22 +1,33 @@
-/* 1. 전역 폰트 세팅 */
+/* =========================
+   0) 컬러 팔레트(참고 주석)
+   pink-base: #fdeaf4
+   pink-100 : #f6d7e4
+   pink-200 : #f2cddd
+   pink-300 : #ffdbe7
+   pink-500 : #f48cab
+   text-dk  : #333333
+   grid-bl  : #e9f1fb
+   ========================= */
+
+/* 1. 전역 폰트 & 글자색 */
 .root {
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Segoe UI", "Malgun Gothic", sans-serif;
     -fx-font-size: 14px;
     -fx-text-fill: #333;
 }
 
-/* 2. 배경 투명 */
+/* 2. (옵션) 루트 컨테이너가 투명해야 할 때 */
 .root-pane {
     -fx-background-color: transparent;
 }
 
-/* 3. 콘텐츠 영역 */
+/* 3. 콘텐츠 카드 공통 */
 .content-pane {
     -fx-background-color: rgba(255,255,255,0.8);
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
     -fx-padding: 16;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 8, 0, 0, 2);
 }
 
 /* 4. 내부 ListView 등 투명 배경 */
@@ -26,14 +37,301 @@
     -fx-background-color: transparent;
 }
 
-/* 5. 버튼·텍스트필드 기본 스타일 */
+/* 5. 기본 컨트롤 */
 .button {
-    -fx-background-radius: 4;
-    -fx-padding: 6 12;
+    -fx-background-color: white;
+    -fx-border-color: #d9d9d9;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 8 14;
+    -fx-cursor: hand;
 }
-.text-field {
-    -fx-background-radius: 4;
-    -fx-border-radius: 4;
+.button:hover   { -fx-background-color: #ffe4ec; }
+.button:pressed { -fx-background-color: #f6d7e4; }
+
+.text-field, .text-area {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
     -fx-border-color: #ccc;
-    -fx-padding: 4 6;
+    -fx-padding: 6 8;
+}
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #f48cab;
+    -fx-background-color: white;
+}
+
+/* 6. 상단 바(홈 아이콘, 타이틀) */
+#homeButton {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+#titleLabel {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+/* 캡슐형 토글 버튼 (왼쪽 3개 전용) — 설계도 느낌 */
+.toggle-button.chip {
+    /* 핑크 타일 배경 + 라운드 박스 */
+    -fx-background-color: #f6d7e4;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #f2cddd;
+    -fx-border-width: 1;
+
+    /* 타일 크기 & 정렬 */
+    -fx-pref-width: 140;
+    -fx-pref-height: 80;
+    -fx-alignment: center;
+
+    /* 아이콘 위 / 텍스트 아래 (세로 스택) */
+    -fx-content-display: TOP;
+    -fx-graphic-text-gap: 8;
+
+    /* 텍스트 스타일 */
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #2b2b2b;
+
+    -fx-cursor: hand;
+    -fx-background-insets: 0;
+    -fx-padding: 12 12 10 12;
+
+    /* 살짝 떠 보이는 그림자 */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
+}
+
+.toggle-button.chip:hover {
+    -fx-background-color: #f2cddd;
+}
+
+.toggle-button.chip:selected {
+    /* 선택 시 더 진한 분홍 + 글자색 반전 */
+    -fx-background-color: #f48cab;
+    -fx-border-color: #e38aa5;
+    -fx-text-fill: white;
+}
+
+/* 포커스 파란 테두리 제거 */
+.toggle-button.chip:focused {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
+    -fx-border-color: transparent;
+}
+
+/* 아이콘 배경(라운드 정사각) — 아이콘을 돋보이게 */
+.toggle-button.chip .chip-icon {
+    -fx-min-width: 36; -fx-min-height: 36;
+    -fx-max-width: 36; -fx-max-height: 36;
+    -fx-background-color: white;      /* 흰색 바탕 */
+    -fx-background-radius: 10;        /* 둥근 정사각형 */
+    -fx-alignment: center;
+}
+
+/* 아이콘(문자/글리프) 색상 */
+.toggle-button.chip .chip-check {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #f48cab;           /* 기본 분홍 아이콘 */
+}
+
+/* 선택 시 아이콘 대비 유지 */
+.toggle-button.chip:selected .chip-icon  { -fx-background-color: white; }
+.toggle-button.chip:selected .chip-check { -fx-text-fill: #2b1c6b; } /* 진보라 포인트 */
+
+/* 칩 크기 프리셋(옵션) — 필요하면 그대로 사용 */
+.chip-sm { -fx-pref-width: 120; -fx-pref-height: 70; -fx-font-size: 12px; }
+.chip-lg { -fx-pref-width: 160; -fx-pref-height: 90; -fx-font-size: 15px; }
+
+/* 8. Mood Graph(라인차트) 톤 맞추기 */
+ .chart-plot-background {
+   -fx-background-color: transparent;   /* 또는 #fdeaf4 */
+   -fx-background-radius: 18;
+   -fx-background-insets: 0;
+}
+.chart-content { -fx-padding: 18; }
+.chart-vertical-grid-lines, .chart-horizontal-grid-lines { -fx-stroke: #e9f1fb; } /* 연한 보조선 */
+.chart-legend { -fx-background-color: transparent; }
+
+/* 시리즈 색 (기본 0번 시리즈) */
+.default-color0.chart-series-line  { -fx-stroke: #f48cab; -fx-stroke-width: 3; }
+.default-color0.chart-line-symbol  { -fx-background-color: #f48cab, white; -fx-background-insets: 0, 2; }
+
+/* 축 라벨 컬러/크기 */
+.axis .tick-label { -fx-text-fill: #4a7cc2; -fx-font-size: 14px; }
+.axis .label      { -fx-text-fill: #4a7cc2; -fx-font-size: 16px; -fx-font-weight: bold; }
+
+/* 9. 스크롤 */
+.scroll-pane { -fx-background: transparent; -fx-padding: 5; }
+
+/* 플로팅 버튼 */
+.fab {
+  -fx-background-color: #2b1c6b;
+  -fx-background-radius: 999;
+  -fx-min-width: 56;
+  -fx-min-height: 56;
+  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10,0,0,3);
+}
+.fab:hover { -fx-background-color: #3c2a8f; }
+
+/* 카드 스타일 */
+.diary-card {
+  -fx-background-color: white;
+  -fx-background-radius: 12;
+  -fx-padding: 16;
+  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10,0,0,3);
+}
+.diary-card .label { -fx-text-fill: #333; -fx-font-size: 14px; }
+
+/* 허브 전체 배경 */
+.hub-root { -fx-background-color: #fdeaf4; }
+
+/* center 회색 제거 */
+#content, #centerHolder { -fx-background-color: transparent; }
+
+/* ScrollPane도 완전 투명 (허브 리스트가 ScrollPane일 때) */
+.scroll-pane { -fx-background: transparent; -fx-padding: 5; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
+
+.button.fab { -fx-padding: 0; -fx-border-color: transparent; }
+.button.fab:pressed { -fx-translate-y: 1; }
+
+/* 상단 구분선 */
+.top-sep .line {
+  -fx-background-color: #e8cfdc;
+  -fx-background-insets: 0;
+  -fx-padding: 0.75;
+}
+
+/* 좌측 사이드바: 연분홍 배경 + 오른쪽 1px 경계 */
+.sidebar {
+  -fx-background-color: #f8e3ec;
+  -fx-border-color: transparent #e6c9d7 transparent transparent; /* top right bottom left */
+  -fx-border-width: 0 1 0 0;
+}
+
+
+/* center 패딩(여백) 조금 주면 카드가 숨쉬어요 */
+#centerHolder { -fx-padding: 24 24 40 24; }
+
+/* (참고) 카드/버튼 기존 규칙은 그대로 사용 */
+/* =========================
+   [LEFT SIDEBAR BUTTONS ONLY]
+   .sidebar 안에 들어있는 Button/ToggleButton 전용 스타일
+   다른 영역의 버튼에는 영향 없음
+   ========================= */
+.sidebar .button,
+.sidebar .toggle-button {
+    /* 타일 느낌의 분홍 라운드 박스 */
+    -fx-background-color: linear-gradient(#f6d7e4, #ffdbe7);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #f2cddd;
+    -fx-border-width: 1;
+
+    /* 사이즈 & 레이아웃 (아이콘 위, 텍스트 아래) */
+    -fx-pref-width: 160;
+    -fx-pref-height: 90;
+    -fx-padding: 12 10;
+    -fx-content-display: TOP;     /* graphic 위 + text 아래 */
+    -fx-graphic-text-gap: 8;
+    -fx-alignment: center;
+
+    /* 텍스트 톤 */
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #2b2b2b;
+
+    /* 인터랙션/그림자 */
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 2);
+}
+
+.sidebar .button:hover,
+.sidebar .toggle-button:hover {
+    -fx-background-color: linear-gradient(#f2cddd, #f6d7e4);
+}
+
+.sidebar .button:armed,
+.sidebar .toggle-button:armed {
+    -fx-background-color: #f48cab;  /* 눌렀을 때 진한 분홍 */
+    -fx-text-fill: white;
+}
+
+/* ToggleButton 선택 상태(켜진 탭 느낌) */
+.sidebar .toggle-button:selected {
+    -fx-background-color: #f48cab;
+    -fx-border-color: #e38aa5;
+    -fx-text-fill: white;
+}
+
+/* 포커스 외곽선 제거 (사이드바 한정) */
+.sidebar .button:focused,
+.sidebar .toggle-button:focused {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 2);
+    -fx-border-color: transparent;
+}
+
+/* =========================
+   [왼쪽 버튼 영역 전용 보완]
+   ========================= */
+
+/* 1) 사이드바 하단 얇은 선(Separator) 숨기기 */
+.sidebar .separator,
+.sidebar .separator:horizontal,
+.sidebar .separator:vertical,
+.sidebar .separator .line {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-opacity: 0;
+}
+
+/* 2) 버튼 간격 띄우기 (사이드바 컨테이너가 VBox일 때 적용) */
+.sidebar {
+    -fx-alignment: BOTTOM_CENTER; /* VBox 자식들을 아래로 정렬 */
+    -fx-spacing: 32;              /* 버튼 사이 간격은 유지/조금 넓게 */
+    -fx-padding: 12 12 8 12;            /* 버튼 사이 간격 
+}
+/* ===== 왼쪽 3개 버튼을 화면에서 더 아래로 내리기 (레이아웃 영향 없이 시각적 이동) ===== */
+.sidebar .button,
+.sidebar .toggle-button {
+    -fx-translate-y: 120;   /* 필요하면 100~160 사이로 한 번에 조절 가능 */
+}
+
+/* 제목 라벨만 강제로 가운데 정렬 (다른 건 영향 없음) */
+#titleLabel {
+    -fx-max-width: Infinity;         /* 라벨이 가로 폭을 다 먹도록 */
+    -fx-alignment: center;           /* 라벨 내부 정렬 */
+    -fx-text-alignment: center;      /* 여러 줄일 때도 가운데 */
+}
+/* ===== Sidebar 아이콘 배지(버튼용) ===== */
+.sidebar .button { 
+    -fx-content-display: TOP;      /* 아이콘 위, 텍스트 아래 */
+    -fx-graphic-text-gap: 8;
+    -fx-alignment: center;
+}
+
+/* 아이콘 배경(둥근 네모 배지) */
+.icon-badge {
+    -fx-min-width: 44;  -fx-min-height: 44;
+    -fx-max-width: 44;  -fx-max-height: 44;
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 2);
+    -fx-alignment: center;
+}
+
+/* 이모지 크기/색 */
+.icon-emoji {
+    -fx-font-size: 22px;
+    -fx-text-fill: #2b1c6b;
+}
+.hub-root #titleLabel {
+  -fx-font-family: "Pixel", "Malgun Gothic", "Segoe UI", sans-serif;
+  -fx-font-size: 28px;
+  -fx-text-fill: black;
+  -fx-padding: 12 0 10 0;
+  -fx-alignment: center;
+}
 }

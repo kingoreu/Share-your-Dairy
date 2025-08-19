@@ -1,16 +1,16 @@
 package com.share.dairy.app;
 
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
+
 import com.share.dairy.ServerApplication;
-import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
-
 import java.util.Map;
 
 public class HelloApplication extends Application {
@@ -34,11 +34,9 @@ public class HelloApplication extends Application {
         serverThread.start();
     }
 
-
-
     @Override
     public void start(Stage stage) throws Exception {
-        Router.init(stage);
+        // Router.init(stage);
 
         // 폰트 등록
         Font.loadFont(

@@ -1,25 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.DiaryHubController"
-            style="-fx-background-color: #fde7f0;">
-    <top>
-        <VBox spacing="6">
-            <Label text="DIARY" style="-fx-font-size:28px; -fx-padding:16 16 0 16; -fx-font-weight:bold;"/>
-            <Separator/>
-        </VBox>
-    </top>
-    <left>
-        <VBox spacing="8" style="-fx-padding:16;">
-            <Button text="MY DIARY"   onAction="#showMyDiary"/>
-            <Button text="OUR DIARY"  onAction="#showOurDiary"/>
-            <Button text="BUDDY DIARY" onAction="#showBuddyDiary"/>
+            styleClass="hub-root"
+            prefWidth="960" prefHeight="640">
 
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <top>
+    <HBox spacing="12" alignment="CENTER" style="-fx-padding: 14 18;">
+        <Separator styleClass="top-sep"/>
+
+        <!-- ⬇⬇ 추가: 사이드바 폭만큼을 먹는 왼쪽 스페이서 -->
+        <Region fx:id="topLeftSpacer"/>
+
+        <!-- 제목 -->
+        <Label id="titleLabel" fx:id="titleLabel" text="MY DIARY" styleClass="title"/>
+
+        <!-- 기존 오른쪽 채우기 -->
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+</top>
+
+
+
+    <!-- Left Menu: 아이콘만 추가 -->
+    <left>
+        <VBox fx:id="sidebar" id="sidebar"
+              spacing="30"
+              style="-fx-padding: 20 16 8 16;"
+              styleClass="sidebar">
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- MY DIARY -->
+            <Button text="MY DIARY" onAction="#showDiaryHub"
+                    contentDisplay="TOP" graphicTextGap="8" alignment="CENTER">
+                <graphic>
+                    <StackPane
+                        style="-fx-min-width:44; -fx-min-height:44; -fx-max-width:44; -fx-max-height:44;
+                               -fx-background-color: white; -fx-background-radius:14;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6,0,0,2);
+                               -fx-alignment: center;">
+                        <Label text="📁" style="-fx-font-size:22;"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+
+            <!-- OUR DIARY -->
+            <Button text="OUR DIARY" onAction="#showOurDiary"
+                    contentDisplay="TOP" graphicTextGap="8" alignment="CENTER">
+                <graphic>
+                    <StackPane
+                        style="-fx-min-width:44; -fx-min-height:44; -fx-max-width:44; -fx-max-height:44;
+                               -fx-background-color: white; -fx-background-radius:14;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6,0,0,2);
+                               -fx-alignment: center;">
+                        <Label text="👥" style="-fx-font-size:22;"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+
+            <!-- BUDDY DIARY -->
+            <Button text="BUDDY DIARY" onAction="#showBuddyDiary"
+                    contentDisplay="TOP" graphicTextGap="8" alignment="CENTER">
+                <graphic>
+                    <StackPane
+                        style="-fx-min-width:44; -fx-min-height:44; -fx-max-width:44; -fx-max-height:44;
+                               -fx-background-color: white; -fx-background-radius:14;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6,0,0,2);
+                               -fx-alignment: center;">
+                        <Label text="😊" style="-fx-font-size:22;"/>
+                    </StackPane>
+                </graphic>
+            </Button>
         </VBox>
     </left>
+
+    <!-- Center 그대로 -->
     <center>
-        <!-- 여기 내용이 버튼에 따라 바뀜 -->
-        <StackPane fx:id="content" style="-fx-padding:16;"/>
+        <StackPane fx:id="content" BorderPane.alignment="CENTER">
+            <StackPane fx:id="centerHolder"/>
+        </StackPane>
     </center>
 </BorderPane>
