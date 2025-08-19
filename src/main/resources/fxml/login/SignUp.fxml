@@ -32,12 +32,11 @@
                 <!-- 입력 폼 -->
                 <VBox alignment="CENTER" spacing="20">
                     <Label text="회원가입" styleClass="title-label"/>
-                    <TextField promptText="ID" maxWidth="250"/>
-                    <PasswordField promptText="비밀번호" maxWidth="250"/>
-                    <PasswordField promptText="비밀번호 확인" maxWidth="250"/>
-                    <TextField promptText="이름" maxWidth="250"/>
-                    <TextField promptText="닉네임" maxWidth="250"/>
-                    <TextField promptText="이메일" maxWidth="250"/>
+                    <TextField fx:id="idField" promptText="ID" maxWidth="250"/>
+                    <PasswordField fx:id="passwordField" promptText="비밀번호" maxWidth="250"/>
+                    <PasswordField fx:id="confirmPasswordField" promptText="비밀번호 확인" maxWidth="250"/>
+                    <TextField fx:id="nickNameField" promptText="닉네임" maxWidth="250"/>
+                    <TextField fx:id="emailField" promptText="이메일" maxWidth="250"/>
 
                     <Button text="Next" maxWidth="200" onAction="#onNextClicked"/>
                     <Hyperlink text="로그인으로 돌아가기" onAction="#onLoginClicked"/>

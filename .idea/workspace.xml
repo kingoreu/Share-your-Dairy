@@ -5,57 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ce0d884a-17a6-433f-98e7-bc5d2721af8c" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/keyword/CharacterKeywordImageController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/keyword/KeywordImageController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/AfterSignUpController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/CharacterSelectController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/LoginController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/SignUpController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/keyword/CharacterKeywordImageDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/keyword/characterKeywordImage/CreateRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/keyword/characterKeywordImage/KeywordImageWithKeywordsDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/keyword/keywordImage/CreateRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/keyword/keywordImage/ResponseDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/keyword/keywordImage/WithKeywordsDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/keyword/CharacterKeywordImageMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/keyword/KeywordImageWithKeywordsMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/keyword/CharacterKeywordImage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/keyword/CharacterKeywordImageService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/keyword/KeywordImageService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/bear.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/cat.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/deer.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/dog.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/duck.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/hamster.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/rabbit.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/raccoon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/richard.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/tako.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/wolf.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/character/zzuni.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/css/login/login.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/fonts/NanumSquareRoundB.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/fonts/NanumSquareRoundEB.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/fonts/NanumSquareRoundR.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/AfterSignUp.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/CharacterSelect.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/Login.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/SignUp.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/login_images/login_background.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/96bcc0e0-4dda-4b67-ba52-66e7852b34c9.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96bcc0e0-4dda-4b67-ba52-66e7852b34c9.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/96bcc0e0-4dda-4b67-ba52-66e7852b34c9/storage_v2/_src_/schema/dairy.096uBQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96bcc0e0-4dda-4b67-ba52-66e7852b34c9/storage_v2/_src_/schema/dairy.096uBQ.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/BinderConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/PendingSignUp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/exception/ApiErrorResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/logo/logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/logo/logo2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/logo/logo3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/logo/logo4.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/sharedDiary/SharedDiaryRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/sharedDiary/SharedDiaryRestController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/HelloApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/HelloApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/keyword/KeywordDao.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/keyword/KeywordImageDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/keyword/KeywordImageDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/keyword/KeywordImageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/keyword/KeywordImageMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/keyword/KeywordMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/keyword/Keyword.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/keyword/KeywordImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/keyword/KeywordImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/user/UserRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/user/UserRestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/CharacterSelectController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/CharacterSelectController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/SignUpController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/SignUpController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/user/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/user/UserDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/UserCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/UserCreateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/UserUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/UserUpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/user/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/user/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/login/AfterSignUp.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/AfterSignUp.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/login/CharacterSelect.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/CharacterSelect.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/login/Login.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/Login.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/login/SignUp.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/SignUp.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sql/dairy.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/sql/dairy.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/sql/dairy_drop.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/sql/dairy_drop.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,12 +86,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "HTTP 요청.scratch 내 전체.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "sohyun",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/dairy/src/main/resources/character",
+    "last_opened_file_path": "C:/dairy/src/main/resources/logo",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -142,16 +116,19 @@
     "RunConfigurationTargetLRU": [
       "96bcc0e0-4dda-4b67-ba52-66e7852b34c9",
       "96bcc0e0-4dda-4b67-ba52-66e7852b34c9/schema/\"dairy\""
+    ],
+    "com.intellij.ide.scratch.ScratchImplUtil$2/새 스크래치 파일": [
+      "HTTP Request"
     ]
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\dairy\src\main\resources\logo" />
       <recent name="C:\dairy\src\main\resources\character" />
       <recent name="C:\dairy\src\main\resources\css\character" />
       <recent name="C:\dairy\src\main\resources\fonts" />
       <recent name="C:\dairy\src\main\resources\login_images" />
-      <recent name="C:\dairy\src\main\resources\com\share\dairy\frontend" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\dairy\src\main\resources" />
@@ -165,9 +142,10 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="TestDB" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.share.dairy.TestDB" />
+    <configuration name="HelloApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.share.dairy.app.HelloApplication" />
       <module name="dairy" />
+      <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.share.dairy.*" />
@@ -184,9 +162,13 @@
       <data-source id="96bcc0e0-4dda-4b67-ba52-66e7852b34c9" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="데이터베이스 스크립트.dairy_trigger.sql" />
+      <item itemvalue="애플리케이션.HelloApplication" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="애플리케이션.TestDB" />
+        <item itemvalue="애플리케이션.HelloApplication" />
         <item itemvalue="데이터베이스 스크립트.dairy_trigger.sql" />
       </list>
     </recent_temporary>
@@ -220,6 +202,7 @@
       <workItem from="1755046223897" duration="1126000" />
       <workItem from="1755061887410" duration="10400000" />
       <workItem from="1755477089450" duration="22139000" />
+      <workItem from="1755564369105" duration="20545000" />
     </task>
     <servers />
   </component>

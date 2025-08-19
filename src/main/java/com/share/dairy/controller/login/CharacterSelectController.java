@@ -1,5 +1,6 @@
 package com.share.dairy.controller.login;
 
+import com.share.dairy.dto.user.PendingSignUp;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,51 +14,30 @@ import javafx.stage.Stage;
 import javafx.scene.Node;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Map;
 
 public class CharacterSelectController {
-
-    @FXML
-    private void onBackClicked(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login/SignUp.fxml"));
-        Parent signUpRoot = loader.load();
-
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.getScene().setRoot(signUpRoot);
-    }
-
-    @FXML
-    private void onSelectClicked(ActionEvent event) throws IOException {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login/AfterSignUp.fxml"));
-            Parent afterSignUpRoot = loader.load();
-
-            System.out.println("onNextClicked called!!");
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(afterSignUpRoot);
-        } catch (Exception e) {
-            e.printStackTrace();  // ❗️ 반드시 콘솔로 확인
-            new Alert(Alert.AlertType.ERROR, "화면 전환 실패: " + e.getMessage()).showAndWait();
-        }
-    }
 
     @FXML private HBox characterBox;
     @FXML private Button prevBtn, nextBtn, confirmBtn;
     @FXML private Label pageInfoLabel;
 
+    private PendingSignUp pending;
+
+    public void initData(PendingSignUp pendingSignUp) {
+        this.pending = pendingSignUp;
+    }
+
     private List<String> imagePaths = List.of(
-            "/character/zzuni.png",
-            "/character/cat.png",
-            "/character/hamster.png",
-            "/character/raccoon.png",
-            "/character/bear.png",
-            "/character/deer.png",
-            "/character/dog.png",
-            "/character/duck.png",
-            "/character/rabbit.png",
-            "/character/richard.png",
-            "/character/tako.png",
-            "/character/wolf.png"
+            "/character/zzuni.png", "/character/cat.png", "/character/hamster.png",
+            "/character/raccoon.png", "/character/bear.png", "/character/deer.png",
+            "/character/dog.png", "/character/duck.png", "/character/rabbit.png",
+            "/character/richard.png", "/character/tako.png", "/character/wolf.png"
             // 12개 캐릭터
     );
 
@@ -67,6 +47,18 @@ public class CharacterSelectController {
 
     private final ToggleGroup group = new ToggleGroup();
     private String selectedPath = null;
+
+    private static final Map<String,String> CHARACTER_MAP = Map.ofEntries(
+            Map.entry("zzuni","ZZUNI"), Map.entry("cat","CAT"), Map.entry("hamster","HAMSTER"),
+            Map.entry("raccoon","RACCOON"), Map.entry("bear","BEAR"), Map.entry("deer","DEER"),
+            Map.entry("dog","DOG"), Map.entry("duck","DUCK"), Map.entry("rabbit","RABBIT"),
+            Map.entry("richard","RICHARD"), Map.entry("tako","TAKO"), Map.entry("wolf","WOLF")
+    );
+
+    private String toCharacterType(String path) {
+        String file = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
+        return CHARACTER_MAP.getOrDefault(file.toLowerCase(), file.toUpperCase());
+    }
 
     @FXML
     public void initialize() {
@@ -87,17 +79,16 @@ public class CharacterSelectController {
             }
         });
 
-        // 확인 버튼 눌렀을 때 처리(원하는 동작 연결)
-        if (confirmBtn != null) {
-            confirmBtn.setOnAction(e -> {
-                if (selectedPath != null) {
-                    // TODO: 선택된 캐릭터 경로 사용
-                    System.out.println("Selected character: " + selectedPath);
-                    // 다음 화면으로 이동하거나, 상태 저장 등
-                }
-            });
-        }
-
+//        // 확인 버튼 눌렀을 때 처리(원하는 동작 연결)
+//        if (confirmBtn != null) {
+//            if (selectedPath != null) return;
+////            confirmBtn.setOnAction(e -> {
+////                if (selectedPath != null) return;
+////
+////                System.out.println("Selected character: " + selectedPath);
+////                    // 회원가입 완료 화면으로 이동
+////            });
+//        }
         // 키보드 화살표로도 이동
         characterBox.setOnKeyPressed(ev -> {
             switch (ev.getCode()) {
@@ -105,7 +96,72 @@ public class CharacterSelectController {
                 case RIGHT -> nextBtn.fire();
             }
         });
+        // 페이지 렌더 직후 화살표 키 먹도록 포커스 요청
+        characterBox.requestFocus();
     }
+
+    @FXML
+    private void onBackClicked(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login/SignUp.fxml"));
+        Parent signUpRoot = loader.load();
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.getScene().setRoot(signUpRoot);
+    }
+
+    @FXML
+    private void onSelectClicked(ActionEvent event) throws IOException {
+        if (pending == null) {
+            alert("회원정보가 없습니다. 처음부터 다시 진행해 주세요.");
+            return;
+        }
+        if (selectedPath == null) {
+            alert("캐릭터를 선택해 주세요.");
+            return;
+        }
+
+        String characterType = toCharacterType(selectedPath); // 예: "CAT", "DOG" ...
+        String json = String.format(
+                "{ \"nickname\":\"%s\", \"loginId\":\"%s\", \"password\":\"%s\", \"userEmail\":\"%s\", \"characterType\":\"%s\" }",
+                esc(pending.nickname), esc(pending.loginId), esc(pending.password), esc(pending.userEmail), esc(characterType)
+        );
+
+        confirmBtn.setDisable(true);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/api/users"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        client.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                .whenComplete((res, err) -> javafx.application.Platform.runLater(() -> {
+                    confirmBtn.setDisable(false);
+
+                    if (err != null) {
+                        alert("서버 연결 실패: " + err.getMessage());
+                        return;
+                    }
+                    if (res.statusCode() == 201) {
+                        goAfterSignUp(event);
+                    } else {
+                        alert("회원가입 실패 (" + res.statusCode() + "): " + res.body());
+                    }
+                }));
+    }
+
+    private void goAfterSignUp(ActionEvent event) {
+        try {
+            var loader = new FXMLLoader(getClass().getResource("/fxml/login/AfterSignUp.fxml"));
+            Parent afterSignUpRoot = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.getScene().setRoot(afterSignUpRoot);
+        } catch (IOException e) {
+            alert("화면 전환 실패: " + e.getMessage());
+        }
+    }
+
 
     private void renderPage() {
         characterBox.getChildren().clear();
@@ -114,7 +170,9 @@ public class CharacterSelectController {
         int to   = Math.min(from + PAGE_SIZE, imagePaths.size());
 
         for (int i = from; i < to; i++) {
-            ImageView iv = new ImageView(new Image(getClass().getResourceAsStream(imagePaths.get(i))));
+            var is = getClass().getResourceAsStream(imagePaths.get(i));
+            if (is == null) continue; // 리소스 경로 문제 시 안전하게 스킵
+            ImageView iv = new ImageView(new Image(is));
             iv.setFitWidth(150);
             iv.setFitHeight(200);
             iv.setPreserveRatio(true);
@@ -135,6 +193,11 @@ public class CharacterSelectController {
         nextBtn.setDisable(pageIndex == pageCount - 1);
 
         // 페이지 전환 시 이전 선택 유지할건지?
-
+        group.selectToggle(null);
     }
+
+
+    private static String esc(String s){ return s.replace("\\","\\\\").replace("\"","\\\""); }
+    private void alert(String msg){ new Alert(Alert.AlertType.ERROR, msg).showAndWait(); }
+
 }

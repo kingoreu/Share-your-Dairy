@@ -32,8 +32,8 @@
             <children>
                 <Label text="로그인" style="-fx-font-size: 30px; -fx-text-fill: black;"/>
 
-                <TextField promptText="ID" maxWidth="250"/>
-                <PasswordField promptText="비밀번호" maxWidth="250"/>
+                <TextField fx:id="loginField" promptText="ID" maxWidth="250"/>
+                <PasswordField fx:id="passwordField" promptText="비밀번호" maxWidth="250"/>
 
                 <Button text="완료" maxWidth="200" onAction="#onLoginClicked"/>
                 <Hyperlink text="회원가입" onAction="#onSignUpClicked"/>

@@ -11,13 +11,18 @@ CREATE TABLE users
     nickname        VARCHAR(50)  NOT NULL,
     login_id        VARCHAR(50)  NOT NULL UNIQUE,
     password        VARCHAR(255) NOT NULL,
-    user_email      VARCHAR(255) NOT NULL,
+    user_email      VARCHAR(255) NOT NULL UNIQUE,
     character_type  VARCHAR(20)  NOT NULL,
     user_created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     user_updated_at DATETIME     NULL,
     KEY idx_users_nickname (nickname)
 
 ) ENGINE = InnoDB;
+
+-- !!이메일에 UNIQUE 제약 조건 추가함!!
+ALTER TABLE users
+ADD CONSTRAINT uq_users_email UNIQUE (user_email);
+
 
 -- 2) 공유 일기장
 CREATE TABLE shared_diaries
