@@ -195,3 +195,29 @@
 #centerHolder { -fx-padding: 24 24 40 24; }
 
 /* (참고) 카드/버튼 기존 규칙은 그대로 사용 */
+/* === Calendar === */
+
+/* GridPane 자체 배경/간격(필요시) */
+#calendarGrid {
+  -fx-background-color: transparent; /* 또는 white */
+}
+
+/* 요일 헤더(Label) */
+.day-header {
+  -fx-font-weight: bold;
+  -fx-text-fill: #333333;
+  -fx-alignment: center;
+  -fx-padding: 6 0;
+  -fx-background-color: #ffdbe7;
+  -fx-background-radius: 8;
+}
+.day-number { -fx-font-weight: bold; -fx-padding: 4 0 6 0; }
+.grid-cell {
+  -fx-background-color: white;
+  -fx-border-color: #ddd;
+  -fx-background-radius: 8;
+  -fx-border-radius: 8;
+  -fx-padding: 6;
+}
+.grid-cell:hover { -fx-background-color: #ffeef5; -fx-cursor: hand; }
+.grid-cell.today { -fx-border-color: #f48cab; -fx-border-width: 2; }

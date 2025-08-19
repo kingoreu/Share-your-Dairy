@@ -2,9 +2,7 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.image.*?> 
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import java.net.URL?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
@@ -17,7 +15,7 @@
         <URL value="@/css/style.css"/>
     </stylesheets>
 
-    <!-- 상단 -->
+    <!-- 상단바 -->
     <top>
         <BorderPane style="-fx-padding: 8 12;">
             <left>
@@ -31,7 +29,6 @@
                 </Button>
             </left>
 
-            <!-- ★ HBox를 center 슬롯에 명시 -->
             <center>
                 <HBox spacing="15" alignment="CENTER" style="-fx-padding: 12;">
                     <Button fx:id="prevBtn" text="◀"/>
@@ -40,11 +37,42 @@
                     <Button fx:id="nextBtn" text="▶"/>
                 </HBox>
             </center>
+
+            <!-- 상단 구분선 -->
+            <bottom>
+                <Separator styleClass="top-sep"/>
+            </bottom>
         </BorderPane>
     </top>
 
     <!-- 중앙 달력 -->
     <center>
-        <GridPane fx:id="calendarGrid" hgap="8" vgap="8" style="-fx-padding: 12;"/>
+        <GridPane fx:id="calendarGrid"
+                  hgap="8" vgap="8"
+                  style="-fx-padding: 12;"
+                  GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+
+            <!-- 7열 균등 -->
+            <columnConstraints>
+                <ColumnConstraints percentWidth="14.2857"/>
+                <ColumnConstraints percentWidth="14.2857"/>
+                <ColumnConstraints percentWidth="14.2857"/>
+                <ColumnConstraints percentWidth="14.2857"/>
+                <ColumnConstraints percentWidth="14.2857"/>
+                <ColumnConstraints percentWidth="14.2857"/>
+                <ColumnConstraints percentWidth="14.2857"/>
+            </columnConstraints>
+
+            <!-- (옵션) 헤더 포함 총 7행을 균등 확장 -->
+            <rowConstraints>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS"/>
+            </rowConstraints>
+        </GridPane>
     </center>
 </BorderPane>
