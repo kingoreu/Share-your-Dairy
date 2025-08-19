@@ -13,11 +13,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Collections;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 public class CalendarController extends OverlayChildController {
 
@@ -35,7 +36,8 @@ public class CalendarController extends OverlayChildController {
     private long userId = 1L;
 
     @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
         // 1) 기본은 현재 달
         currentYm = YearMonth.now();
 
