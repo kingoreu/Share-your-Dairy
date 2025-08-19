@@ -12,20 +12,21 @@
         <URL value="@/css/style.css"/>
     </stylesheets>
 
-    <!-- Top Bar: 제목 정중앙 고정 (다른 곳 변경 없음) -->
     <top>
-        <HBox spacing="12" style="-fx-padding: 14 18;">
-            <!-- 왼쪽 여백 -->
-            <Region HBox.hgrow="ALWAYS"/>
+    <HBox spacing="12" alignment="CENTER" style="-fx-padding: 14 18;">
+        <Separator styleClass="top-sep"/>
 
-            <!-- 제목 라벨: 가운데 정렬 + 가로로 꽉 채우기 -->
-            <Label id="titleLabel" fx:id="titleLabel" text="MY DIARY" styleClass="title"
-               maxWidth="Infinity" HBox.hgrow="ALWAYS" alignment="CENTER"/>
+        <!-- ⬇⬇ 추가: 사이드바 폭만큼을 먹는 왼쪽 스페이서 -->
+        <Region fx:id="topLeftSpacer"/>
 
-            <!-- 오른쪽 여백 -->
-            <Region HBox.hgrow="ALWAYS"/>
-        </HBox>
-    </top>
+        <!-- 제목 -->
+        <Label id="titleLabel" fx:id="titleLabel" text="MY DIARY" styleClass="title"/>
+
+        <!-- 기존 오른쪽 채우기 -->
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+</top>
+
 
 
     <!-- Left Menu: 아이콘만 추가 -->

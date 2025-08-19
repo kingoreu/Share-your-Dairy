@@ -5,6 +5,7 @@ import com.share.dairy.model.enums.Visibility;
 import com.share.dairy.service.diary.DiaryWriteService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -21,29 +22,31 @@ import java.util.function.Consumer;
 
 public class MyDiaryController {
 
-    /* ---------- 작성 화면 필드(없을 수도 있으니 null-guard) ---------- */
+    /* 작성 화면 필드(있을 수도 있고 없을 수도 있음) */
     @FXML private TextField titleField, placeField, musicField, timeField;
     @FXML private TextArea contentArea;
 
-    /* ---------- 목록 화면 컨테이너(없으면 목록 모드 아님) ---------- */
+    /* 목록 컨테이너(있으면 목록 모드) */
     @FXML private VBox listContainer;
 
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
     private final Long currentUserId = 1L; // 로그인 붙기 전 임시
 
-    /* ---------- 새 일기 다이얼로그 모드 제어 & 저장 콜백 ---------- */
-    private boolean dialogMode = false;                 // 새 일기 창인지 여부
-    private Consumer<Long> onSaved;                     // 저장 성공 시 알림용
+    /* 저장 후 후처리(목록 갱신 등) */
+    private Runnable afterSave;
+    public void setAfterSave(Runnable r) { this.afterSave = r; }
+
+    /* 새 일기 모달 모드 & 저장 콜백(필요 시) */
+    private boolean dialogMode = false;
+    private Consumer<Long> onSaved;
     public void setDialogMode(boolean dialogMode) { this.dialogMode = dialogMode; }
     public void setOnSaved(Consumer<Long> onSaved) { this.onSaved = onSaved; }
 
     @FXML
     public void initialize() {
-        // 작성 화면이면 에디트 가능
-        if (titleField != null) titleField.setDisable(false);
+        if (titleField != null)  titleField.setDisable(false);
         if (contentArea != null) contentArea.setDisable(false);
 
-        // 목록 화면이면 목록 로드
         if (listContainer != null) refreshList();
     }
 
@@ -53,11 +56,11 @@ public class MyDiaryController {
 
     @FXML
     private void onEdit(){
-        if (titleField != null) titleField.setDisable(false);
+        if (titleField != null)  titleField.setDisable(false);
         if (contentArea != null) contentArea.setDisable(false);
     }
 
-    /** SAVE: 현재 스키마 기준으로 본문만 저장 */
+    /** SAVE: 내용만 저장(제목은 나중에 처리) */
     @FXML
     private void onSave(){
         String content = (contentArea != null) ? contentArea.getText() : null;
@@ -76,16 +79,19 @@ public class MyDiaryController {
         try {
             long newId = diaryWriteService.create(entry);
 
-            // 다이얼로그 모드면 호출자에게 알리고 창 닫기
+            new Alert(Alert.AlertType.INFORMATION, "저장 완료! (ID: " + newId + ")").showAndWait();
+
+            if (afterSave != null) afterSave.run();
+
+            // 모달로 띄운 경우에만 그 모달 창 닫기 (메인창은 그대로)
             if (dialogMode) {
                 if (onSaved != null) onSaved.accept(newId);
-                closeWindow();
+                Stage st = currentStage();
+                if (st != null && st.getOwner() != null) st.close();
                 return;
             }
 
-            // 단독 화면이면 안내만
-            new Alert(Alert.AlertType.INFORMATION, "저장 완료! (ID: " + newId + ")").showAndWait();
-            if (titleField != null) titleField.setDisable(true);
+            if (titleField != null)  titleField.setDisable(true);
             if (contentArea != null) contentArea.setDisable(true);
             if (listContainer != null) refreshList();
 
@@ -94,22 +100,19 @@ public class MyDiaryController {
         }
     }
 
-    /** 목록 화면: 연필(FAB)로 새 일기 창 띄우기 */
+    /** 목록 화면에서 연필(FAB) → 새 일기 모달 띄우기 */
     @FXML
     private void onClickFabPencil() throws IOException {
-        // ★ 새 일기 FXML 경로: 프로젝트 구조에 맞게 확인
         FXMLLoader fxml = new FXMLLoader(getClass().getResource(
-            "/fxml/diary/my_diary/my_diary.fxml"
+                "/fxml/diary/my_diary/my_diary.fxml"
         ));
         Parent root = fxml.load();
 
-        // 동일 컨트롤러 타입(새 인스턴스)에 다이얼로그 모드/콜백 주입
         MyDiaryController child = fxml.getController();
         child.setDialogMode(true);
         child.setOnSaved(id -> refreshList());
 
         Stage dlg = new Stage();
-        // 목록 화면에서만 가능한 안전한 소유자 지정
         if (listContainer != null && listContainer.getScene() != null) {
             dlg.initOwner(listContainer.getScene().getWindow());
         }
@@ -118,18 +121,17 @@ public class MyDiaryController {
         dlg.setScene(new Scene(root));
         dlg.showAndWait();
 
-        // 혹시 사용자가 취소했더라도 보수적으로 한번 더 갱신
-        if (listContainer != null) refreshList();
+        refreshList();
     }
 
-    /** DB에서 목록 읽어와 카드 렌더 */
+    /** 목록 렌더 */
     private void refreshList() {
-        if (listContainer == null) return; // 목록 화면이 아님
+        if (listContainer == null) return;
         List<DiaryEntry> rows;
         try {
             rows = diaryWriteService.loadMyDiaryList(currentUserId);
         } catch (RuntimeException ex) {
-            new Alert(Alert.AlertType.ERROR, "목록 조회 실패: " + ex.getMessage()).showAndWait();
+            new Alert(Alert.AlertType.ERROR, "일기 목록 조회 실패").showAndWait();
             return;
         }
 
@@ -139,24 +141,60 @@ public class MyDiaryController {
         }
     }
 
+    /** 카드: 단순 표시(클릭 동작 없음 — 안정 상태) */
     private VBox makeCard(DiaryEntry d) {
         VBox card = new VBox(6);
         card.getStyleClass().add("diary-card");
         Label date = new Label("DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null));
-        Label title = new Label("TITLE");
-        Label content = new Label("CONTENTS  " + Optional.ofNullable(d.getDiaryContent()).orElse(""));
+        Label title = new Label("TITLE"); // 제목은 나중에
+        Label content = new Label("CONTENTS " + Optional.ofNullable(d.getDiaryContent()).orElse(""));
         card.getChildren().addAll(date, title, content);
         return card;
     }
 
-    private void closeWindow() {
-        // 현재 컨트롤러가 붙어 있는 창 닫기 (작성 FXML에서만 호출)
-        if (titleField != null && titleField.getScene() != null) {
-            Stage st = (Stage) titleField.getScene().getWindow();
-            st.close();
-        } else if (contentArea != null && contentArea.getScene() != null) {
-            Stage st = (Stage) contentArea.getScene().getWindow();
-            st.close();
+    /** 읽기 전용 모달 (나중용) */
+    private void openDiaryViewer(DiaryEntry d) {
+        Stage dlg = new Stage();
+
+        if (listContainer != null && listContainer.getScene() != null) {
+            dlg.initOwner(listContainer.getScene().getWindow());
+        } else {
+            Stage st = currentStage();
+            if (st != null) dlg.initOwner(st);
         }
+        dlg.initModality(Modality.APPLICATION_MODAL);
+        dlg.setTitle("Diary");
+
+        String dateText = "DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null);
+        String titleText = "TITLE " + Optional.ofNullable(d.getTitle())
+                .map(String::trim).filter(s -> !s.isEmpty())
+                .orElse("제목 없음");
+
+        Label date = new Label(dateText);
+        Label title = new Label(titleText);
+
+        TextArea body = new TextArea(Optional.ofNullable(d.getDiaryContent()).orElse(""));
+        body.setEditable(false);
+        body.setWrapText(true);
+        body.setPrefRowCount(18);
+
+        Button close = new Button("닫기");
+        close.setOnAction(ev -> dlg.close());
+
+        VBox root = new VBox(10, date, title, body, close);
+        root.setPadding(new Insets(16));
+
+        dlg.setScene(new Scene(root, 640, 480));
+        dlg.showAndWait();
+    }
+
+    private Stage currentStage() {
+        if (titleField != null && titleField.getScene() != null) {
+            return (Stage) titleField.getScene().getWindow();
+        }
+        if (contentArea != null && contentArea.getScene() != null) {
+            return (Stage) contentArea.getScene().getWindow();
+        }
+        return null;
     }
 }

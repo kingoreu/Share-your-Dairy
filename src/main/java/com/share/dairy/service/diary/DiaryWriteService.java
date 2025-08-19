@@ -58,36 +58,35 @@ public class DiaryWriteService {
      * - visibility, sharedDiaryId 는 null 허용
      * - entryDate 가 null이면 오늘 날짜로 저장
      */
+   // 같은 Connection으로 INSERT 수행 (트랜잭션 안에서 호출)
     private long insertEntry(Connection con, DiaryEntry d) throws SQLException {
-        String sql = """
-            INSERT INTO diary_entries
-              (user_id, entry_date, diary_content, visibility, shared_diary_id)
-            VALUES (?,?,?,?,?)
-        """;
+    String sql = """
+        INSERT INTO diary_entries
+          (user_id, entry_date, title, diary_content, visibility, shared_diary_id)
+        VALUES (?,?,?,?,?,?)
+    """;
 
-        try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            if (d.getUserId() == null) {
-                throw new SQLException("user_id is null (DiaryEntry.userId 필수)");
-            }
-            LocalDate date = (d.getEntryDate() != null) ? d.getEntryDate() : LocalDate.now();
+    try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        if (d.getUserId() == null) {
+            throw new SQLException("user_id is null (DiaryEntry.userId 필수)");
+        }
+        var date = (d.getEntryDate() != null) ? d.getEntryDate() : java.time.LocalDate.now();
 
-            ps.setLong(1, d.getUserId());
-            ps.setObject(2, date);                     // LocalDate 바로 바인딩
-            ps.setString(3, d.getDiaryContent());
+        ps.setLong(1, d.getUserId());
+        ps.setObject(2, date);
+        ps.setString(3, (d.getTitle() == null) ? "" : d.getTitle());         // ★ title
+        ps.setString(4, d.getDiaryContent());
+        ps.setString(5, d.getVisibility() == null ? "PRIVATE" : d.getVisibility().name());
+        if (d.getSharedDiaryId() == null) ps.setNull(6, java.sql.Types.BIGINT);
+        else ps.setLong(6, d.getSharedDiaryId());
 
-            // visibility: null이면 기본값 "PRIVATE"로 저장
-            String vis = (d.getVisibility() == null) ? "PRIVATE" : d.getVisibility().name();
-            ps.setString(4, vis);
-
-            if (d.getSharedDiaryId() == null) ps.setNull(5, Types.BIGINT);
-            else ps.setLong(5, d.getSharedDiaryId());
-
-            ps.executeUpdate();
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                return keys.next() ? keys.getLong(1) : 0L;
-            }
+        ps.executeUpdate();
+        try (var keys = ps.getGeneratedKeys()) {
+            return keys.next() ? keys.getLong(1) : 0L;
         }
     }
+    }
+
 
     /**
      * 일기 삭제 (첨부 → 본문 순서, 트랜잭션)
