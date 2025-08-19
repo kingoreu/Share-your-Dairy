@@ -22,65 +22,90 @@
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                         style="-fx-background-color: transparent;"
                         maxHeight="Infinity" VBox.vgrow="ALWAYS">
-                <VBox fx:id="buddyList" spacing="10" style="-fx-padding:6;"
-                      maxHeight="Infinity" VBox.vgrow="ALWAYS"/>
+                <content>
+                    <VBox fx:id="buddyList" spacing="10" style="-fx-padding:6;"
+                          maxHeight="Infinity" VBox.vgrow="ALWAYS"/>
+                </content>
             </ScrollPane>
         </StackPane>
 
-        <!-- 우측: 2×2 카드 -->
-        <!-- ✅ 세로도 뷰포트에 맞춰 늘어나게 fitToHeight 추가 -->
-        <ScrollPane fitToWidth="true" fitToHeight="true"
-                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                    style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
-            <AnchorPane style="-fx-background-color:#F3EFF2; -fx-background-radius:12;">
-                
-                <!-- 2×2 카드 그리드 (영역을 꽉 채우도록 확장) -->
-                <GridPane fx:id="entriesGrid"
-                          hgap="24" vgap="24" alignment="CENTER"
-                          AnchorPane.topAnchor="18" AnchorPane.leftAnchor="18"
-                          AnchorPane.rightAnchor="18" AnchorPane.bottomAnchor="18">
+        <!-- 우측: 2×2 프리뷰 그리드 (세로 스크롤 복구) -->
+        <ScrollPane fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="ALWAYS"
+                    style="-fx-background-color: transparent;"
+                    HBox.hgrow="ALWAYS">
+            <content>
+                <AnchorPane style="-fx-background-color:#F3EFF2; -fx-background-radius:12;">
+                    <children>
+                        <GridPane fx:id="entriesGrid"
+                                  hgap="24" vgap="24" alignment="TOP_CENTER"
+                                  AnchorPane.topAnchor="18" AnchorPane.leftAnchor="18" AnchorPane.rightAnchor="18">
+                                  <!-- ⬆️ bottomAnchor 제거: 콘텐츠 높이를 뷰포트에 고정하지 않음 -->
 
-                    <!-- 가로 50% / 50% + 폭 채우기 -->
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="50" hgrow="ALWAYS" fillWidth="true" halignment="CENTER"/>
-                        <ColumnConstraints percentWidth="50" hgrow="ALWAYS" fillWidth="true" halignment="CENTER"/>
-                    </columnConstraints>
+                            <!-- 가로 50% / 50% -->
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" hgrow="ALWAYS" fillWidth="true" halignment="CENTER"/>
+                                <ColumnConstraints percentWidth="50" hgrow="ALWAYS" fillWidth="true" halignment="CENTER"/>
+                            </columnConstraints>
 
-                    <!-- 세로 50% / 50% + 높이 채우기 (최소 높이 보장) -->
-                    <rowConstraints>
-                        <RowConstraints percentHeight="50" vgrow="ALWAYS" fillHeight="true"
-                                        minHeight="200" prefHeight="240" valignment="CENTER"/>
-                        <RowConstraints percentHeight="50" vgrow="ALWAYS" fillHeight="true"
-                                        minHeight="200" prefHeight="240" valignment="CENTER"/>
-                    </rowConstraints>
+                            <!-- 세로 50% / 50% -->
+                            <rowConstraints>
+                                <RowConstraints percentHeight="50" vgrow="ALWAYS" minHeight="220" valignment="TOP"/>
+                                <RowConstraints percentHeight="50" vgrow="ALWAYS" minHeight="220" valignment="TOP"/>
+                            </rowConstraints>
 
-                    <!-- 카드 4개: 셀 공간을 꽉 채움 -->
-                    <StackPane fx:id="buddyCard1" styleClass="buddy-card"
-                               minWidth="200" minHeight="220"
-                               maxWidth="Infinity" maxHeight="Infinity"
-                               GridPane.columnIndex="0" GridPane.rowIndex="0"
-                               GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"/>
+                            <!-- Cell 1 -->
+                            <VBox spacing="8"
+                                  GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                  GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                <Label fx:id="date1"
+                                       style="-fx-font-size:14; -fx-text-fill:#4a4a4a; -fx-padding:0 0 6 4;"/>
+                                <StackPane fx:id="buddyCard1"
+                                           minWidth="200" minHeight="220"
+                                           maxWidth="Infinity" maxHeight="Infinity"
+                                           style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:12; -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.2, 0, 2);"/>
+                            </VBox>
 
-                    <StackPane fx:id="buddyCard2" styleClass="buddy-card"
-                               minWidth="200" minHeight="220"
-                               maxWidth="Infinity" maxHeight="Infinity"
-                               GridPane.columnIndex="1" GridPane.rowIndex="0"
-                               GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"/>
+                            <!-- Cell 2 -->
+                            <VBox spacing="8"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                  GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                <Label fx:id="date2"
+                                       style="-fx-font-size:14; -fx-text-fill:#4a4a4a; -fx-padding:0 0 6 4;"/>
+                                <StackPane fx:id="buddyCard2"
+                                           minWidth="200" minHeight="220"
+                                           maxWidth="Infinity" maxHeight="Infinity"
+                                           style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:12; -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.2, 0, 2);"/>
+                            </VBox>
 
-                    <StackPane fx:id="buddyCard3" styleClass="buddy-card"
-                               minWidth="200" minHeight="220"
-                               maxWidth="Infinity" maxHeight="Infinity"
-                               GridPane.columnIndex="0" GridPane.rowIndex="1"
-                               GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"/>
+                            <!-- Cell 3 -->
+                            <VBox spacing="8"
+                                  GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                  GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                <Label fx:id="date3"
+                                       style="-fx-font-size:14; -fx-text-fill:#4a4a4a; -fx-padding:0 0 6 4;"/>
+                                <StackPane fx:id="buddyCard3"
+                                           minWidth="200" minHeight="220"
+                                           maxWidth="Infinity" maxHeight="Infinity"
+                                           style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:12; -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.2, 0, 2);"/>
+                            </VBox>
 
-                    <StackPane fx:id="buddyCard4" styleClass="buddy-card"
-                               minWidth="200" minHeight="220"
-                               maxWidth="Infinity" maxHeight="Infinity"
-                               GridPane.columnIndex="1" GridPane.rowIndex="1"
-                               GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"/>
+                            <!-- Cell 4 -->
+                            <VBox spacing="8"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                  GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                <Label fx:id="date4"
+                                       style="-fx-font-size:14; -fx-text-fill:#4a4a4a; -fx-padding:0 0 6 4;"/>
+                                <StackPane fx:id="buddyCard4"
+                                           minWidth="200" minHeight="220"
+                                           maxWidth="Infinity" maxHeight="Infinity"
+                                           style="-fx-background-color:white; -fx-background-radius:16; -fx-padding:12; -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.2, 0, 2);"/>
+                            </VBox>
 
-                </GridPane>
-            </AnchorPane>
+                        </GridPane>
+                    </children>
+                </AnchorPane>
+            </content>
         </ScrollPane>
     </HBox>
 </AnchorPane>

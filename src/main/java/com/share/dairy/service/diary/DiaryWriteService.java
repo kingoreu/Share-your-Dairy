@@ -7,6 +7,7 @@ import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.util.Tx;
 
 import java.sql.*;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class DiaryWriteService {
         ps.setString(3, (d.getTitle() == null) ? "" : d.getTitle());         // ★ title
         ps.setString(4, d.getDiaryContent());
         ps.setString(5, d.getVisibility() == null ? "PRIVATE" : d.getVisibility().name());
-        if (d.getSharedDiaryId() == null) ps.setNull(6, java.sql.Types.BIGINT);
+        if (d.getSharedDiaryId() == null) ps.setNull(6,  java.sql.Types.BIGINT);
         else ps.setLong(6, d.getSharedDiaryId());
 
         ps.executeUpdate();
@@ -116,4 +117,11 @@ public class DiaryWriteService {
             return null; // commit
         });
     }
+    // 본문만 업데이트 (트랜잭션)
+    public void updateContent(long entryId, String content) throws SQLException {
+    Tx.inTx(con -> {
+        diaryEntryDao.updateContent(con, entryId, content);
+        return null; // commit
+    });
+}
 }
