@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -40,9 +41,29 @@ public class HelloApplication extends Application {
         Router.init(stage);
 
         // 클래스패스 루트 기준으로 절대경로 사용
-        Parent root = FXMLLoader.load(
-                getClass().getResource("/fxml/mainFrame/Main.fxml")
+//        Parent root = FXMLLoader.load(
+//                getClass().getResource("/fxml/mainFrame/Main.fxml")
+//        );
+
+        // 폰트 등록
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/NanumSquareRoundR.ttf"),
+                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
         );
+
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/NanumSquareRoundB.ttf"),
+                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
+        );
+
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/NanumSquareRoundEB.ttf"),
+                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
+        );
+
+        Font.getFamilies().forEach(System.out::println);
+
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/login/Login.fxml"));
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("공유일기");
         stage.setScene(scene);

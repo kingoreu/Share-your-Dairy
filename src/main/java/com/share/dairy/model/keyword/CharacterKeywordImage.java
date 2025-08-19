@@ -2,7 +2,7 @@ package com.share.dairy.model.keyword;
 
 import java.time.LocalDateTime;
 
-public class KeywordImage {
+public class CharacterKeywordImage {
     private Long keywordImage;
     private Long analysisId;
     private Long userId;

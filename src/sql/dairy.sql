@@ -152,24 +152,58 @@ CREATE TABLE diary_comments
     KEY idx_comment_entry (entry_id, created_at)
 ) ENGINE = InnoDB;
 
--- 9) 일기 내용 분석 키워드
-CREATE TABLE keywords
-(
-    keyword_id   BIGINT PRIMARY KEY AUTO_INCREMENT,
-    keyword_name VARCHAR(100) NOT NULL UNIQUE
-) ENGINE = InnoDB;
+# -- 9) 일기 내용 분석 키워드
+# CREATE TABLE keywords
+# (
+#     keyword_id   BIGINT PRIMARY KEY AUTO_INCREMENT,
+#     keyword_name VARCHAR(100) NOT NULL UNIQUE
+# ) ENGINE = InnoDB;
+#
+# -- 10) 키워드-이미지 매핑
+# CREATE TABLE keyword_images
+# (
+#     mapping_id    BIGINT PRIMARY KEY AUTO_INCREMENT,
+#     keyword_id    BIGINT       NOT NULL,
+#     image_name    VARCHAR(255) NOT NULL,
+#     display_order SMALLINT     NULL,
+#     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#     CONSTRAINT fk_ki_keyword
+#         FOREIGN KEY (keyword_id) REFERENCES keywords (keyword_id)
+#             ON DELETE CASCADE
+#             ON UPDATE CASCADE,
+#     KEY idx_ki_keyword (keyword_id, display_order)
+# ) ENGINE = InnoDB;
 
--- 10) 키워드-이미지 매핑
-CREATE TABLE keyword_images
-(
-    mapping_id    BIGINT PRIMARY KEY AUTO_INCREMENT,
-    keyword_id    BIGINT       NOT NULL,
-    image_name    VARCHAR(255) NOT NULL,
-    display_order SMALLINT     NULL,
-    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_ki_keyword
-        FOREIGN KEY (keyword_id) REFERENCES keywords (keyword_id)
+-- 11) 키워드 이미지
+-- 일기 관련 이미지. 책장 클릭하면 나오는거
+CREATE TABLE keyword_images (
+    keyword_image           BIGINT  PRIMARY KEY     AUTO_INCREMENT,
+    analysis_id             BIGINT        NOT NULL,
+    user_id                 BIGINT      NOT NULL,
+    created_at              DATETIME,
+    CONSTRAINT fk_keyword_id
+        FOREIGN KEY (analysis_id) REFERENCES diary_analysis(analysis_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE,
-    KEY idx_ki_keyword (keyword_id, display_order)
+    CONSTRAINT fk_keyword_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+-- 12) 캐릭터 키워드 이미지
+-- 캐릭터 관련 이미지. 메인 화면에서 바뀌는 모습, 캘린더 모습
+CREATE TABLE character_keyword_images (
+    keyword_image           BIGINT    PRIMARY KEY   AUTO_INCREMENT,
+    analysis_id             BIGINT        NOT NULL,
+    user_id                 BIGINT      NOT NULL,
+    created_at              DATETIME,
+    CONSTRAINT fk_character_keyword_id
+        FOREIGN KEY (analysis_id) REFERENCES diary_analysis(analysis_id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+    CONSTRAINT fk_character_keyword_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
 ) ENGINE = InnoDB;
