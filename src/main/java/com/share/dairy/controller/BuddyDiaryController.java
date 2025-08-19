@@ -1,7 +1,6 @@
 package com.share.dairy.controller;
 
-import com.share.dairy.model.diary.DiaryEntry;          // 실제 DB 모델
-import com.share.dairy.model.enums.Visibility;
+import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.service.diary.DiaryWriteService;
 
 import javafx.fxml.FXML;
@@ -26,10 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-/**
- * Buddy 화면 – 2x2 썸네일 + 모달 편집(Title/Contents).
- * 지금은 FAKE_DATA=true 로 메모리 저장만. DB는 나중에 스위치.
- */
+/** Buddy Diary – 보기 전용(다른 사람이 쓴 일기만 표시) */
 public class BuddyDiaryController {
 
     // FXML
@@ -40,26 +36,21 @@ public class BuddyDiaryController {
     private String selectedBuddyId;
     private boolean gridInitialized = false;
 
-    // 셀 참조
+    // 셀 참조(표시/모달용)
     private final Label[] dateLabels     = new Label[4];
     private final Label[] previewLabels  = new Label[4];
-    private final PreviewEntry[] cellData = new PreviewEntry[4]; // 현재 4칸 데이터
+    private final PreviewEntry[] cellData = new PreviewEntry[4];
 
-    // 설정
-    private static final boolean FAKE_DATA = true; // DB 붙일 땐 false
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
-    // 메모리 저장소: 버디ID → 그 주 4칸
-    private final Map<String, List<PreviewEntry>> demoStore = new HashMap<>();
-
-    // 서비스(DB 모드에서만 사용)
+    // DB 서비스(조회만 사용)
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
 
     // ────────────────────────────────────────────────────────────────────────────
 
     @FXML
     public void initialize() {
-        // ESC 무력화 + 버튼 크기 고정
+        // ESC 무력화 + 버튼 크기 고정(눌림 변형 방지)
         entriesGrid.sceneProperty().addListener((obs, o, s) -> {
             if (s != null) {
                 s.addEventFilter(KeyEvent.KEY_PRESSED, e -> { if (e.getCode() == KeyCode.ESCAPE) e.consume(); });
@@ -67,13 +58,13 @@ public class BuddyDiaryController {
             }
         });
 
-        // 그리드 기본
+        // 그리드 기본(가로만 부모에 맞추고 세로는 스크롤)
         entriesGrid.setHgap(18);
         entriesGrid.setVgap(18);
         entriesGrid.setPadding(new Insets(16));
         setupGridConstraints();
         setupRowConstraints();
-        bindGridToParent(); // 가로만 바인딩(세로 스크롤 유지)
+        bindGridToParent();
 
         // 좌측 리스트
         buddyList.setAlignment(Pos.TOP_CENTER);
@@ -81,15 +72,18 @@ public class BuddyDiaryController {
         buddyList.setSpacing(12);
         buddyList.setPadding(new Insets(0, 10, 0, 10));
 
-        // 더미 버디 렌더
-        List<Buddy> buddies = fakeBuddies();
-        renderBuddyList(buddies);
+        // ▶ 여기서는 데모 버디만 넣어둠.
+        //    실제 연결 시, id에 **해당 버디의 user_id(숫자 문자열)** 를 넣어주세요.
+        renderBuddyList(fakeBuddies());
 
         // 2×2 셀 생성
         ensureGridBuilt();
 
-        // 첫 선택
-        if (!buddies.isEmpty()) selectBuddy(buddies.get(0).id());
+        // 첫 선택(데모용)
+        if (!buddyList.getChildren().isEmpty()) {
+            Object firstId = buddyList.getChildren().getFirst().getUserData();
+            if (firstId != null) selectBuddy(String.valueOf(firstId));
+        }
     }
 
     // ───────────────────────── 좌측 리스트 ─────────────────────────
@@ -120,10 +114,15 @@ public class BuddyDiaryController {
         StackPane.setMargin(card, new Insets(0, gutter, 0, gutter));
         card.maxWidthProperty().bind(slot.widthProperty().subtract(gutter * 2));
 
+        // ▼ 이 userData가 selectBuddy로 그대로 전달됩니다.
+        //    실제 환경에서는 b.id()에 "실제 buddy의 user_id(문자열)" 를 넣어주세요.
         slot.setUserData(b.id());
+
         slot.setOnMouseClicked(e -> selectBuddy(b.id()));
         slot.setOnMouseEntered(e -> card.setStyle(HILITE));
-        slot.setOnMouseExited(e -> card.setStyle(Objects.equals(slot.getUserData(), selectedBuddyId) ? HILITE : BASE));
+        slot.setOnMouseExited(e -> card.setStyle(
+                Objects.equals(slot.getUserData(), selectedBuddyId) ? HILITE : BASE
+        ));
         return slot;
     }
 
@@ -144,6 +143,7 @@ public class BuddyDiaryController {
     private void selectBuddy(String buddyId) {
         this.selectedBuddyId = buddyId;
 
+        // 좌측 하이라이트
         final String BASE = "-fx-background-color:#CBAFD1; -fx-background-radius:14;";
         final String HILITE = "-fx-background-color:white; -fx-background-radius:14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 0, 3);";
         for (Node slot : buddyList.getChildren()) {
@@ -151,8 +151,8 @@ public class BuddyDiaryController {
             card.setStyle(Objects.equals(slot.getUserData(), buddyId) ? HILITE : BASE);
         }
 
-        List<PreviewEntry> entries = FAKE_DATA ? getOrInitDemoList(buddyId) : mapFromDB(buddyId);
-        renderEntriesGrid(entries);
+        // ▶ DB에서 해당 버디(user_id)의 최신 4건을 읽어 2×2에 매핑
+        renderFromDB(buddyId);
     }
 
     // ───────────────────────── 2×2 셀 구성/렌더 ─────────────────────────
@@ -200,7 +200,7 @@ public class BuddyDiaryController {
         });
         card.setClip(clip);
 
-        // 미리보기 라벨
+        // 미리보기 라벨(스크롤 없음)
         Label preview = new Label();
         preview.setWrapText(true);
         preview.setStyle("-fx-font-size:12; -fx-text-fill:#222;");
@@ -209,9 +209,11 @@ public class BuddyDiaryController {
         previewLabels[idx] = preview;
         card.getChildren().add(preview);
 
-        // 클릭/더블클릭 → 편집 모달
+        // 클릭 → 보기 전용 모달
         card.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() >= 1) openEditorModal(idx);
+            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() >= 1) {
+                openViewerModal(idx);
+            }
         });
 
         wrap.getChildren().addAll(date, card);
@@ -223,102 +225,81 @@ public class BuddyDiaryController {
             PreviewEntry e = entries.get(i);
             cellData[i] = e;
             dateLabels[i].setText(e.date() != null ? e.date().format(DAY_FMT) : "");
-            previewLabels[i].setText(tidy(e.text(), 140)); // 썸네일은 contents 요약
+            previewLabels[i].setText(tidy(e.text(), 140)); // 썸네일은 요약
         }
     }
 
-    // ───────────────────────── 편집/작성 모달 (MY DIARY 스타일) ─────────────────────────
-    private void openEditorModal(int idx) {
-        PreviewEntry cur = cellData[idx];
+    /** DB에서 불러와 2×2에 매핑 */
+    private void renderFromDB(String buddyId) {
+        Long userId = parseUserId(buddyId);
+        List<PreviewEntry> four = new ArrayList<>(4);
+        try {
+            if (userId != null) {
+                List<DiaryEntry> list = diaryWriteService.loadMyDiaryList(userId);
+                // 최신 4개만, 부족하면 빈칸 채우기
+                for (int i = 0; i < 4; i++) {
+                    if (i < list.size()) {
+                        DiaryEntry d = list.get(i);
+                        four.add(new PreviewEntry(
+                            d.getEntryId(),
+                            d.getEntryDate(),
+                            nvl(d.getTitle()),
+                            nvl(d.getDiaryContent())
+                        ));
+                    } else {
+                        four.add(new PreviewEntry(null, null, "", "")); // 빈 칸
+                    }
+                }
+            } else {
+                // userId 파싱 실패 → 빈칸
+                for (int i = 0; i < 4; i++) four.add(new PreviewEntry(null, null, "", ""));
+            }
+        } catch (RuntimeException ex) {
+            // 조회 실패해도 화면은 유지
+            for (int i = 0; i < 4; i++) four.add(new PreviewEntry(null, null, "", ""));
+        }
+        renderEntriesGrid(four);
+    }
 
+    // ───────────────────────── 보기 전용 모달 ─────────────────────────
+    private void openViewerModal(int idx) {
+        PreviewEntry cur = cellData[idx];
         LocalDate date = (cur != null && cur.date() != null)
                 ? cur.date()
                 : parseDateLabelSafe(dateLabels[idx].getText());
+        String title = (cur != null ? nvl(cur.title()) : "");
+        String text  = (cur != null ? nvl(cur.text())  : "");
 
         Stage dlg = new Stage();
         if (entriesGrid.getScene() != null) dlg.initOwner(entriesGrid.getScene().getWindow());
         dlg.initModality(Modality.APPLICATION_MODAL);
         dlg.setTitle(date != null ? date.format(DAY_FMT) : "Diary");
 
-        // 상단 날짜
         Label dateLbl = new Label(date != null ? date.format(DAY_FMT) : "");
         dateLbl.setStyle("-fx-font-size:16; -fx-font-weight:bold;");
 
-        // MY DIARY 폼처럼: TITLE + CONTENTS
-        TextField titleField = new TextField(cur != null ? nvl(cur.title()) : "");
-        titleField.setPromptText("TITLE");
+        Label titleLbl = new Label(title.isBlank() ? "(제목 없음)" : title);
+        titleLbl.setStyle("-fx-font-size:14; -fx-font-weight:bold;");
 
-        TextArea contentArea = new TextArea(cur != null ? nvl(cur.text()) : "");
-        contentArea.setPromptText("CONTENTS");
-        contentArea.setWrapText(true);
-        contentArea.setPrefRowCount(16);
+        TextArea content = new TextArea(text);
+        content.setEditable(false);
+        content.setWrapText(true);
+        content.setFocusTraversable(false);
+        content.setPrefRowCount(16);
 
-        Button save = new Button("저장");
-        Button cancel = new Button("닫기");
-        HBox btns = new HBox(8, save, cancel);
+        Button close = new Button("닫기");
+        close.setOnAction(ev -> dlg.close());
 
-        VBox form = new VBox(10,
-                dateLbl,
-                titleField,
-                contentArea,
-                btns
-        );
-        form.setPadding(new Insets(16));
-
-        dlg.setScene(new Scene(form, 720, 560));
-
-        // 저장: 메모리 저장소 업데이트 → 썸네일 즉시 반영
-        save.setOnAction(ev -> {
-            String title = nvl(titleField.getText()).trim();
-            String text  = nvl(contentArea.getText()).trim();
-            LocalDate d  = (date != null ? date : LocalDate.now());
-
-            if (FAKE_DATA) {
-                List<PreviewEntry> list = getOrInitDemoList(selectedBuddyId);
-                PreviewEntry updated = new PreviewEntry(null, d, title, text);
-                list.set(idx, updated);     // 현재 칸 교체
-                cellData[idx] = updated;
-
-                // 썸네일 갱신
-                dateLabels[idx].setText(d.format(DAY_FMT));
-                previewLabels[idx].setText(tidy(text, 140));
-
-                dlg.close();
-                return;
-            }
-
-            // ─ DB 붙일 때(타이틀도 저장) ─
-            try {
-                if (cur != null && cur.id() != null) {
-                    // 현재 DiaryEntryDao에는 content만 update가 있으니, title은 나중에 추가 예정.
-                    diaryWriteService.updateContent(cur.id(), text);
-                } else {
-                    long uid = resolveUserId(selectedBuddyId);
-                    DiaryEntry e = new DiaryEntry();
-                    e.setUserId(uid);
-                    e.setEntryDate(d);
-                    e.setTitle(title);
-                    e.setDiaryContent(text);
-                    e.setVisibility(Visibility.PRIVATE);
-                    long newId = diaryWriteService.create(e);
-                    cellData[idx] = new PreviewEntry(newId, d, title, text);
-                }
-                dateLabels[idx].setText(d.format(DAY_FMT));
-                previewLabels[idx].setText(tidy(text, 140));
-                dlg.close();
-            } catch (Exception ex) {
-                new Alert(Alert.AlertType.ERROR, "저장 실패: " + ex.getMessage()).showAndWait();
-            }
-        });
-
-        cancel.setOnAction(ev -> dlg.close());
+        VBox root = new VBox(12, dateLbl, titleLbl, content, close);
+        root.setPadding(new Insets(16));
+        dlg.setScene(new Scene(root, 720, 560));
         dlg.showAndWait();
     }
 
     // ───────────────────────── 레이아웃/유틸 ─────────────────────────
     private void bindGridToParent() {
         if (entriesGrid.getParent() instanceof Region prGrid) {
-            entriesGrid.prefWidthProperty().bind(prGrid.widthProperty());
+            entriesGrid.prefWidthProperty().bind(prGrid.widthProperty()); // width only (세로 스크롤 유지)
         } else {
             entriesGrid.parentProperty().addListener((o, oldP, p) -> {
                 if (p instanceof Region prGrid2) {
@@ -353,80 +334,27 @@ public class BuddyDiaryController {
                     b.setMinSize(w, h); b.setPrefSize(w, h); b.setMaxSize(w, h);
                 }
             }
-            for (Node n : root.lookupAll(".text-area")) {
-                if (n instanceof TextArea ta) {
-                    ta.setEditable(false);
-                    ta.setMouseTransparent(true);
-                }
-            }
         });
     }
 
-    // ───────────────────────── 더미 데이터/저장소 ─────────────────────────
+    // ───────────────────────── 데모 버디 목록 ─────────────────────────
     private List<Buddy> fakeBuddies() {
+        // 중요: id 자리에 **실제 user_id(문자열)** 를 넣어야 DB 조회가 됩니다.
+        // 지금은 예시로 17, 23, 42, 58, 61을 넣어둡니다.
         return List.of(
-            new Buddy("kk", "K.K"),
-            new Buddy("naki", "NaKi"),
-            new Buddy("guide", "Guide"),
-            new Buddy("kk2", "K.K"),
-            new Buddy("kk3", "K.K")
+            new Buddy("17", "K.K"), // ← 친구 A의 user_id
+            new Buddy("23", "NaKi"), // ← 친구 B의 user_id
+            new Buddy("42", "Guide"), // ← 친구 C의 user_id
+            new Buddy("58", "K.K"),
+            new Buddy("61", "K.K")
         );
     }
 
-    /** 버디의 4칸 데이터를 저장소에서 가져오거나, 없으면 만들어 저장 */
-    private List<PreviewEntry> getOrInitDemoList(String buddyId) {
-        return demoStore.computeIfAbsent(buddyId, id -> {
-            String base = switch (id) {
-                case "kk"   -> "날씨가 너무 덥군!";
-                case "naki" -> "아이스 아메리카노 땡긴다!";
-                case "guide"-> "바다 갔다 왔어요!";
-                default     -> "하루 기록 메모!";
-            };
-            return new ArrayList<>(List.of(
-                new PreviewEntry(null, LocalDate.now().minusDays(3), "메모 #1", base + " #1 테스트용 코드"),
-                new PreviewEntry(null, LocalDate.now().minusDays(2), "메모 #2", base + " #2 테스트용 코드"),
-                new PreviewEntry(null, LocalDate.now().minusDays(1), "메모 #3", base + " #3 테스트용 코드"),
-                new PreviewEntry(null, LocalDate.now(),            "메모 #4", base + " #4 테스트용 코드")
-            ));
-        });
+    private Long parseUserId(String buddyId) {
+        try { return Long.parseLong(buddyId); } catch (Exception e) { return null; }
     }
 
-    // DB 모드일 때만 사용(지금은 안 씀)
-    private List<PreviewEntry> mapFromDB(String buddyId) {
-        long uid = resolveUserId(buddyId);
-        if (uid <= 0) return List.of(
-            new PreviewEntry(null, LocalDate.now().minusDays(3), "", ""),
-            new PreviewEntry(null, LocalDate.now().minusDays(2), "", ""),
-            new PreviewEntry(null, LocalDate.now().minusDays(1), "", ""),
-            new PreviewEntry(null, LocalDate.now(),            "", "")
-        );
-        try {
-            List<DiaryEntry> list = diaryWriteService.loadMyDiaryList(uid);
-            List<PreviewEntry> out = new ArrayList<>();
-            for (int i = 0; i < 4; i++) {
-                if (i < list.size()) {
-                    DiaryEntry e = list.get(i);
-                    out.add(new PreviewEntry(e.getEntryId(), e.getEntryDate(), nvl(e.getTitle()), nvl(e.getDiaryContent())));
-                } else {
-                    out.add(new PreviewEntry(null, LocalDate.now().minusDays(3 - i), "", ""));
-                }
-            }
-            return out;
-        } catch (RuntimeException ex) {
-            return List.of(
-                new PreviewEntry(null, LocalDate.now().minusDays(3), "", ""),
-                new PreviewEntry(null, LocalDate.now().minusDays(2), "", ""),
-                new PreviewEntry(null, LocalDate.now().minusDays(1), "", ""),
-                new PreviewEntry(null, LocalDate.now(),            "", "")
-            );
-        }
-    }
-
-    private long resolveUserId(String buddyId) {
-        try { return Long.parseLong(buddyId); } catch (Exception e) { return 0L; }
-    }
-
-    // ───────────────────────── 헬퍼 ─────────────────────────
+    // ───────────────────────── 헬퍼/모델 ─────────────────────────
     private static String tidy(String s, int limit) {
         String one = nvl(s).replace("\r", " ").replace("\n", " ").trim();
         return one.length() > limit ? one.substring(0, limit) + "…" : one;
@@ -438,7 +366,6 @@ public class BuddyDiaryController {
         catch (Exception e) { return LocalDate.now(); }
     }
 
-    // 뷰용 내부 레코드 (id: DB모드에서 사용)
     private record Buddy(String id, String name) {}
     private record PreviewEntry(Long id, LocalDate date, String title, String text) {}
 }
