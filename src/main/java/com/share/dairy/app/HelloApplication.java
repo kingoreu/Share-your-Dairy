@@ -24,7 +24,7 @@ public class HelloApplication extends Application {
             springContext = new SpringApplicationBuilder(ServerApplication.class)
                     .properties(Map.of(
                             "server.port", "8080",
-                            "spring.datasource.url", "jdbc:mysql://localhost:3306/diary?serverTimezone=Asia/Seoul",
+                            "spring.datasource.url", "jdbc:mysql://127.0.0.1:3308/dairy?serverTimezone=Asia/Seoul",
                             "spring.datasource.username", "root",
                             "spring.datasource.password", "sohyun"
                     ))
@@ -39,11 +39,6 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Router.init(stage);
-
-        // 클래스패스 루트 기준으로 절대경로 사용
-//        Parent root = FXMLLoader.load(
-//                getClass().getResource("/fxml/mainFrame/Main.fxml")
-//        );
 
         // 폰트 등록
         Font.loadFont(
