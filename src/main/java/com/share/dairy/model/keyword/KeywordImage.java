@@ -3,25 +3,40 @@ package com.share.dairy.model.keyword;
 import java.time.LocalDateTime;
 
 public class KeywordImage {
-    private Long mappingId;
-    private Long keywordId;
-    private String imageName;
-    private Integer displayOrder;      // nullable
+    private Long keywordImage;
+    private Long analysisId;
+    private Long userId;
     private LocalDateTime createdAt;
 
-    public Long getMappingId() { return mappingId; }
-    public void setMappingId(Long mappingId) { this.mappingId = mappingId; }
+    public Long getKeywordImage() {
+        return keywordImage;
+    }
 
-    public Long getKeywordId() { return keywordId; }
-    public void setKeywordId(Long keywordId) { this.keywordId = keywordId; }
+    public void setKeywordImage(Long keywordImage) {
+        this.keywordImage = keywordImage;
+    }
 
-    public String getImageName() { return imageName; }
-    public void setImageName(String imageName) { this.imageName = imageName; }
+    public Long getAnalysisId() {
+        return analysisId;
+    }
 
-    public Integer getDisplayOrder() { return displayOrder; }
-    public void setDisplayOrder(Integer displayOrder) { this.displayOrder = displayOrder; }
+    public void setAnalysisId(Long analysisId) {
+        this.analysisId = analysisId;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
-

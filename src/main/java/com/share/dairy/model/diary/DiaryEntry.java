@@ -8,6 +8,7 @@ public class DiaryEntry {
     private Long entryId;
     private Long userId;
     private LocalDate entryDate;
+    private String title;
     private String diaryContent;
     private Visibility visibility;     // ENUM
     private LocalDateTime diaryCreatedAt;
@@ -25,6 +26,9 @@ public class DiaryEntry {
 
     public String getDiaryContent() { return diaryContent; }
     public void setDiaryContent(String diaryContent) { this.diaryContent = diaryContent; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
     public Visibility getVisibility() { return visibility; }
     public void setVisibility(Visibility visibility) { this.visibility = visibility; }

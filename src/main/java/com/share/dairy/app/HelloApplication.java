@@ -9,6 +9,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.util.Map;
 
@@ -23,9 +24,9 @@ public class HelloApplication extends Application {
             springContext = new SpringApplicationBuilder(ServerApplication.class)
                     .properties(Map.of(
                             "server.port", "8080",
-                            "spring.datasource.url", "jdbc:mysql://localhost:3306/dairy?serverTimezone=Asia/Seoul",
+                            "spring.datasource.url", "jdbc:mysql://127.0.0.1:3308/dairy?serverTimezone=Asia/Seoul",
                             "spring.datasource.username", "root",
-                            "spring.datasource.password", "1234"
+                            "spring.datasource.password", "sohyun"
                     ))
                     .run();
         });
@@ -33,19 +34,36 @@ public class HelloApplication extends Application {
         serverThread.start();
     }
 
-
-
     @Override
     public void start(Stage stage) throws Exception {
-        // 클래스패스 루트 기준으로 절대경로 사용
-        Parent root = FXMLLoader.load(
-                getClass().getResource("/fxml/mainFrame/Main.fxml")
+        Router.init(stage);
+
+        // 폰트 등록
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/NanumSquareRoundR.ttf"),
+                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
         );
+
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/NanumSquareRoundB.ttf"),
+                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
+        );
+
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/NanumSquareRoundEB.ttf"),
+                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
+        );
+
+        Font.getFamilies().forEach(System.out::println);
+
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/login/Login.fxml"));
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("공유일기");
         stage.setScene(scene);
         stage.show();
+
     }
+
     @Override
     public void stop() {
         if (springContext != null) {
@@ -53,7 +71,6 @@ public class HelloApplication extends Application {
         }
         Platform.exit();
     }
-
 
     public static void main(String[] args) {
         launch();

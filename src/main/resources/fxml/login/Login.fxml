@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.Button?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.login.LoginController"
+            stylesheets="@/css/login/login.css"
+            prefHeight="600.0" prefWidth="800.0">
+
+    <children>
+        <ImageView fitWidth="800" fitHeight="600" preserveRatio="true" smooth="true">
+        <image>
+            <Image url="@/login_images/login_background.png"/>
+        </image>
+        </ImageView>
+
+        <!-- 폼 뒤 배경 -->
+        <Rectangle width="350" height="350" arcWidth="30" arcHeight="30"
+                   styleClass="card-background"/>
+
+        <!-- 로그인 폼 -->
+        <VBox alignment="CENTER" spacing="20">
+            <children>
+                <Label text="로그인" style="-fx-font-size: 30px; -fx-text-fill: black;"/>
+
+                <TextField fx:id="idField" promptText="ID" maxWidth="250"/>
+                <PasswordField fx:id="passwordField" promptText="비밀번호" maxWidth="250"/>
+
+                <Button fx:id="loginButton" text="완료" maxWidth="200" onAction="#onLoginClicked"/>
+                <Hyperlink text="회원가입" onAction="#onSignUpClicked"/>
+            </children>
+        </VBox>
+    </children>
+
+</StackPane>

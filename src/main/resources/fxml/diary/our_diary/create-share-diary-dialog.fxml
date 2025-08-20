@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.CreateShareDiaryDialogController"
+            prefWidth="520" prefHeight="520"
+            style="-fx-background-color: transparent;">
+  <children>
+    <VBox spacing="16"
+          AnchorPane.topAnchor="24" AnchorPane.bottomAnchor="24"
+          AnchorPane.leftAnchor="24" AnchorPane.rightAnchor="24"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 24;
+                 -fx-padding: 24;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 24, 0.2, 0, 8);">
+      <Label text="NEW  SHARE  DIARY"
+             style="-fx-font-size: 22; -fx-font-weight: bold;" />
+      <Separator/>
+
+      <VBox spacing="6">
+        <Label text="TITLE" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="titleField" promptText="제목을 입력하세요"/>
+      </VBox>
+
+      <VBox spacing="8" VBox.vgrow="ALWAYS">
+        <Label text="BUDDY" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="searchField" promptText="친구 검색 (이름)"/>
+        <ListView fx:id="buddyListView" VBox.vgrow="ALWAYS"/>
+      </VBox>
+
+      <HBox spacing="8" alignment="CENTER_RIGHT">
+        <Button text="취소" onAction="#onCancel"/>
+        <Button fx:id="startBtn" text="START" defaultButton="true" onAction="#onStart"/>
+      </HBox>
+    </VBox>
+  </children>
+</AnchorPane>

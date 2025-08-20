@@ -1,26 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.share.dairy.controller.MyDiaryController"
-      spacing="12" style="-fx-padding: 8;">
-    <HBox spacing="8">
-        <ToggleButton text="PLACE" onAction="#onPlace"/>
-        <ToggleButton text="MUSIC" onAction="#onMusic"/>
-        <ToggleButton text="TIME"  onAction="#onTime"/>
-        <Pane HBox.hgrow="ALWAYS"/>
-        <Button text="EDIT" onAction="#onEdit"/>
-        <Button text="SAVE" onAction="#onSave"/>
-    </HBox>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.share.dairy.controller.MyDiaryController"
+           prefWidth="960" prefHeight="640">
 
-    <TextField fx:id="titleField" promptText="TITLE"/>
-    <TextArea fx:id="contentArea" promptText="CONTENTS" prefRowCount="12"/>
+    <VBox spacing="12" style="-fx-padding: 16;">
+        <!-- 상단: PLACE / MUSIC / EDIT / SAVE -->
+        <HBox spacing="8">
+            <ToggleButton text="PLACE" onAction="#onPlace"/>
+            <ToggleButton text="MUSIC" onAction="#onMusic"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="EDIT" onAction="#onEdit"/>
+            <Button text="SAVE" onAction="#onSave"/>
+        </HBox>
 
-    <HBox spacing="8">
-        <TextField fx:id="placeField" promptText="Place..."/>
+        <!-- NEW DIARY 입력 영역 -->
+        <TextField fx:id="titleField" promptText="TITLE"/>
+        <TextArea fx:id="contentArea" promptText="CONTENTS" prefRowCount="12"/>
+        <TextField fx:id="placeField" promptText="Place..." maxWidth="420"/>
+
+        <!-- 필요하면 music/time 입력칸도 추가 가능 (컨트롤러에 null-guard 있음)
         <TextField fx:id="musicField" promptText="Music..."/>
         <TextField fx:id="timeField"  promptText="Time..."/>
-    </HBox>
-</VBox>
+        -->
+    </VBox>
+
+    <!-- 우하단 FAB (원하면 삭제해도 됨) -->
+    <Button fx:id="pencilFab"
+            onAction="#onEdit"
+            styleClass="fab"
+            StackPane.alignment="BOTTOM_RIGHT">
+        <StackPane.margin>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </StackPane.margin>
+        <tooltip><Tooltip text="New diary"/></tooltip>
+        <graphic>
+            <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                <image><Image url="@/icons/pen.png"/></image>
+            </ImageView>
+        </graphic>
+    </Button>
+</StackPane>

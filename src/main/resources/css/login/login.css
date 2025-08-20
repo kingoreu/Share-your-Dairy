@@ -1,0 +1,121 @@
+/* 전체 컨테이너 기본 */
+.root {
+    -fx-background-color: transparent;
+    -fx-font-family: "NanumSquareRound Bold", "Arial";
+}
+
+/* 카드 배경 */
+.card-background {
+    -fx-fill: rgba(255, 255, 255, 0.8); /* 투명한 화이트 대신 아이보리 느낌 */
+    -fx-background-radius: 20;
+    -fx-padding: 20;
+}
+
+/* 제목 라벨 (로그인, 회원가입, 캐릭터 선택 등) */
+.title-label {
+    -fx-font-family: "NanumSquareRound ExtraBold";
+    -fx-font-size: 30px;
+    -fx-text-fill: #2b7a78;   /* 진한 민트-청록색 */
+}
+
+/* 일반 라벨 */
+.label {
+    -fx-font-family: "NanumSquareRound Bold";
+    -fx-font-size: 30px;
+    -fx-text-fill: #333333;
+}
+
+/* 입력 필드 */
+.text-field, .password-field {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 8;
+    -fx-font-size: 14px;
+    -fx-font-family: "NanumSquareRound Regular";
+    -fx-text-fill: #333333;
+}
+
+/* 로그인 버튼 */
+.button {
+    -fx-background-color: linear-gradient(#7ed6c6, #66cdaa);
+    -fx-font-family: "NanumSquareRound Bold";
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+.button:hover {
+    -fx-background-color: linear-gradient(#8be6d5, #5bb5a5);
+}
+
+/* 하이퍼링크 (회원가입, 비밀번호 찾기 등) */
+.hyperlink {
+    -fx-font-family: "NanumSquareRound Bold";
+    -fx-font-size: 16px;
+    -fx-text-fill: #5da9e9;
+    -fx-underline: false;
+}
+.hyperlink:hover {
+    -fx-underline: true;
+    -fx-text-fill: #2b7cd3;
+}
+
+.character-button {
+    -fx-background-color: white;
+    -fx-padding: 5;
+    -fx-border-color: transparent;
+}
+.character-button:selected {
+    -fx-border-color: #66cdaa; /* 민트색 */
+    -fx-border-width: 3;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+#prevBtn, #nextBtn {
+    -fx-background-radius: 999;
+    -fx-min-width: 35;
+    -fx-min-height: 35;
+    -fx-font-size: 14px;
+    -fx-background-color: #66cdaa;
+    -fx-border-color: #cccccc;
+}
+#prevBtn:hover, #nextBtn:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+#pageInfoLabel {
+    -fx-font-size: 22px;        /* 글자 크기 키우기 */
+    -fx-font-weight: bold;      /* 굵게 */
+    -fx-text-fill: #333333;     /* 진한 회색 */
+}
+
+/* 이미지만 보이게 */
+.character-button {
+    -fx-content-display: graphic-only;   /* 텍스트 숨기고 그래픽만 */
+    -fx-background-color: transparent;   /* 평상시 투명 */
+    -fx-padding: 6;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+/* 호버 효과: 살짝 그림자 */
+.character-button:hover {
+    -fx-background-color: rgba(255,255,255,0.6);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.2, 0, 2);
+}
+
+/* 선택되었을 때: 민트색 테두리 + 배경 약간 */
+.character-button:selected {
+    -fx-border-color: #66cdaa;
+    -fx-border-width: 3;
+    -fx-background-color: rgba(102,205,170,0.10); /* 아주 옅은 민트 */
+}
+
+/* 포커스 링 제거(원하면) */
+.character-button:focused {
+    -fx-effect: none;
+}

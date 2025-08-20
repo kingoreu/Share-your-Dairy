@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public class CreateRequest {
     private Long userId;
     private LocalDate entryDate;
+    private String title;
     private String diaryContent;
     private Visibility visibility;   // PUBLIC/FRIENDS/PRIVATE
     private Long sharedDiaryId;      // 공유 안 하면 null

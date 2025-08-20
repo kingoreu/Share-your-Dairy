@@ -1,100 +1,154 @@
 package com.share.dairy.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.ResourceBundle;
 
-public class MoodGraphController implements Initializable {
+import com.share.dairy.repo.MoodRepository;
+import com.share.dairy.model.mood.MoodPoint;
+
+//diary analysis 테이블 user_id 추가 및 user_id로 mood 조회
+public class MoodGraphController extends OverlayChildController{
 
     @FXML private ToggleButton weekToggle;
     @FXML private ToggleButton days15Toggle;
     @FXML private ToggleButton monthToggle;
 
+    @FXML private ToggleGroup  rangeGroup;          // FXML의 fx:id="rangeGroup" 주입
     @FXML private LineChart<String, Number> moodChart;
 
-    private ToggleGroup rangeGroup;
+    private final MoodRepository repo = new MoodRepository();
+    private long userId = 1L;                       // 로그인 값으로 교체
+
+    private enum Range { WEEK(7), DAYS15(15), MONTH(30); final int days; Range(int d){ this.days=d; } }
+    private static final DateTimeFormatter LABEL_FMT = DateTimeFormatter.ofPattern("MM-dd");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // 토글 그룹 구성 (단일 선택)
-        rangeGroup = new ToggleGroup();
-        weekToggle.setToggleGroup(rangeGroup);
-        days15Toggle.setToggleGroup(rangeGroup);
-        monthToggle.setToggleGroup(rangeGroup);
+        // 차트 기본 스타일
+        moodChart.setCreateSymbols(false);   // 기본은 선-only
+        moodChart.setAnimated(false);
 
-        // 차트 스타일: 시안처럼 선만 보이게
-        moodChart.setCreateSymbols(false);  // 점 제거
-        moodChart.setAnimated(false);       // 갱신 애니메이션 제거(선호에 따라)
+        // Y축 1~10 고정
+        if (moodChart.getYAxis() instanceof NumberAxis yAxis) {
+            yAxis.setAutoRanging(false);
+            yAxis.setLowerBound(1);
+            yAxis.setUpperBound(10);
+            yAxis.setTickUnit(1);
+            yAxis.setMinorTickVisible(false);
+        }
 
-        // 선택 변경 시 자동 데이터 로드
+        // 토글 변경 시 DB 로드
         rangeGroup.selectedToggleProperty().addListener((obs, oldT, newT) -> {
-            if (newT == null) return; // 아무 것도 선택 안 된 케이스 방지
-            if (newT == weekToggle) {
-                loadWeekData();
-            } else if (newT == days15Toggle) {
-                load15DaysData();
-            } else if (newT == monthToggle) {
-                loadMonthData();
-            }
+            if (newT == null) return;
+            if (newT == weekToggle)        loadDays(Range.WEEK);
+            else if (newT == days15Toggle) loadDays(Range.DAYS15);
+            else if (newT == monthToggle)  loadDays(Range.MONTH);
         });
 
-        // 기본 선택: 1week
-        weekToggle.setSelected(true); // → 리스너가 loadWeekData() 호출
+        // 기본: 1주
+        weekToggle.setSelected(true);
+        loadDays(Range.WEEK);
     }
 
-    /* === 데이터 로더들 === */
-    @FXML
-    private void loadWeekData() {
-        String[] dates = new String[7];
-        int[] scores = new int[7];
-        for (int i = 0; i < 7; i++) {
-            dates[i] = (i + 1) + "일";
-            scores[i] = 2 + (int) (Math.random() * 4); // 2~5
-        }
-        updateChart(dates, scores);
+    /* FXML onAction 훅 (버튼 클릭 시 직접 호출되어도 OK) */
+    @FXML private void loadWeekData()   { loadDays(Range.WEEK); }
+    @FXML private void load15DaysData() { loadDays(Range.DAYS15); }
+    @FXML private void loadMonthData()  { loadDays(Range.MONTH); }
+
+    /** 공통 로더: DB에서 일별 평균 행복도 조회 후 그리기 */
+    private void loadDays(Range range) {
+        LocalDate toExclusive = LocalDate.now().plusDays(1); // 오늘 포함하려고 +1 (exclusive)
+        LocalDate from        = toExclusive.minusDays(range.days);
+
+        new Thread(() -> {
+            try {
+                List<MoodPoint> rows = repo.findDailyMood(userId, from, toExclusive);
+                Map<LocalDate, Integer> dayToScore = new HashMap<>();
+                for (MoodPoint mp : rows) dayToScore.put(mp.date(), mp.score());
+
+                // 1) 기본 데이터 채우기
+                List<String> labels = new ArrayList<>(range.days);
+                List<Number> values = new ArrayList<>(range.days);
+                for (int i = 0; i < range.days; i++) {
+                    LocalDate d = from.plusDays(i);
+                    labels.add(LABEL_FMT.format(d));
+                    Integer s = dayToScore.get(d);
+                    values.add(s != null ? s : Double.NaN); // 데이터 없는 날은 끊김
+                }
+
+                // 2) 유효 포인트( NaN 제외 ) 개수
+                long valid = values.stream()
+                        .filter(v -> v != null && !Double.isNaN(v.doubleValue()))
+                        .count();
+
+                // 3) 포인트가 1개면 좌우에 더미(값 NaN) 추가 → 중앙 배치
+                if (valid == 1) {
+                    labels.add(0, " ");            values.add(0, Double.NaN);  // 왼쪽 더미
+                    labels.add("  ");              values.add(Double.NaN);     // 오른쪽 더미
+                }
+
+                // 4) 차트 갱신
+                updateChart(labels, values);
+            } catch (Exception e) {
+                e.printStackTrace();
+                updateChart(List.of(), List.of());
+            }
+        }, "mood-load-thread").start();
     }
 
-    @FXML
-    private void load15DaysData() {
-        String[] dates = new String[15];
-        int[] scores = new int[15];
-        for (int i = 0; i < 15; i++) {
-            dates[i] = (i + 1) + "일";
-            scores[i] = 2 + (int) (Math.random() * 4);
-        }
-        updateChart(dates, scores);
+    /** 차트 갱신(UI 스레드 보장) + 포인트 적을 때 점 크게 */
+    private void updateChart(List<String> labels, List<Number> values) {
+        Runnable ui = () -> {
+            moodChart.getData().clear();
+
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            for (int i = 0; i < labels.size(); i++) {
+                series.getData().add(new XYChart.Data<>(labels.get(i), values.get(i)));
+            }
+            moodChart.getData().add(series);
+
+            // 유효 포인트 개수
+            long valid = values.stream()
+                    .filter(v -> v != null && !Double.isNaN(v.doubleValue()))
+                    .count();
+
+            boolean fewPoints = valid <= 2;      // 1~2개면 점 보이게 + 크게
+            moodChart.setCreateSymbols(fewPoints);
+
+            Platform.runLater(() -> {
+                if (series.getNode() != null) {
+                    series.getNode().setStyle("-fx-stroke-width: 2.5px;"); // 선 두께 살짝 업
+                }
+                if (fewPoints) {
+                    for (XYChart.Data<String, Number> d : series.getData()) {
+                        Number y = d.getYValue();
+                        if (y == null || Double.isNaN(y.doubleValue())) continue; // 더미 제외
+                        if (d.getNode() != null) {
+                            d.getNode().setStyle("-fx-background-radius: 9px; -fx-padding: 9px;");
+                        } else {
+                            d.nodeProperty().addListener((o, oldN, node) -> {
+                                if (node != null) node.setStyle("-fx-background-radius: 9px; -fx-padding: 9px;");
+                            });
+                        }
+                    }
+                }
+            });
+        };
+        if (Platform.isFxApplicationThread()) ui.run(); else Platform.runLater(ui);
     }
 
-    @FXML
-    private void loadMonthData() {
-        String[] dates = new String[30];
-        int[] scores = new int[30];
-        for (int i = 0; i < 30; i++) {
-            dates[i] = (i + 1) + "일";
-            scores[i] = 2 + (int) (Math.random() * 4);
-        }
-        updateChart(dates, scores);
-    }
-
-    /* === 차트 갱신 === */
-    private void updateChart(String[] dates, int[] scores) {
-        moodChart.getData().clear();
-
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        for (int i = 0; i < dates.length; i++) {
-            series.getData().add(new XYChart.Data<>(dates[i], scores[i]));
-        }
-
-        // CSS로 더 예쁘게 잡고 싶다면 커스텀 클래스 추가 (선택)
-        // series.getNode().getStyleClass().add("mood-series");
-
-        moodChart.getData().add(series);
-    }
+    // 로그인 연동 시 사용
+    public void setUserId(long userId) { this.userId = userId; }
 }
