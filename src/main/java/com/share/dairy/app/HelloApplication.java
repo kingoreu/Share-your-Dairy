@@ -24,9 +24,9 @@ public class HelloApplication extends Application {
             springContext = new SpringApplicationBuilder(ServerApplication.class)
                     .properties(Map.of(
                             "server.port", "8080",
-                            "spring.datasource.url", "jdbc:mysql://127.0.0.1:3308/dairy?serverTimezone=Asia/Seoul",
+                            "spring.datasource.url", "jdbc:mysql://127.0.0.1:3306/dairy?serverTimezone=Asia/Seoul",
                             "spring.datasource.username", "root",
-                            "spring.datasource.password", "sohyun"
+                            "spring.datasource.password", "1234"
                     ))
                     .run();
         });
