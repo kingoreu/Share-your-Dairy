@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
+
 public class MainController {
     @FXML private Pane contentPane;
 
@@ -22,8 +23,10 @@ public class MainController {
 
     @FXML private ImageView characterImg;
 
+
     @FXML
     public void initialize() {
+
         // 초기 상태: 메인 오버레이 보이고, contentPane 숨김
         contentPane.setVisible(false);
         contentPane.setManaged(false);
@@ -47,6 +50,7 @@ public class MainController {
                 });
             }
         });
+
     }
 
     @FXML private void onWardrobeClicked(MouseEvent e)   { /* TODO */ }
@@ -57,7 +61,7 @@ public class MainController {
     // @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/my_diary/my-diary-view.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/diary/our_diary/home-view.fxml"); }
-    @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }
+    @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/FriendList/friendlistpanel.fxml"); }
 
     private void loadView(String fxmlPath) {
         try {
@@ -104,4 +108,7 @@ public class MainController {
         contentPane.setManaged(false);
         setOverlayVisible(true);
     }
+
+
+
 }

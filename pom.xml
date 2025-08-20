@@ -115,7 +115,12 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-
+        <!-- pom.xml에 필요한 정도만 적음 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- (선택) 로깅/유틸 등은 스프링 스타터에 포함 -->
 
     </dependencies>
 

@@ -13,8 +13,8 @@ import javafx.stage.Stage;
 import java.util.Map;
 
 public class HelloApplication extends Application {
-    
-      private ConfigurableApplicationContext springContext;
+
+    private ConfigurableApplicationContext springContext;
 
     @Override
     public void init() {
@@ -34,11 +34,12 @@ public class HelloApplication extends Application {
     }
 
 
+
     @Override
     public void start(Stage stage) throws Exception {
         // 클래스패스 루트 기준으로 절대경로 사용
-         Parent root = FXMLLoader.load(
-       getClass().getResource("/fxml/mainFrame/Main.fxml")
+        Parent root = FXMLLoader.load(
+                getClass().getResource("/fxml/mainFrame/Main.fxml")
         );
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("공유일기");
@@ -47,10 +48,10 @@ public class HelloApplication extends Application {
     }
     @Override
     public void stop() {
-            if (springContext != null) {
+        if (springContext != null) {
             springContext.close();
-            }
-         Platform.exit();
+        }
+        Platform.exit();
     }
 
 

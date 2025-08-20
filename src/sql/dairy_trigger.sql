@@ -28,6 +28,6 @@ CREATE TRIGGER trg_set_updated_at_on_update
     FOR EACH ROW
 BEGIN
     SET NEW.diary_updated_at = NOW();
-END;
+END//
 
 DELIMITER ;
