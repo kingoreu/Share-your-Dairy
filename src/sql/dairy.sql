@@ -100,6 +100,11 @@ CREATE TABLE diary_entries
     KEY idx_diary_visibility (visibility)
 ) ENGINE = InnoDB;
 
+-- !! 일기 내용 테이블에 title 컬럼 추가 !! --
+ALTER TABLE diary_entries
+    ADD COLUMN title VARCHAR(255) AFTER entry_date;
+
+
 -- 6) 일기 분석
 CREATE TABLE diary_analysis
 (

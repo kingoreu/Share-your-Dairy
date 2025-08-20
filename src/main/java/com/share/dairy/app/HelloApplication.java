@@ -36,7 +36,7 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // Router.init(stage);
+        Router.init(stage);
 
         // 폰트 등록
         Font.loadFont(

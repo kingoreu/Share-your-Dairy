@@ -291,8 +291,8 @@
 .sidebar {
     -fx-alignment: BOTTOM_CENTER; /* VBox 자식들을 아래로 정렬 */
     -fx-spacing: 32;              /* 버튼 사이 간격은 유지/조금 넓게 */
-    -fx-padding: 12 12 8 12;            /* 버튼 사이 간격 
-}
+    -fx-padding: 12 12 8 12;            /* 버튼 사이 간격 */
+
 /* ===== 왼쪽 3개 버튼을 화면에서 더 아래로 내리기 (레이아웃 영향 없이 시각적 이동) ===== */
 .sidebar .button,
 .sidebar .toggle-button {

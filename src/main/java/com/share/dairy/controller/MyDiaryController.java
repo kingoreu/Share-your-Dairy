@@ -72,6 +72,11 @@ public class MyDiaryController {
         DiaryEntry entry = new DiaryEntry();
         entry.setUserId(currentUserId);
         entry.setEntryDate(LocalDate.now());
+
+        if (titleField != null) {
+            entry.setTitle(titleField.getText().trim());
+        }
+
         entry.setDiaryContent(content.trim());
         entry.setVisibility(Visibility.PRIVATE);
         entry.setSharedDiaryId(null);
@@ -146,7 +151,7 @@ public class MyDiaryController {
         VBox card = new VBox(6);
         card.getStyleClass().add("diary-card");
         Label date = new Label("DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null));
-        Label title = new Label("TITLE"); // 제목은 나중에
+        Label title = new Label("TITLE" + Optional.ofNullable(d.getTitle()).orElse("")); // 제목은 나중에
         Label content = new Label("CONTENTS " + Optional.ofNullable(d.getDiaryContent()).orElse(""));
         card.getChildren().addAll(date, title, content);
         return card;
