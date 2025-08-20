@@ -10,4 +10,4 @@ app:
 
 openai:
   # VM 옵션(-Dopenai.api-key) → 환경변수(OPENAI_API_KEY) → 없으면 빈값
-  api-key: ${openai.api-key:${OPENAI_API_KEY:}}
+  api-key: ${OPENAI_API_KEY:}
