@@ -64,7 +64,6 @@ public class CalendarController extends OverlayChildController {
         currentYm = currentYm.plusMonths(deltaMonth);
         refresh();
     }
-
     
     /** 열/행 제약을 매번 보강해서 레이아웃이 0으로 접히는 걸 방지 */
     private void ensureGridLayout() {
@@ -84,7 +83,6 @@ public class CalendarController extends OverlayChildController {
             }
         }
     }
-
 
     /** 달력 다시 그리기 */
     private void refresh() {
