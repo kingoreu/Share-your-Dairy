@@ -1,4 +1,4 @@
-package com.share.dairy.controller.CalendarController;
+package com.share.dairy.controller.Calendar;
 
 import com.share.dairy.controller.OverlayChildController;
 import com.share.dairy.repo.DiaryImageRepository;

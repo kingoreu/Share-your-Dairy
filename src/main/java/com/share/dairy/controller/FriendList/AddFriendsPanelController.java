@@ -48,8 +48,7 @@ public class AddFriendsPanelController {
     }
 
     // ===== 라우팅(필요 시 구현) =====
-    @FXML private void goHome(ActionEvent e) { /* AppRouter.navigate("home"); */ }
-    @FXML private void goMyInfo(ActionEvent e) { /* AppRouter.navigate("myinfo"); */ }
+    @FXML private void goMyInfo(ActionEvent e) { switchTo("/fxml/FriendList/MyInfoPanel.fxml", (Node) e.getSource()); }
     @FXML private void goBuddyList(ActionEvent e) {switchTo("/fxml/FriendList/FriendListPanel.fxml", (Node) e.getSource());}
 
     // ===== Search 버튼 핸들러 =====

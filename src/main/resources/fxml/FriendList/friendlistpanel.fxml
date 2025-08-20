@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import java.lang.String?>
-<BorderPane fx:controller="com.share.dairy.controller.FriendListPanelController"
+<BorderPane fx:controller="com.share.dairy.controller.FriendList.FriendListPanelController"
             xmlns:fx="http://javafx.com/fxml"
             stylesheets="@/css/friendlist.css"
             prefWidth="1024" prefHeight="640"

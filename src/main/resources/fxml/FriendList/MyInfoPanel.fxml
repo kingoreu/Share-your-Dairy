@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:controller="com.share.dairy.controller.MyInfoPanelController"
+<BorderPane fx:controller="com.share.dairy.controller.FriendList.MyInfoPanelController"
             xmlns:fx="http://javafx.com/fxml"
             prefWidth="1024" prefHeight="640"
             styleClass="root"
