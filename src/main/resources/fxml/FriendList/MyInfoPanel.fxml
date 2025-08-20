@@ -107,9 +107,8 @@
                             <StackPane GridPane.columnIndex="0" alignment="CENTER">
                                 <StackPane fx:id="card" styleClass="character-card">
                                     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-                                    <ImageView fx:id="imgCharacter" preserveRatio="true">
-                                        <image><Image url="@/characters/character_default.png"/></image>
-                                    </ImageView>
+                                    <!-- 🔧 정적 이미지 경로 제거: 컨트롤러가 동적으로 설정 -->
+                                    <ImageView fx:id="imgCharacter" preserveRatio="true"/>
                                 </StackPane>
                             </StackPane>
 
