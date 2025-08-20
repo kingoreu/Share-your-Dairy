@@ -39,11 +39,11 @@ public class UserService {
                 : req.getUserEmail().trim().toLowerCase();
 
         // 중복 체크 (유효성)o
-        if (userDao.existsByLoginId(req.getLoginId())) {
-            throw new org.springframework.dao.DuplicateKeyException("이미 사용 중인 아이디입니다.");
+        if (existsByLoginId(req.getLoginId())) {
+            throw new DuplicateKeyException("이미 사용 중인 아이디입니다.");
         }
-        if (normalizedEmail != null && userDao.existsByEmail(normalizedEmail)) {
-            throw new org.springframework.dao.DuplicateKeyException("이미 가입된 이메일입니다.");
+        if (normalizedEmail != null && existsByEmail(normalizedEmail)) {
+            throw new DuplicateKeyException("이미 가입된 이메일입니다.");
         }
 
         User u = new User();
@@ -79,6 +79,17 @@ public class UserService {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
         return opt.get();
+    }
+
+    // dao에 있긴 한데, 레이어 아키텍처 원칙 지켜야해서 한번 더 감쌈
+    @Transactional(readOnly = true)
+    public boolean existsByLoginId(String loginId) throws SQLException {
+        return userDao.existsByLoginId(loginId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) throws SQLException {
+        return userDao.existsByEmail(email);
     }
 
 

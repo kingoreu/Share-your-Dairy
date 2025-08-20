@@ -55,6 +55,7 @@ public class CharacterSelectController {
             Map.entry("richard","RICHARD"), Map.entry("tako","TAKO"), Map.entry("wolf","WOLF")
     );
 
+    ///
     private String toCharacterType(String path) {
         String file = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
         return CHARACTER_MAP.getOrDefault(file.toLowerCase(), file.toUpperCase());
@@ -79,16 +80,7 @@ public class CharacterSelectController {
             }
         });
 
-//        // 확인 버튼 눌렀을 때 처리(원하는 동작 연결)
-//        if (confirmBtn != null) {
-//            if (selectedPath != null) return;
-////            confirmBtn.setOnAction(e -> {
-////                if (selectedPath != null) return;
-////
-////                System.out.println("Selected character: " + selectedPath);
-////                    // 회원가입 완료 화면으로 이동
-////            });
-//        }
+
         // 키보드 화살표로도 이동
         characterBox.setOnKeyPressed(ev -> {
             switch (ev.getCode()) {
@@ -109,6 +101,8 @@ public class CharacterSelectController {
         stage.getScene().setRoot(signUpRoot);
     }
 
+
+
     @FXML
     private void onSelectClicked(ActionEvent event) throws IOException {
         if (pending == null) {
@@ -121,6 +115,8 @@ public class CharacterSelectController {
         }
 
         String characterType = toCharacterType(selectedPath); // 예: "CAT", "DOG" ...
+
+
         String json = String.format(
                 "{ \"nickname\":\"%s\", \"loginId\":\"%s\", \"password\":\"%s\", \"userEmail\":\"%s\", \"characterType\":\"%s\" }",
                 esc(pending.nickname), esc(pending.loginId), esc(pending.password), esc(pending.userEmail), esc(characterType)
@@ -198,6 +194,22 @@ public class CharacterSelectController {
 
 
     private static String esc(String s){ return s.replace("\\","\\\\").replace("\"","\\\""); }
-    private void alert(String msg){ new Alert(Alert.AlertType.ERROR, msg).showAndWait(); }
+    private void alert(String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("회원가입 오류");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+
+        alert.setGraphic(null);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(
+                getClass().getResource("/css/login/alert.css").toExternalForm()
+        );
+        dialogPane.getStyleClass().add("custom-alert");
+
+        alert.showAndWait();
+    }
+    // private void alert(String msg){ new Alert(Alert.AlertType.ERROR, msg).showAndWait(); }
 
 }
