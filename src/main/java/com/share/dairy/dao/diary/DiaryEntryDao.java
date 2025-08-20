@@ -56,27 +56,31 @@ public class DiaryEntryDao {
     }
 
     /** 사용 중일 수도 있으니 INSERT도 title 포함으로 맞춰둡니다. */
-    public long insert(DiaryEntry d) throws SQLException {
-        String sql = """
-          INSERT INTO diary_entries (user_id, entry_date, title, diary_content, visibility, shared_diary_id)
-          VALUES (?,?,?,?,?,?)
-        """;
-        try (var con = DBConnection.getConnection();
-             var ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setLong(1, d.getUserId());
-            ps.setObject(2, d.getEntryDate());                          // LocalDate
-            ps.setString(3, d.getTitle() == null ? "" : d.getTitle());  // ★ title
-            ps.setString(4, d.getDiaryContent());
-            ps.setString(5, d.getVisibility() == null ? "PRIVATE" : d.getVisibility().name());
-            if (d.getSharedDiaryId() == null) ps.setNull(6, Types.BIGINT);
-            else ps.setLong(6, d.getSharedDiaryId());
+    public long save(DiaryEntry entry) throws SQLException {
+    String sql = """
+        INSERT INTO diary_entries (user_id, entry_date, title, diary_content, visibility, diary_created_at)
+        VALUES (?, ?, ?, ?, ?, NOW())
+    """;
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.executeUpdate();
-            try (var keys = ps.getGeneratedKeys()) {
-                return keys.next() ? keys.getLong(1) : 0L;
-            }
+        ps.setLong(1, entry.getUserId());
+        ps.setDate(2, java.sql.Date.valueOf(entry.getEntryDate())); // ✅ java.sql.Date로 명시
+        ps.setString(3, entry.getTitle());
+        ps.setString(4, entry.getDiaryContent());
+        ps.setString(5, entry.getVisibility().name());             // ✅ enum → 문자열
+
+        ps.executeUpdate();
+
+        try (ResultSet keys = ps.getGeneratedKeys()) {
+            if (keys.next()) return keys.getLong(1);
+            throw new SQLException("일기 저장 실패 (entry_id 생성 안 됨)");
         }
     }
+}
+
+
+
 
     public int updateContent(Connection con, long entryId, String content) throws SQLException {
         String sql = "UPDATE diary_entries SET diary_content=? WHERE entry_id=?";
