@@ -1,4 +1,4 @@
-package com.share.dairy.controller;
+package com.share.dairy.controller.FriendList;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

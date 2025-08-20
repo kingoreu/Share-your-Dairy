@@ -1,4 +1,4 @@
-package com.share.dairy.controller;
+package com.share.dairy.controller.FriendList;
 
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;

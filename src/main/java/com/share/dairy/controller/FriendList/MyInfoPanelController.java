@@ -1,6 +1,7 @@
-package com.share.dairy.controller;
+package com.share.dairy.controller.FriendList;
 
 import com.share.dairy.auth.UserSession;
+import com.share.dairy.controller.OverlayChildController;
 import com.share.dairy.util.DBConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,13 +13,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class MyInfoPanelController {
+public class MyInfoPanelController extends OverlayChildController{
 
     // ===== FXML 바인딩 =====
     @FXML private StackPane card;
@@ -52,13 +54,16 @@ public class MyInfoPanelController {
 
     // ===== 초기화 =====
     @FXML
-    private void initialize() {
+     public void initialize(URL url, ResourceBundle rb) {
 
         
         // 이미지가 카드 폭에 맞게 줄어들도록
         if (card != null && imgCharacter != null) {
             imgCharacter.fitWidthProperty().bind(card.widthProperty().subtract(36));
+            imgCharacter.fitHeightProperty().bind(card.heightProperty().subtract(36));
+            imgCharacter.setSmooth(true);
             imgCharacter.setPreserveRatio(true);
+            imgCharacter.setCache(true);
         }
 
         // 캐릭터 옵션
