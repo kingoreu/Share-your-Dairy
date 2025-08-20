@@ -106,7 +106,7 @@ public class MyInfoPanelController extends OverlayChildController{
             if (!validateInputs()) return;
 
             // TODO: 서버 API 호출로 바꾸면 더 좋음 (/api/users/{id} PUT)
-            boolean ok = updateMyInfoLocalStub();
+            boolean ok = updateMyInfoToDb();
 
             if (ok) {
                 setEditing(false);
@@ -121,6 +121,45 @@ public class MyInfoPanelController extends OverlayChildController{
             } else {
                 lblHint.setText("저장 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
             }
+        }
+    }
+
+        private boolean updateMyInfoToDb() {
+        var s = UserSession.get();
+        if (s == null) {
+            hint("로그인 세션이 없습니다. 다시 로그인해 주세요.");
+           return false;
+        }
+
+        String email     = tfEmail.getText() == null ? "" : tfEmail.getText().trim();
+        String nickname  = tfNickname.getText() == null ? "" : tfNickname.getText().trim();
+        String character = normalize(cbCharacter.getSelectionModel().getSelectedItem());
+
+        String sql = "UPDATE users SET user_email=?, nickname=?, character_type=?, user_updated_at=NOW() WHERE user_id=?";
+
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setString(2, nickname);
+            ps.setString(3, character);
+            ps.setLong(4, s.getUserId());
+
+            int updated = ps.executeUpdate();
+                if (updated == 1) {
+                // 세션에도 반영
+                s.setEmail(email);
+                s.setNickname(nickname);
+                s.setCharacterType(character);
+                return true;
+            } else {
+                hint("업데이트된 행이 없습니다. user_id를 확인하세요.");
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            hint("DB 업데이트 실패: " + e.getMessage());
+            return false;
         }
     }
 
@@ -219,7 +258,7 @@ public class MyInfoPanelController extends OverlayChildController{
     }
 
     // ===== 저장 (지금은 스텁: 필요 시 서버 PUT으로 교체) =====
-    private boolean updateMyInfoLocalStub() {
+        private boolean updateMyInfoLocalStub() {
         // 서버 API로 바꾸려면 /api/users/{UserSession.get().userId} 로 PUT 보내세요.
         return true;
     }

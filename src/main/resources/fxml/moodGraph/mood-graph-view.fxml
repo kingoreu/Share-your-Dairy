@@ -10,7 +10,7 @@
 <?import java.net.URL?> 
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.share.dairy.controller.MoodGraphController"
+            fx:controller="com.share.dairy.controller.MoodGraph.MoodGraphController"
             style="-fx-background-color: #fdeaf4;">
 
     <!-- ✅ CSS 연결 (올바른 문법) -->
