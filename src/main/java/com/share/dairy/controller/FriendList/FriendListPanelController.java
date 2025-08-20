@@ -1,4 +1,4 @@
-package com.share.dairy.controller;
+package com.share.dairy.controller.FriendList;
 
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
@@ -18,8 +18,12 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import javafx.event.ActionEvent;
+
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.share.dairy.controller.OverlayChildController;
 
 /**
  * FriendListPanel 컨트롤러
@@ -27,7 +31,7 @@ import java.util.stream.Collectors;
  * - 중앙: GridPane(2열, 각 50%)에 카드 렌더링 → 항상 정돈된 2열
  * - 하단(컨텐츠 내부 우하단): Select/Delete
  */
-public class FriendListPanelController {
+public class FriendListPanelController extends OverlayChildController {
 
     /* ===== FXML 바인딩 ===== */
     @FXML private GridPane grid;
@@ -46,7 +50,7 @@ public class FriendListPanelController {
     private static final PseudoClass PSEUDO_SELECTED = PseudoClass.getPseudoClass("selected");
 
     @FXML
-    private void initialize() {
+    public void initialize(URL url, ResourceBundle rb) {
         seedSampleData();
         renderGrid();
 
@@ -148,6 +152,7 @@ public class FriendListPanelController {
     private void navigateHome()      { /* TODO: 라우팅 연결 */ }
     private void navigateMyInfo()    { /* TODO: 라우팅 연결 */ }
     private void navigateAddFriends(){ /* TODO: 라우팅 연결 */ }
+    
 
     private void alert(String msg) {
         Alert a = new Alert(AlertType.INFORMATION);

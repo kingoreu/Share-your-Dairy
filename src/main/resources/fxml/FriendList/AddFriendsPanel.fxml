@@ -11,7 +11,7 @@
   - 스타일은 friendlist.css를 그대로 재사용 + 일부 클래스만 추가 정의
 -->
 <?import java.lang.String?>
-<BorderPane fx:controller="com.share.dairy.controller.AddFriendsPanelController"
+<BorderPane fx:controller="com.share.dairy.controller.FriendList.AddFriendsPanelController"
             xmlns:fx="http://javafx.com/fxml"
             stylesheets="@/css/friendlist.css"
             prefWidth="1024" prefHeight="640"

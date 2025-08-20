@@ -4,11 +4,11 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:controller="com.share.dairy.controller.MyInfoPanelController"
+<BorderPane fx:controller="com.share.dairy.controller.FriendList.MyInfoPanelController"
             xmlns:fx="http://javafx.com/fxml"
-            stylesheets="@/css/friendlist.css"
             prefWidth="1024" prefHeight="640"
-            styleClass="root">
+            styleClass="root"
+            stylesheets="@/css/friendlist.css">
 
     <!-- ========== 상단 헤더 ========== -->
     <top>
@@ -86,7 +86,6 @@
 
     <!-- ========== 중앙 컨텐츠 ========== -->
     <center>
-        <!-- 창이 커져도 상자 크기 과확장 방지 -->
         <StackPane alignment="TOP_CENTER">
             <StackPane styleClass="content-wrap"
                        maxWidth="880" prefWidth="880"
@@ -107,15 +106,13 @@
                             <StackPane GridPane.columnIndex="0" alignment="CENTER">
                                 <StackPane fx:id="card" styleClass="character-card">
                                     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-                                    <ImageView fx:id="imgCharacter" preserveRatio="true">
-                                        <image><Image url="@/characters/character_default.png"/></image>
-                                    </ImageView>
+                                    <!-- 컨트롤러가 동적으로 이미지 세팅 -->
+                                    <ImageView fx:id="imgCharacter" preserveRatio="true"/>
                                 </StackPane>
                             </StackPane>
 
                             <!-- 우: 폼 -->
                             <VBox GridPane.columnIndex="1" spacing="16" alignment="TOP_LEFT">
-                                <!-- 라벨/필드 2열 그리드 -->
                                 <GridPane fx:id="formGrid" hgap="16" vgap="14">
                                     <columnConstraints>
                                         <ColumnConstraints minWidth="90" prefWidth="110"/>
@@ -150,13 +147,9 @@
                                 <Label fx:id="lblHint" text="" styleClass="hint-text" wrapText="true"/>
 
                                 <HBox alignment="CENTER_RIGHT">
-                                    <Button fx:id="btnEdit" text="Edit" onAction="#onEditToggle">
-                                        <styleClass>
-                                            <String fx:value="action-btn"/>
-                                            <String fx:value="accent"/>
-                                            <String fx:value="wide"/>
-                                        </styleClass>
-                                    </Button>
+                                    <!-- ⛳ 여기: <String> 요소 대신 한 줄 속성으로 -->
+                                    <Button fx:id="btnEdit" text="Edit" onAction="#onEditToggle"
+                                            styleClass="action-btn accent wide"/>
                                 </HBox>
                             </VBox>
                         </GridPane>
