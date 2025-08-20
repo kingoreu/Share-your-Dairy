@@ -75,7 +75,7 @@ public class MainController {
     @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/diary_hub/diary-hub-shell.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO: 책장 화면 */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/calendar/calendar.fxml"); }
-    @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }
+    @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/FriendList/MyInfoPanel.fxml"); }
 
     /* ===================== Overlay Loader ===================== */
     private void loadView(String fxmlPath) {

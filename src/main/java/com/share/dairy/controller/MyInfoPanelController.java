@@ -1,5 +1,7 @@
 package com.share.dairy.controller;
 
+import com.share.dairy.auth.UserSession;
+import com.share.dairy.util.DBConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,12 +11,12 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-
+import java.util.Map;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Objects;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class MyInfoPanelController {
 
@@ -33,23 +35,41 @@ public class MyInfoPanelController {
 
     private boolean editing = false;
 
+    private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
+    Map.entry("RACCOON", "raccoon.png"),
+    Map.entry("DOG",     "dog.png"),
+    Map.entry("CAT",     "cat.png"),
+    Map.entry("BEAR",    "bear.png"),
+    Map.entry("DEER",    "deer.png"),
+    Map.entry("DUCK",    "duck.png"),
+    Map.entry("HAMSTER", "hamster.png"),
+    Map.entry("RABBIT",  "rabbit.png"),
+    Map.entry("WOLF",    "wolf.png"),
+    Map.entry("RICHARD", "richard.png"),
+    Map.entry("TAKO",    "tako.png"),
+    Map.entry("ZZUNI",   "zzuni.png")
+    );
+
     // ===== 초기화 =====
     @FXML
     private void initialize() {
-        // 캐릭터 이미지가 카드 폭에 맞게 줄어들도록
+
+        
+        // 이미지가 카드 폭에 맞게 줄어들도록
         if (card != null && imgCharacter != null) {
             imgCharacter.fitWidthProperty().bind(card.widthProperty().subtract(36));
             imgCharacter.setPreserveRatio(true);
         }
 
-        // 캐릭터 옵션 (원하는 값으로 교체 가능)
-        cbCharacter.getItems().setAll("Raccoon", "Dog", "Cat");
+        // 캐릭터 옵션
+        cbCharacter.getItems().setAll(CHARACTER_FILE.keySet());
         cbCharacter.getSelectionModel().selectedItemProperty().addListener(
-                (obs, o, n) -> setCharacterPreviewByName(n)
+            (obs, o, n) -> setCharacterPreviewByType(n)
         );
 
-        // 사용자 데이터 로딩(스텁)
-        loadMyInfo();
+        // 로그인한 사용자 정보 로딩(세션 → 필요 시 DB 보완)
+        loadMyInfoFromSessionOrDb();
+
         setEditing(false);
     }
 
@@ -74,18 +94,25 @@ public class MyInfoPanelController {
     @FXML
     private void onEditToggle(ActionEvent e) {
         if (!editing) {
-            // 보기 → 수정 모드
             setEditing(true);
             lblHint.setText("수정 후 Save를 눌러 저장하세요.");
             btnEdit.setText("Save");
         } else {
-            // 저장 시도
             if (!validateInputs()) return;
-            boolean ok = updateMyInfo(); // DB 붙이면 이 메서드 구현
+
+            // TODO: 서버 API 호출로 바꾸면 더 좋음 (/api/users/{id} PUT)
+            boolean ok = updateMyInfoLocalStub();
+
             if (ok) {
                 setEditing(false);
                 btnEdit.setText("Edit");
                 lblHint.setText("저장 완료!");
+
+                // 세션 갱신
+                var s = UserSession.get();
+                var sel = cbCharacter.getSelectionModel().getSelectedItem();
+                if (s != null && sel != null) s.setCharacterType(normalize(sel));
+                setCharacterPreviewByType(sel);
             } else {
                 lblHint.setText("저장 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
             }
@@ -94,30 +121,101 @@ public class MyInfoPanelController {
 
     private void setEditing(boolean on) {
         this.editing = on;
-        boolean e = on;
-
-        // ID는 보통 수정 불가
         tfId.setEditable(false);
-        pfPassword.setEditable(e);
-        tfEmail.setEditable(e);
-        tfNickname.setEditable(e);
-        cbCharacter.setDisable(!e);
+        pfPassword.setEditable(on);
+        tfEmail.setEditable(on);
+        tfNickname.setEditable(on);
+        cbCharacter.setDisable(!on);
     }
 
-    // ===== 데이터 바인딩 =====
-    private void loadMyInfo() {
-        // === 스텁 데이터 (나중에 DB에서 가져오세요) ===
-        tfId.setText("User");
-        pfPassword.setText("1234");
-        tfEmail.setText("value@domain.com");
-        tfNickname.setText("구리구리");
-        cbCharacter.getSelectionModel().select("Raccoon");
-        setCharacterPreviewByName("Raccoon");
+    // ===== 데이터 로딩 =====
+    private void loadMyInfoFromSessionOrDb() {
+        String loginId = null, email = null, nickname = null, character = null;
+
+        var s = UserSession.get();
+        if (s != null) {
+            loginId = s.getLoginId();
+            email = s.getEmail();
+            nickname = s.getNickname();
+            character = s.getCharacterType();
+
+            // 필요 시 DB로 보완 조회(예: null 값이 있을 때)
+            if (email == null || nickname == null) {
+                var info = fetchUserInfoById(s.getUserId());
+                if (info != null) {
+                    if (email == null) email = info.email;
+                    if (nickname == null) nickname = info.nickname;
+                    if (character == null) character = info.character;
+                }
+            }
+        } else {
+            // 개발 편의: 첫 사용자 조회(운영에선 제거)
+            var info = fetchFirstUser();
+            if (info != null) {
+                loginId = info.loginId;
+                email = info.email;
+                nickname = info.nickname;
+                character = info.character;
+            }
+        }
+
+        // UI 바인딩
+        tfId.setText(loginId != null ? loginId : "");
+        tfEmail.setText(email != null ? email : "");
+        tfNickname.setText(nickname != null ? nickname : "");
+        String norm = (character != null) ? normalize(character) : "RACCOON";
+        if (!cbCharacter.getItems().contains(norm)) cbCharacter.getItems().add(norm);
+        cbCharacter.getSelectionModel().select(norm);
+        setCharacterPreviewByType(norm);
     }
 
-    private boolean updateMyInfo() {
-        // === 스텁: 성공 처리 ===
-        // TODO: DB 업데이트 쿼리로 교체
+    private record UserInfo(String loginId, String email, String nickname, String character){}
+
+    private UserInfo fetchUserInfoById(long userId) {
+        String sql = "SELECT login_id, user_email, nickname, character_type FROM users WHERE user_id = ?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new UserInfo(
+                        rs.getString("login_id"),
+                        rs.getString("user_email"),
+                        rs.getString("nickname"),
+                        rs.getString("character_type")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            hint("사용자 조회 실패: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private UserInfo fetchFirstUser() {
+        String sql = "SELECT login_id, user_email, nickname, character_type FROM users ORDER BY user_id LIMIT 1";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return new UserInfo(
+                    rs.getString("login_id"),
+                    rs.getString("user_email"),
+                    rs.getString("nickname"),
+                    rs.getString("character_type")
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            hint("사용자 조회 실패: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // ===== 저장 (지금은 스텁: 필요 시 서버 PUT으로 교체) =====
+    private boolean updateMyInfoLocalStub() {
+        // 서버 API로 바꾸려면 /api/users/{UserSession.get().userId} 로 PUT 보내세요.
         return true;
     }
 
@@ -133,26 +231,19 @@ public class MyInfoPanelController {
         return true;
     }
 
-    // ===== 미리보기 이미지 =====
-    private void setCharacterPreviewByName(String name) {
-        String path;
-        if ("Raccoon".equalsIgnoreCase(name))      path = "/characters/raccoon.png";
-        else if ("Dog".equalsIgnoreCase(name))     path = "/characters/dog.png";
-        else if ("Cat".equalsIgnoreCase(name))     path = "/characters/cat.png";
-        else                                       path = "/characters/character_default.png";
-
+    // ===== 캐릭터 미리보기 =====
+    private void setCharacterPreviewByType(String type) {
+        String key = normalize(type);
+        String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png"); // 기본값
+        String path = "/character/" + file; // ⚠ 폴더명은 단수(character)
         try (InputStream in = getClass().getResourceAsStream(path)) {
-            if (in != null) imgCharacter.setImage(new Image(in));
-            else            imgCharacter.setImage(null);
+            imgCharacter.setImage(in != null ? new Image(in) : null);
         } catch (Exception ignored) {}
     }
 
-    // ===== 공용 =====
-    private void hint(String s){ if (lblHint != null) lblHint.setText(s); }
+    private String normalize(String raw) {
+        return raw == null ? "" : raw.trim().toUpperCase();
+    }
 
-    // 아래 둘은 DB 붙일 때 쓰세요(스텁 자리표시자)
-    @SuppressWarnings("unused")
-    private Connection getConnection() throws SQLException { throw new SQLException("DatabaseManager 구현 필요"); }
-    @SuppressWarnings("unused")
-    private void close(Connection c){ try { if (c!=null) c.close(); } catch (Exception ignored) {} }
+    private void hint(String s){ if (lblHint != null) lblHint.setText(s); }
 }
