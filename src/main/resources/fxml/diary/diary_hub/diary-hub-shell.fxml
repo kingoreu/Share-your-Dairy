@@ -8,31 +8,32 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.DiaryHubController"
-            styleClass="hub-root"
+            style="-fx-background-color: #fdeaf4;"
             prefWidth="960" prefHeight="640">
 
     <stylesheets>
         <URL value="@/css/style.css"/>
     </stylesheets>
 
-    <!-- Top Bar -->
     <top>
-        <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 18;">
-            <Separator styleClass="top-sep"/> <!-- 상단 구분선 -->
-            <Button onAction="#showMain" style="-fx-background-color: transparent; -fx-padding: 6;">
-                <tooltip><Tooltip text="Home"/></tooltip>
-                <graphic>
-                    <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
-                        <image><Image url="@/icons/home.png"/></image>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <Label text="Diary Hub" styleClass="title"/>
-            <Pane HBox.hgrow="ALWAYS"/>
-        </HBox>
+        <VBox>
+            <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 18;">
+                <Button fx:id="homeButton" onAction="#showDiaryHub"
+                        style="-fx-background-color: transparent; -fx-padding: 6;">
+                    <tooltip><Tooltip text="Home"/></tooltip>
+                    <graphic>
+                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                            <image><Image url="@/icons/home.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Label fx:id="titleLabel" text="Diary Hub" styleClass="title"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <Separator styleClass="top-sep"/>
+        </VBox>
     </top>
 
-    <!-- Left Menu -->
     <left>
         <VBox spacing="12" style="-fx-padding: 20;" styleClass="sidebar">
             <Button text="MY DIARY"    onAction="#showDiaryHub"/>
@@ -42,14 +43,11 @@
         </VBox>
     </left>
 
-    <!-- Center -->
     <center>
-        <!-- ★ FAB를 고정하고, 가운데 화면만 교체할 전환 컨테이너 -->
         <StackPane fx:id="content" BorderPane.alignment="CENTER">
-            <StackPane fx:id="centerHolder"/> <!-- 전환 대상 -->
-            <Button fx:id="fabNew"
-                    onAction="#showMyDiary"
-                    styleClass="fab"
+            <StackPane fx:id="centerHolder"/>
+            <!-- 하단 펜슬(FAB) 유지 -->
+            <Button fx:id="fabNew" onAction="#showMyDiary" styleClass="fab"
                     StackPane.alignment="BOTTOM_RIGHT">
                 <StackPane.margin>
                     <Insets top="20" right="20" bottom="20" left="20"/>
@@ -63,4 +61,5 @@
             </Button>
         </StackPane>
     </center>
+
 </BorderPane>

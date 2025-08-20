@@ -33,6 +33,7 @@ public class DiaryService {
         var d = new DiaryEntry();
         d.setUserId(req.getUserId());
         d.setEntryDate(req.getEntryDate());
+        d.setTitle(req.getTitle());
         d.setDiaryContent(req.getDiaryContent());
         d.setVisibility(req.getVisibility());
         d.setSharedDiaryId(req.getSharedDiaryId()); // 공유 시작과 동시에 등록 가능
@@ -74,6 +75,7 @@ public class DiaryService {
         r.setEntryId(e.getEntryId());
         r.setUserId(e.getUserId());
         r.setEntryDate(e.getEntryDate());
+        r.setTitle(e.getTitle());
         r.setDiaryContent(e.getDiaryContent());
         r.setVisibility(e.getVisibility());
         r.setDiaryCreatedAt(e.getDiaryCreatedAt());

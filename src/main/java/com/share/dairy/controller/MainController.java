@@ -48,6 +48,7 @@ public class MainController {
         contentPane.setManaged(false);
         contentPane.setPickOnBounds(true);                   // 뒤 클릭 차단
         contentPane.setStyle("-fx-background-color: transparent;");
+        contentPane.toBack();
 
         // Z-Order 정리
         wardrobeHotspot.toFront();
@@ -96,6 +97,7 @@ public class MainController {
             contentPane.getChildren().setAll(view);
             contentPane.setVisible(true);
             contentPane.setManaged(true);
+            contentPane.setMouseTransparent(false); // ★ 보여줄 땐 입력 받기
             contentPane.toFront();
 
             // 뒤 배경 살짝 어둡게
@@ -126,6 +128,15 @@ public class MainController {
         bookshelfHotspot.setVisible(v);
         radioHotspot.setVisible(v);
         characterImg.setVisible(v);
+        if (v) {
+            // 오버레이가 보일 땐 항상 앞에 오도록
+            wardrobeHotspot.toFront();
+            windowHotspot.toFront();
+            laptopHotspot.toFront();
+            bookshelfHotspot.toFront();
+            radioHotspot.toFront();
+            characterImg.toFront();
+        }
     }
 
     /* ===================== Close Overlay ===================== */

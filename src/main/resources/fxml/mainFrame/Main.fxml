@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.Button?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.MainController"
@@ -57,7 +58,8 @@
       AnchorPane.bottomAnchor="0.0"
       AnchorPane.leftAnchor="0.0"
       visible="false"
-      pickOnBounds="true"/>
+      pickOnBounds="true"
+       mouseTransparent="true"/>
 
     <!-- 4) 캐릭터 -->
     <ImageView fx:id="characterImg"

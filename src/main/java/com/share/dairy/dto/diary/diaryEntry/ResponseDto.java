@@ -10,6 +10,7 @@ public class ResponseDto {
     private Long entryId;
     private Long userId;
     private LocalDate entryDate;
+    private String title;
     private String diaryContent;
     private Visibility visibility;
     private LocalDateTime diaryCreatedAt;
