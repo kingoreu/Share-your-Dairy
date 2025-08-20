@@ -5,15 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/HelloApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/HelloApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/Router.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/Router.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/ImageDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/ImageDbRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/FriendList/FriendListPanelController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/FriendList/FriendListPanelController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/FriendList/MyInfoPanelController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/FriendList/MyInfoPanelController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/MyInfoPanel.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/MyInfoPanel.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/friendlistpanel.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/friendlistpanel.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +132,7 @@
       <updated>1755615634017</updated>
       <workItem from="1755615636116" duration="5270000" />
       <workItem from="1755655585581" duration="4115000" />
-      <workItem from="1755659764157" duration="5878000" />
+      <workItem from="1755659764157" duration="10647000" />
     </task>
     <servers />
   </component>
