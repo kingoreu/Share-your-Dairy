@@ -32,22 +32,11 @@
                 <!-- 입력 폼 -->
                 <VBox alignment="CENTER" spacing="20">
                     <Label text="회원가입" styleClass="title-label"/>
-
-                    <HBox spacing="10" alignment="CENTER">
-                        <TextField fx:id="idField" promptText="ID(2글자 이상)" maxWidth="150"/>
-                        <Button text="중복확인" onAction="#onCheckIdClicked"/>
-                    </HBox>
-                    <Label fx:id="idCheckLabel" styleClass="check-label" visible="false" managed="false"/>
-
-                    <PasswordField fx:id="passwordField" promptText="비밀번호(8글자 이상)" maxWidth="250"/>
+                    <TextField fx:id="idField" promptText="ID" maxWidth="250"/>
+                    <PasswordField fx:id="passwordField" promptText="비밀번호" maxWidth="250"/>
                     <PasswordField fx:id="confirmPasswordField" promptText="비밀번호 확인" maxWidth="250"/>
-                    <TextField fx:id="nickNameField" promptText="닉네임(2글자 이상)" maxWidth="250"/>
-
-                    <HBox spacing="10" alignment="CENTER">
-                        <TextField fx:id="emailField" promptText="이메일" maxWidth="150"/>
-                        <Button text="중복확인" onAction="#onCheckEmailClicked"/>
-                    </HBox>
-                    <Label fx:id="emailCheckLabel" styleClass="check-label" visible="false" managed="false"/>
+                    <TextField fx:id="nickNameField" promptText="닉네임" maxWidth="250"/>
+                    <TextField fx:id="emailField" promptText="이메일" maxWidth="250"/>
 
                     <Button text="Next" maxWidth="200" onAction="#onNextClicked"/>
                     <Hyperlink text="로그인으로 돌아가기" onAction="#onLoginClicked"/>

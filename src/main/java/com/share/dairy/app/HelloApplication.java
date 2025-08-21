@@ -54,12 +54,6 @@ public class HelloApplication extends Application {
                 14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
         );
 
-        Font.loadFont(
-                getClass().getResourceAsStream("/fonts/DungGeunMo.ttf"),
-                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
-        );
-
-
         Font.getFamilies().forEach(System.out::println);
 
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/login/Login.fxml"));

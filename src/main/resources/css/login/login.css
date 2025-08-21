@@ -119,20 +119,3 @@
 .character-button:focused {
     -fx-effect: none;
 }
-
-/* 중복확인 */
-.check-label {
-    -fx-font-size: 14px;   /* 작게 */
-    -fx-font-family: "NanumSquareRound Regular";    /* 빨간색 */
-}
-
-
-/* 실패(중복일 때) */
-.check-label.error {
-    -fx-text-fill: red;
-}
-
-/* 성공(사용 가능할 때) */
-.check-label.success {
-    -fx-text-fill: green;
-}
