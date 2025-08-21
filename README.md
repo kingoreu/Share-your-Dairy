@@ -102,7 +102,7 @@ root 계정 비밀번호는 관리자 권한이므로 public readme에 작성하
 // show tables; 를 입력하여 내용을 확인한다.
 
 **여기서부터 시작하셔도 돼요!**
-7. application.properties의 내용을 변경한다.
+3. application.properties의 내용을 변경한다.
 
 - 테이블 수정, 변경 안하고 **일반 유저**로 접속할 경우
 - driver=com.mysql.cj.jdbc.Driver
@@ -116,6 +116,6 @@ url=jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval
 user=root
 password= 제 이름 영어로 바꾸세용.
 
-7. HelloApplication의 db 관련 properties도 함께 변경하세요.
-8. 현재 사용하고 있는 프로그램의 db 연결도 알아서 변경하시면 됩니다.
+4. HelloApplication의 db 관련 properties도 함께 변경하세요.
+5. 현재 사용하고 있는 프로그램의 db 연결도 알아서 변경하시면 됩니다.
 <img width="1614" height="1348" alt="image" src="https://github.com/user-attachments/assets/2608401a-0b05-46b2-ab13-9a6beb4af5ac" />
