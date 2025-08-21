@@ -18,7 +18,7 @@
                 <padding><Insets top="16" right="24" bottom="8" left="24"/></padding>
 
                 <!-- 홈 아이콘: 배경/테두리 없음 -->
-                <Button fx:id="btnHomeTop" styleClass="home-btn" StackPane.alignment="CENTER_LEFT">
+                <Button fx:id="btnHomeTop" styleClass="home-btn" onAction="#goHome" StackPane.alignment="CENTER_LEFT">
                     <graphic>
                         <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
                             <image>
@@ -136,13 +136,13 @@
                 <!-- Select/Delete: 흰 라운드 내부 우하단에 떠 있게 -->
                 <HBox spacing="16" alignment="CENTER_RIGHT"
                       AnchorPane.rightAnchor="22" AnchorPane.bottomAnchor="18">
-                    <Button fx:id="btnSelect" text="Select">
+                    <Button fx:id="btnSelect" onAction="#onSelect" text="Select">
                         <styleClass>
                             <String fx:value="action-btn"/>
                             <String fx:value="primary"/>
                         </styleClass>
                     </Button>
-                    <Button fx:id="btnDelete" text="Delete">
+                    <Button fx:id="btnDelete" onAction="#onDelete" text="Delete">
                         <styleClass>
                             <String fx:value="action-btn"/>
                             <String fx:value="danger"/>

@@ -74,14 +74,9 @@ public class MyInfoPanelController extends OverlayChildController {
         setEditing(false);
     }
 
-    // ===== 화면 전환 (좌측 네비) – 오버레이 라우팅 사용 =====
-    @FXML private void goHome(ActionEvent e)      { super.goHome(); } // ✅ 부모의 오버레이 닫기 실행
-    @FXML private void goAddFriends(ActionEvent e){
-        if (host != null) host.openOverlay("/fxml/FriendList/AddFriendsPanel.fxml");
-    }
-    @FXML private void goBuddyList(ActionEvent e) {
-        if (host != null) host.openOverlay("/fxml/FriendList/FriendListPanel.fxml");
-    }
+    // ===== 네비게이션 =====
+    @FXML private void goAddFriends(){ open("/fxml/FriendList/AddFriendsPanel.fxml"); }
+    @FXML private void goBuddyList() { open("/fxml/FriendList/FriendListPanel.fxml"); }
 
     // ===== Edit/Save 토글 =====
     @FXML
