@@ -97,20 +97,20 @@ root 계정 비밀번호는 관리자 권한이므로 public readme에 작성하
 
 3. cmd에서 mysql -u dairyuser -p -h 113.198.238.119 -P 3306 을 입력한다.
 4. 비밀번호인 dairypass를 입력한다.
-4-2. 관리자로 들어가고 싶으면 mysql -u root -p -h 113.198.238.119 -P 3306 을 입력한다. 마찬가지로 비밀번호를 입력한다.
-5. use dairy;
+5. 관리자로 들어가고 싶으면 mysql -u root -p -h 113.198.238.119 -P 3306 을 입력한다. 마찬가지로 비밀번호를 입력한다.
+6. use dairy;
 show tables; 를 입력하여 내용을 확인한다.
 
-6. application.properties의 내용을 변경한다.
+7. application.properties의 내용을 변경한다.
 
 - 테이블 수정, 변경 안하고 **일반 유저**로 접속할 경우
-driver=com.mysql.cj.jdbc.Driver
+- driver=com.mysql.cj.jdbc.Driver
 url=jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
 user=dairyuser
 password=dairypass
 
 - 테이블 변경이 필요해 **관리자**로 접속할 경우
-driver=com.mysql.cj.jdbc.Driver
+- driver=com.mysql.cj.jdbc.Driver
 url=jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
 user=root
 password= 제 이름 영어로 바꾸세용.
