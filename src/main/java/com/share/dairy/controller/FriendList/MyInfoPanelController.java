@@ -2,6 +2,7 @@ package com.share.dairy.controller.FriendList;
 
 import com.share.dairy.auth.UserSession;
 import com.share.dairy.controller.OverlayChildController;
+import com.share.dairy.model.enums.CharacterType;
 import com.share.dairy.util.DBConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -116,7 +117,13 @@ public class MyInfoPanelController extends OverlayChildController{
                 // 세션 갱신
                 var s = UserSession.get();
                 var sel = cbCharacter.getSelectionModel().getSelectedItem();
-                if (s != null && sel != null) s.setCharacterType(normalize(sel));
+                // if (s != null && sel != null) s.setCharacterType(normalize(sel));
+                // 수정
+                // enum 타입으로 변경 **
+                if (s != null && sel != null) {
+                    s.setCharacterType(CharacterType.fromString(sel)); // 문자열 → Enum
+                }
+
                 setCharacterPreviewByType(sel);
             } else {
                 lblHint.setText("저장 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
@@ -142,7 +149,9 @@ public class MyInfoPanelController extends OverlayChildController{
             loginId = s.getLoginId();
             email = s.getEmail();
             nickname = s.getNickname();
-            character = s.getCharacterType();
+            // character = s.getCharacterType();
+            // enum 타입으로 변경 **
+            character = (s.getCharacterType() != null) ? s.getCharacterType().name() : null;
 
             // 필요 시 DB로 보완 조회(예: null 값이 있을 때)
             if (email == null || nickname == null) {

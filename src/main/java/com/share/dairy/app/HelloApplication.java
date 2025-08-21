@@ -24,9 +24,9 @@ public class HelloApplication extends Application {
             springContext = new SpringApplicationBuilder(ServerApplication.class)
                     .properties(Map.of(
                             "server.port", "8080",
-                            "spring.datasource.url", "jdbc:mysql://127.0.0.1:3308/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8",
-                            "spring.datasource.username", "root",
-                            "spring.datasource.password", "sohyun"
+                            "spring.datasource.url", "jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8",
+                            "spring.datasource.username", "dairyuser",
+                            "spring.datasource.password", "dairypass"
                     ))
                     .run();
         });
@@ -53,6 +53,12 @@ public class HelloApplication extends Application {
                 getClass().getResourceAsStream("/fonts/NanumSquareRoundEB.ttf"),
                 14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
         );
+
+        Font.loadFont(
+                getClass().getResourceAsStream("/fonts/DungGeunMo.ttf"),
+                14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
+        );
+
 
         Font.getFamilies().forEach(System.out::println);
 

@@ -1,16 +1,22 @@
 package com.share.dairy.controller;
 
+import com.share.dairy.auth.UserSession;
+import com.share.dairy.model.enums.CharacterType;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+
+import java.io.InputStream;
+
 
 public class MainController {
 
@@ -33,6 +39,7 @@ public class MainController {
     @FXML private Rectangle radioHotspot;
 
     @FXML private ImageView characterImg;
+    // @FXML private ImageView characterImageView;
 
     /* ===================== Overlay Host Impl ===================== */
     private final OverlayHost overlayHost = new OverlayHost() {
@@ -43,6 +50,24 @@ public class MainController {
     /* ===================== Initialize ===================== */
     @FXML
     public void initialize() {
+
+        UserSession currentUser = UserSession.get();
+
+        if (currentUser != null) {
+            CharacterType type = currentUser.getCharacterType();
+            String path = type.getImagePath();
+
+            try (InputStream is = getClass().getResourceAsStream(path)) {
+                if (is != null) {
+                    characterImg.setImage(new Image(is));
+                } else {
+                    System.out.println("캐릭터 파일을 찾을 수 없습니다. ");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         // Overlay 레이어 초기 상태
         contentPane.setVisible(false);
         contentPane.setManaged(false);
@@ -76,12 +101,6 @@ public class MainController {
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO: 책장 화면 */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/calendar/calendar.fxml"); }
     @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/FriendList/MyInfoPanel.fxml"); }
-//    @FXML private void onLaptopClicked(MouseEvent e) {
-//        Platform.runLater(() -> Router.go("DiaryHub"));
-//    }
-    // @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/my_diary/my-diary-view.fxml"); }
-    // @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/diary/our_diary/home-view.fxml"); }
-    // @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/userInfo/settings-view.fxml"); }
 
     /* ===================== Overlay Loader ===================== */
     private void loadView(String fxmlPath) {

@@ -1,10 +1,13 @@
 package com.share.dairy.controller.login;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.share.dairy.auth.UserSession;
 import com.share.dairy.dto.user.PendingSignUp;
+import com.share.dairy.model.enums.CharacterType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -19,7 +22,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
 
 public class CharacterSelectController {
 
@@ -33,13 +35,7 @@ public class CharacterSelectController {
         this.pending = pendingSignUp;
     }
 
-    private List<String> imagePaths = List.of(
-            "/character/zzuni.png", "/character/cat.png", "/character/hamster.png",
-            "/character/raccoon.png", "/character/bear.png", "/character/deer.png",
-            "/character/dog.png", "/character/duck.png", "/character/rabbit.png",
-            "/character/richard.png", "/character/tako.png", "/character/wolf.png"
-            // 12개 캐릭터
-    );
+    private final List<String> imagePaths = CharacterType.getAllImagePaths();
 
     private static final int PAGE_SIZE = 4;
     private int pageCount;
@@ -47,19 +43,6 @@ public class CharacterSelectController {
 
     private final ToggleGroup group = new ToggleGroup();
     private String selectedPath = null;
-
-    private static final Map<String,String> CHARACTER_MAP = Map.ofEntries(
-            Map.entry("zzuni","ZZUNI"), Map.entry("cat","CAT"), Map.entry("hamster","HAMSTER"),
-            Map.entry("raccoon","RACCOON"), Map.entry("bear","BEAR"), Map.entry("deer","DEER"),
-            Map.entry("dog","DOG"), Map.entry("duck","DUCK"), Map.entry("rabbit","RABBIT"),
-            Map.entry("richard","RICHARD"), Map.entry("tako","TAKO"), Map.entry("wolf","WOLF")
-    );
-
-    ///
-    private String toCharacterType(String path) {
-        String file = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
-        return CHARACTER_MAP.getOrDefault(file.toLowerCase(), file.toUpperCase());
-    }
 
     @FXML
     public void initialize() {
@@ -114,12 +97,12 @@ public class CharacterSelectController {
             return;
         }
 
-        String characterType = toCharacterType(selectedPath); // 예: "CAT", "DOG" ...
-
+        // 수정
+        CharacterType selectedType = CharacterType.fromPath(selectedPath);
 
         String json = String.format(
                 "{ \"nickname\":\"%s\", \"loginId\":\"%s\", \"password\":\"%s\", \"userEmail\":\"%s\", \"characterType\":\"%s\" }",
-                esc(pending.nickname), esc(pending.loginId), esc(pending.password), esc(pending.userEmail), esc(characterType)
+                esc(pending.nickname), esc(pending.loginId), esc(pending.password), esc(pending.userEmail), esc(selectedType.name())
         );
 
         confirmBtn.setDisable(true);
@@ -139,11 +122,37 @@ public class CharacterSelectController {
                         alert("서버 연결 실패: " + err.getMessage());
                         return;
                     }
+
+                    // 추가
                     if (res.statusCode() == 201) {
-                        goAfterSignUp(event);
+                        try {
+                            // 서버 응답(JSON)을 파싱하여 userId 가져오기
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonNode rootNode = objectMapper.readTree(res.body());
+                            long userId = rootNode.path("userId").asLong();
+
+                            // UserSession에 올바른 userId와 기타 정보 저장
+                            UserSession.set(new UserSession(
+                                    userId, // 서버에서 받은 userId 사용
+                                    pending.loginId,
+                                    pending.nickname,
+                                    pending.userEmail,
+                                    selectedType
+                            ));
+
+                            goAfterSignUp(event);
+                        } catch (IOException e) {
+                            alert("서버 응답 파싱 실패: " + e.getMessage());
+                        }
                     } else {
                         alert("회원가입 실패 (" + res.statusCode() + "): " + res.body());
                     }
+
+//                    if (res.statusCode() == 201) {
+//                        goAfterSignUp(event);
+//                    } else {
+//                        alert("회원가입 실패 (" + res.statusCode() + "): " + res.body());
+//                    }
                 }));
     }
 
