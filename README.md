@@ -67,10 +67,12 @@ mainscreen 구현은 했는데 아직 장애가 좀 있다 사진 위치 수정 
 ```
 
 ----
+
 # 프로젝트 공용 DB, 서버
+
 1. docker-compose.yml 파일 내용
 2. 실제로 만들 필요는 없습니다. 일반 유저 계정과 유저 비밀번호를 알고 계셔야 접속이 되므로 해당 부분을 확인하세요. 
-   ```
+```
    version: "3.8"
 services:
   mysql:
@@ -89,7 +91,7 @@ services:
       - ./mysql_data:/var/lib/mysql  # 데이터 영구 저장 (컨테이너 삭제해도 유지)
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
                                      # 초기 스키마/데이터 로드
-   ```
+```
 
 root 계정 비밀번호는 관리자 권한이므로 public readme에 작성하지 않습니다.
 
