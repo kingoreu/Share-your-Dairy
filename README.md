@@ -70,7 +70,7 @@ mainscreen 구현은 했는데 아직 장애가 좀 있다 사진 위치 수정 
 
 # 프로젝트 공용 DB, 서버
 
-1. docker-compose.yml 파일 내용
+1. docker-compose.yml 파일 내용 (아래 코드)
 2. 실제로 만들 필요는 없습니다. 일반 유저 계정과 유저 비밀번호를 알고 계셔야 접속이 되므로 해당 부분을 확인하세요. 
 ```
    version: "3.8"
@@ -95,12 +95,13 @@ services:
 
 root 계정 비밀번호는 관리자 권한이므로 public readme에 작성하지 않습니다.
 
-3. cmd에서 mysql -u dairyuser -p -h 113.198.238.119 -P 3306 을 입력한다.
-4. 비밀번호인 dairypass를 입력한다.
-5. 관리자로 들어가고 싶으면 mysql -u root -p -h 113.198.238.119 -P 3306 을 입력한다. 마찬가지로 비밀번호를 입력한다.
-6. use dairy;
-show tables; 를 입력하여 내용을 확인한다.
+// 3. cmd에서 mysql -u dairyuser -p -h 113.198.238.119 -P 3306 을 입력한다.
+// 4. 비밀번호인 dairypass를 입력한다.
+// 5. 관리자로 들어가고 싶으면 mysql -u root -p -h 113.198.238.119 -P 3306 을 입력한다. 마찬가지로 비밀번호를 입력한다.
+// 6. use dairy;
+// show tables; 를 입력하여 내용을 확인한다.
 
+**여기서부터 시작하셔도 돼요!**
 7. application.properties의 내용을 변경한다.
 
 - 테이블 수정, 변경 안하고 **일반 유저**로 접속할 경우
