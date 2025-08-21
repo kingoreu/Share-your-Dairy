@@ -1,5 +1,7 @@
 package com.share.dairy.controller.FriendList;
 
+import com.share.dairy.controller.OverlayChildController;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -9,49 +11,116 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.io.InputStream;
-import java.sql.*;
-import java.util.Objects;
-import java.util.Optional;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Node;
 import java.net.URL;
+import java.sql.*;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
+import javafx.scene.input.KeyCode;            // ESC 단축키
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.layout.BorderPane;        // 루트 컨테이너
+import javafx.scene.layout.StackPane;
 
 /**
- * Add Friends 화면 컨트롤러 (DB 미연동 스텁 버전)
- * - UI 이벤트/흐름만 먼저 잡고, DB는 나중에 DatabaseManager 붙이면 됩니다.
+ * Add Friends 화면 컨트롤러 (Overlay 흐름 적용)
+ * - 홈/ESC: goHome() → host.closeOverlay(), 단 host==null이면 메인 FXML로 안전 fallback
+ * - 탭 이동: openOverlay("...") 사용
+ * - 시그니처: Initializable 요구에 맞춰 initialize(URL, ResourceBundle) 구현
  */
-public class AddFriendsPanelController {
+public class AddFriendsPanelController extends OverlayChildController {
 
-    // ===== FXML 바인딩 =====
+    /* ===== FXML 바인딩 ===== */
+    @FXML private BorderPane root;        // ESC 등록/오버레이 제어
+    @FXML private StackPane  card;        // 캐릭터 카드(상한은 FXML에서 지정)
+    @FXML private ImageView  imgCharacter;
+
     @FXML private TextField tfSearchId;
-    @FXML private ImageView imgCharacter;
-    @FXML private Label lblResult;
-    @FXML private Button btnAdd;
+    @FXML private Label     lblResult;
+    @FXML private Button    btnAdd;
+    @FXML private Button    btnSearch;
 
-    // 검색 결과 상태(ADD 버튼용)
+    /* ===== 검색 결과 상태(ADD 버튼 제어용) ===== */
     private Long   foundUserId   = null;
     private String foundNickname = null;
     private String foundCharType = null;
 
-    // ===== 초기화 =====
-    @FXML
-    private void initialize() {
-        // Enter 입력 시 검색 실행
-        if (tfSearchId != null) {
-            tfSearchId.setOnAction(e -> onSearch(null));
+    /* ===== Initializable 시그니처로 구현 (중요!) ===== */
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // [레이아웃] 이미지가 카드 안에서만 커지도록 바인딩 (패딩 18px * 2 = 36px 고려)
+        if (card != null && imgCharacter != null) {
+            imgCharacter.fitWidthProperty().bind(card.widthProperty().subtract(36));
+            imgCharacter.fitHeightProperty().bind(card.heightProperty().subtract(36));
+            imgCharacter.setPreserveRatio(true);
+            imgCharacter.setSmooth(true);
+            imgCharacter.setCache(true);
         }
+
+        // Enter 키로도 검색되게
+        if (tfSearchId != null) tfSearchId.setOnAction(e -> onSearch(null));
+
+        // 초기 상태
         if (btnAdd != null) btnAdd.setDisable(true);
-        setCharacterPreviewByType(null);
+        setCharacterPreviewByType(null); // 기본 이미지
         if (lblResult != null) lblResult.setText("");
+
+        // [ESC 단축키 등록]
+        root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.getAccelerators().put(
+                        new KeyCodeCombination(KeyCode.ESCAPE),
+                        this::goHome // 아래 override된 goHome 사용(미주입 시 fallback 수행)
+                );
+            }
+        });
     }
 
-    // ===== 라우팅(필요 시 구현) =====
-    @FXML private void goMyInfo(ActionEvent e) { switchTo("/fxml/FriendList/MyInfoPanel.fxml", (Node) e.getSource()); }
-    @FXML private void goBuddyList(ActionEvent e) {switchTo("/fxml/FriendList/FriendListPanel.fxml", (Node) e.getSource());}
+    /* ===== Overlay 주입 완료 알림(Optional 디버깅용) ===== */
+    @Override
+    protected void onHostReady() {
+        // System.out.println("Overlay host injected? " + (host != null));
+    }
 
-    // ===== Search 버튼 핸들러 =====
+    /* ===== 홈/ESC 동작: host 없으면 안전하게 메인으로 fallback ===== */
+    @FXML @Override
+    protected void goHome() {
+        if (host != null) {
+            host.closeOverlay();
+            return;
+        }
+        // ★ host 미주입 환경(직접 FXMLLoader로 열었을 때 등)에 대비한 안전 fallback
+        fallbackToMain();
+    }
+
+    /** host 없는 경우를 위한 안전한 메인 전환 */
+    private void fallbackToMain() {
+        try {
+            // 프로젝트에 맞게 경로 조정
+            javafx.fxml.FXMLLoader loader =
+                    new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
+            javafx.scene.Parent next = loader.load();
+            root.getScene().setRoot(next);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            setMsg("메인 화면 전환 실패: " + ex.getMessage());
+        }
+    }
+
+    /* ===== 좌측 사이드바 네비게이션 ===== */
+
+    @FXML
+    private void goMyInfo(ActionEvent e) {
+        if (host != null) openOverlay("/fxml/FriendList/MyInfoPanel.fxml");
+        else setMsg("호스트 미주입 상태입니다. (Main에서 openOverlay로 열어주세요)");
+    }
+
+    @FXML
+    private void goBuddyList(ActionEvent e) {
+        if (host != null) openOverlay("/fxml/FriendList/FriendListPanel.fxml");
+        else setMsg("호스트 미주입 상태입니다. (Main에서 openOverlay로 열어주세요)");
+    }
+
+    /* ===== Search 버튼 ===== */
     @FXML
     private void onSearch(ActionEvent e) {
         String q = safeTrim(tfSearchId != null ? tfSearchId.getText() : "");
@@ -83,31 +152,19 @@ public class AddFriendsPanelController {
             return;
         }
 
-        // 친구 상태 확인
         FriendshipState state = checkFriendshipState(me, u.userId);
         switch (state) {
-            case NONE:
+            case NONE -> {
                 setMsg("찾았어요: " + u.nickname + "  (추가 가능)");
                 foundUserId   = u.userId;
                 foundNickname = u.nickname;
                 foundCharType = u.characterType;
                 if (btnAdd != null) btnAdd.setDisable(false);
-                break;
-
-            case PENDING_ME:
-                setMsg("이미 친구 요청을 보냈어요. 상대방의 수락을 기다려 주세요.");
-                break;
-
-            case PENDING_OTHER:
-                setMsg("상대방이 먼저 친구 요청을 보냈어요. 요청함/받음 화면에서 처리해 주세요.");
-                break;
-
-            case ACCEPTED:
-                setMsg("이미 친구예요!");
-                break;
-
-            default:
-                setMsg("상태를 확인할 수 없어요.");
+            }
+            case PENDING_ME    -> setMsg("이미 친구 요청을 보냈어요. 상대방의 수락을 기다려 주세요.");
+            case PENDING_OTHER -> setMsg("상대방이 먼저 친구 요청을 보냈어요. 요청함/받음 화면에서 처리해 주세요.");
+            case ACCEPTED      -> setMsg("이미 친구예요!");
+            default            -> setMsg("상태를 확인할 수 없어요.");
         }
 
         // 캐릭터 미리보기
@@ -115,20 +172,14 @@ public class AddFriendsPanelController {
         else setCharacterPreviewByType(u.characterType);
     }
 
-    // ===== ADD 버튼 핸들러 =====
+    /* ===== ADD 버튼 ===== */
     @FXML
     private void onAdd(ActionEvent e) {
-        if (foundUserId == null) {
-            setMsg("먼저 ID를 검색해 주세요.");
-            return;
-        }
-        long me = getCurrentUserId();
-        if (me == foundUserId) {
-            setMsg("본인은 추가할 수 없어요.");
-            return;
-        }
+        if (foundUserId == null) { setMsg("먼저 ID를 검색해 주세요."); return; }
 
-        // 중복 요청 방지(더블클릭 등)
+        long me = getCurrentUserId();
+        if (me == foundUserId) { setMsg("본인은 추가할 수 없어요."); return; }
+
         FriendshipState state = checkFriendshipState(me, foundUserId);
         if (state != FriendshipState.NONE) {
             setMsg("이미 관계가 존재합니다. 상태: " + state);
@@ -144,12 +195,20 @@ public class AddFriendsPanelController {
         }
     }
 
-    // ===== 뷰 유틸 =====
+    /* ===== 뷰 유틸 ===== */
+
     private void setMsg(String msg) {
         if (lblResult != null) lblResult.setText(msg);
     }
 
-    // 캐릭터 타입별 미리보기
+    private static String safeTrim(String s) { return s == null ? "" : s.trim(); }
+
+    /**
+     * 캐릭터 타입별 미리보기 (데모 매핑)
+     * - A/B/C → /characters/char_*.png
+     * - 기본 → /characters/character_default.png
+     * - 초대형 원본 대비 Image(800x800)로 생성
+     */
     private void setCharacterPreviewByType(String type) {
         String path;
         if ("A".equalsIgnoreCase(type))      path = "/characters/char_a.png";
@@ -158,34 +217,28 @@ public class AddFriendsPanelController {
         else                                 path = "/characters/character_default.png";
 
         try (InputStream in = getClass().getResourceAsStream(path)) {
-            if (in != null) imgCharacter.setImage(new Image(in));
-            else            imgCharacter.setImage(null); // 리소스 없으면 비움
+            if (in != null) {
+                Image img = new Image(in, 800, 800, true, true);
+                imgCharacter.setImage(img);
+            } else {
+                imgCharacter.setImage(null);
+            }
         } catch (Exception ex) {
             imgCharacter.setImage(null);
         }
     }
 
-    // ===== DB 스텁/예시 =====
+    /* ===== DB 스텁/예시 ===== */
 
-    /** 로그인 유저 ID 가져오기 (실제 세션에서 교체) */
-    private long getCurrentUserId() {
-        return 1L; // TODO: 실제 로그인 세션 값으로 교체
-    }
+    private long getCurrentUserId() { return 1L; } // TODO: UserSession.get().getUserId() 등으로 교체
 
-    /** 안전 trim */
-    private static String safeTrim(String s) { return s == null ? "" : s.trim(); }
-
-    /** DB 커넥션 (지금은 스텁: 실제 구현으로 교체하세요) */
     private Connection getConnection() throws SQLException {
-        // TODO: DatabaseManager.getInstance().getConnection(); 로 교체
-        // throw로 남겨두면 컴파일은 되지만 실행 시 이 경로로 못 들어오게(위에서 미리 반환 처리).
+        // TODO: DatabaseManager.getInstance().getConnection();
         throw new SQLException("DatabaseManager 연결을 구현하세요.");
     }
 
-    /** 사용자 검색: login_id 또는 nickname 으로 단건 조회 */
     private Optional<UserRow> findUserByLoginIdOrNickname(String q) {
-        // === 스텁 동작: DB 없이 가짜 한 건 리턴 (컴파일/데모용) ===
-        // DB 붙이면 아래 JDBC 코드 주석 해제하고 스텁 제거하세요.
+        // 데모: "K.K"만 매칭
         if ("K.K".equalsIgnoreCase(q)) {
             UserRow u = new UserRow();
             u.userId = 2L;
@@ -195,91 +248,20 @@ public class AddFriendsPanelController {
             return Optional.of(u);
         }
         return Optional.empty();
-
-        /* ===== JDBC 예시 =====
-        final String sql =
-                "SELECT user_id, login_id, nickname, character_type " +
-                "  FROM users WHERE login_id = ? OR nickname = ? LIMIT 1";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, q);
-            ps.setString(2, q);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    UserRow u = new UserRow();
-                    u.userId = rs.getLong("user_id");
-                    u.loginId = rs.getString("login_id");
-                    u.nickname = rs.getString("nickname");
-                    u.characterType = rs.getString("character_type");
-                    return Optional.of(u);
-                }
-            }
-        } catch (SQLException ex) {
-            setMsg("검색 오류: " + ex.getMessage());
-        }
-        return Optional.empty();
-        */
     }
 
-    /** 친구 상태 조회 */
     private FriendshipState checkFriendshipState(long me, long target) {
-        // === 스텁: 항상 NONE ===
+        // 데모: 항상 NONE
         return FriendshipState.NONE;
-
-        /* ===== JDBC 예시 =====
-        final String sql =
-            "SELECT friendship_status, user_id, friend_id " +
-            "  FROM friendship " +
-            " WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?) " +
-            " ORDER BY requested_at DESC LIMIT 1";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setLong(1, me);
-            ps.setLong(2, target);
-            ps.setLong(3, target);
-            ps.setLong(4, me);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return FriendshipState.NONE;
-                String status = rs.getString("friendship_status");
-                long u = rs.getLong("user_id");
-                long f = rs.getLong("friend_id");
-
-                if ("ACCEPTED".equalsIgnoreCase(status)) return FriendshipState.ACCEPTED;
-                if ("PENDING".equalsIgnoreCase(status)) {
-                    if (u == me && f == target) return FriendshipState.PENDING_ME;
-                    else return FriendshipState.PENDING_OTHER;
-                }
-                return FriendshipState.NONE;
-            }
-        } catch (SQLException ex) {
-            setMsg("상태 확인 오류: " + ex.getMessage());
-            return FriendshipState.NONE;
-        }
-        */
     }
 
-    /** 친구 요청 저장 */
     private boolean insertFriendRequest(long me, long target) {
-        // === 스텁: 성공 처리로 가정 ===
+        // 데모: 성공 가정
         return true;
-
-        /* ===== JDBC 예시 =====
-        final String sql =
-            "INSERT INTO friendship (user_id, friend_id, friendship_status, requested_at) " +
-            "VALUES (?, ?, 'PENDING', NOW())";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setLong(1, me);
-            ps.setLong(2, target);
-            return ps.executeUpdate() == 1;
-        } catch (SQLException ex) {
-            setMsg("친구 요청 저장 오류: " + ex.getMessage());
-            return false;
-        }
-        */
     }
 
-    // ===== 내부 타입 =====
+    /* ===== 내부 타입 ===== */
+
     private static class UserRow {
         long   userId;
         String loginId;
@@ -289,18 +271,5 @@ public class AddFriendsPanelController {
 
     private enum FriendshipState {
         NONE, PENDING_ME, PENDING_OTHER, ACCEPTED
-    }
-
-    // AddFriendsPanelController 내부에 메서드 추가
-    private void switchTo(String fxmlPath, Node trigger) {
-        try {
-            URL url = getClass().getResource(fxmlPath);
-            if (url == null) { setMsg("화면 파일을 찾지 못했습니다: " + fxmlPath); return; }
-            Parent root = FXMLLoader.load(url);
-            trigger.getScene().setRoot(root);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            setMsg("화면 전환 실패: " + ex.getMessage());
-        }
     }
 }

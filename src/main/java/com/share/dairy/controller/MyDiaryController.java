@@ -1,8 +1,11 @@
 package com.share.dairy.controller;
 
+import com.share.dairy.dao.diary.DiaryEntryDao;
 import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.model.enums.Visibility;
 import com.share.dairy.service.diary.DiaryWriteService;
+import com.share.dairy.service.diary_analysis.DiaryAnalysisService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -62,48 +65,44 @@ public class MyDiaryController {
 
     /** SAVE: 내용만 저장(제목은 나중에 처리) */
     @FXML
-    private void onSave(){
-        String content = (contentArea != null) ? contentArea.getText() : null;
-        if (content == null || content.trim().isEmpty()) {
-            new Alert(Alert.AlertType.WARNING, "내용을 입력하세요.").showAndWait();
-            return;
-        }
-
-        DiaryEntry entry = new DiaryEntry();
-        entry.setUserId(currentUserId);
-        entry.setEntryDate(LocalDate.now());
-
-        if (titleField != null) {
-            entry.setTitle(titleField.getText().trim());
-        }
-
-        entry.setDiaryContent(content.trim());
-        entry.setVisibility(Visibility.PRIVATE);
-        entry.setSharedDiaryId(null);
-
+    private void onSave() {
         try {
-            long newId = diaryWriteService.create(entry);
-
-            new Alert(Alert.AlertType.INFORMATION, "저장 완료! (ID: " + newId + ")").showAndWait();
-
-            if (afterSave != null) afterSave.run();
-
-            // 모달로 띄운 경우에만 그 모달 창 닫기 (메인창은 그대로)
-            if (dialogMode) {
-                if (onSaved != null) onSaved.accept(newId);
-                Stage st = currentStage();
-                if (st != null && st.getOwner() != null) st.close();
-                return;
+            String title   = (titleField  != null) ? titleField.getText().trim()  : "";
+            String content = (contentArea != null) ? contentArea.getText().trim() : "";
+            if (content.isBlank()) {
+              new Alert(Alert.AlertType.WARNING, "본문을 입력해 주세요.").showAndWait();
+              return;
             }
 
-            if (titleField != null)  titleField.setDisable(true);
-            if (contentArea != null) contentArea.setDisable(true);
-            if (listContainer != null) refreshList();
+            DiaryEntry entry = new DiaryEntry();
+            entry.setUserId(currentUserId);
+            entry.setEntryDate(LocalDate.now());
+            entry.setTitle(title);
+            entry.setDiaryContent(content);
+            entry.setVisibility(Visibility.PRIVATE); // ✅ enum으로 설정
 
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "저장 실패: " + e.getMessage()).showAndWait();
+            DiaryEntryDao dao = new DiaryEntryDao();
+            long entryId = dao.save(entry);
+
+            // 저장 직후 분석(백그라운드 실행: UI 멈춤 방지)
+            new Thread(() -> {
+                try {
+                    new DiaryAnalysisService().process(entryId);
+                    Platform.runLater(() ->
+                        new Alert(Alert.AlertType.INFORMATION,
+                            "일기 저장 및 분석 완료!\nentry_id=" + entryId).showAndWait()
+                    );
+                } catch (Exception ex) {
+                    Platform.runLater(() ->
+                        new Alert(Alert.AlertType.ERROR, "분석 중 오류: " + ex.getMessage()).showAndWait()
+                    );
+                }
+            }).start();
+
+            } catch (Exception e) {
+                new Alert(Alert.AlertType.ERROR, "저장 중 오류: " + e.getMessage()).showAndWait();
+            }   
         }
-    }
 
     /** 목록 화면에서 연필(FAB) → 새 일기 모달 띄우기 */
     @FXML

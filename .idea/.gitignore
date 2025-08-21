@@ -1,0 +1,28 @@
+# 디폴트 무시된 파일
+/shelf/
+/workspace.xml
+# 에디터 기반 HTTP 클라이언트 요청
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# ==== env files (never commit secrets) ====
+.env
+.env.*
+.env.local
+!.env.example   # 예시 파일만 허용
+
+# ==== app generated outputs ====
+generated-images/
+# 1) .gitignore 보강
+cat >> .gitignore << 'EOF'
+
+
+# --- IDE files ---
+.idea/
+*.iml
+
+# --- generated assets ---
+
+EOF

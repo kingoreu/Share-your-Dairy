@@ -4,11 +4,22 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:controller="com.share.dairy.controller.FriendList.MyInfoPanelController"
-            xmlns:fx="http://javafx.com/fxml"
-            prefWidth="1024" prefHeight="640"
-            styleClass="root"
-            stylesheets="@/css/friendlist.css">
+<!--
+  내 정보 화면 FXML
+  - 좌측: 사이드바(탭 이동)
+  - 중앙: 흰색 라운드 컨테이너 안에 2열(GridPane)
+      * 좌열: 캐릭터 프리뷰(크기 상한이 있는 카드)
+      * 우열: 사용자 정보 폼
+  - 핵심 포인트: 왼쪽 "카드"에 min/pref/max 크기를 줘서
+                 이미지가 레이아웃을 밀어내지 못하게 함.
+-->
+<BorderPane
+        fx:id="root"
+        fx:controller="com.share.dairy.controller.FriendList.MyInfoPanelController"
+        xmlns:fx="http://javafx.com/fxml"
+        prefWidth="1024" prefHeight="640"
+        styleClass="root"
+        stylesheets="@/css/friendlist.css">
 
     <!-- ========== 상단 헤더 ========== -->
     <top>
@@ -16,6 +27,7 @@
             <StackPane styleClass="title-row">
                 <padding><Insets top="16" right="24" bottom="8" left="24"/></padding>
 
+                <!-- 홈 아이콘: 메인으로 이동 -->
                 <Button fx:id="btnHomeTop" styleClass="home-btn" onAction="#goHome"
                         StackPane.alignment="CENTER_LEFT">
                     <graphic>
@@ -25,8 +37,11 @@
                     </graphic>
                 </Button>
 
+                <!-- 가운데 정렬 타이틀 -->
                 <Label text="MY Info" styleClass="title" StackPane.alignment="CENTER"/>
             </StackPane>
+
+            <!-- 얇은 구분선 -->
             <Separator styleClass="title-sep"/>
         </VBox>
     </top>
@@ -37,7 +52,7 @@
               prefWidth="170" minWidth="170" maxWidth="170"
               styleClass="sidebar">
 
-            <!-- 현재 화면: MY Info -->
+            <!-- 현재 화면: MY Info (활성 표시용 active 클래스 + disable) -->
             <Button fx:id="btnMyInfo" disable="true"
                     prefWidth="130" prefHeight="120" styleClass="side-btn active">
                 <graphic>
@@ -86,15 +101,20 @@
 
     <!-- ========== 중앙 컨텐츠 ========== -->
     <center>
+        <!-- 바깥쪽: 화면 가운데 배치용 -->
         <StackPane alignment="TOP_CENTER">
-            <StackPane styleClass="content-wrap"
-                       maxWidth="880" prefWidth="880"
+
+            <!-- 흰 라운드 컨테이너(그림자/내부패딩 등은 CSS에서) -->
+            <StackPane styleClass="content-wrap" maxWidth="880" prefWidth="880"
                        maxHeight="540" prefHeight="540">
+
                 <AnchorPane>
+                    <!-- 스크롤이 필요 없어서 그냥 패널만 (양쪽 여백은 CSS/Insets로 처리) -->
                     <StackPane AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
                                AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"
                                styleClass="panel">
 
+                        <!-- 2열 그리드: 좌 48% / 우 52% -->
                         <GridPane hgap="24" vgap="0" styleClass="grid">
                             <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
                             <columnConstraints>
@@ -102,20 +122,32 @@
                                 <ColumnConstraints percentWidth="52" hgrow="ALWAYS"/>
                             </columnConstraints>
 
-                            <!-- 좌: 캐릭터 프리뷰 카드 -->
+                            <!-- [좌] 캐릭터 프리뷰 영역 -->
                             <StackPane GridPane.columnIndex="0" alignment="CENTER">
-                                <StackPane fx:id="card" styleClass="character-card">
+
+                                <!--
+                                  카드 크기 상한을 명시!
+                                  - 이미지가 아무리 커도 이 상자 바깥으로 못 커짐
+                                  - ImageView는 컨트롤러에서 카드 크기에 바인딩됨
+                                -->
+                                <StackPane fx:id="card" styleClass="character-card"
+                                           minWidth="260" prefWidth="380" maxWidth="420"
+                                           minHeight="260" prefHeight="380" maxHeight="420">
                                     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-                                    <!-- 컨트롤러가 동적으로 이미지 세팅 -->
-                                    <ImageView fx:id="imgCharacter" preserveRatio="true"/>
+
+                                    <!-- preserveRatio=true 로 가로세로 비율 유지 -->
+                                    <ImageView fx:id="imgCharacter" preserveRatio="true" smooth="true"/>
                                 </StackPane>
                             </StackPane>
 
-                            <!-- 우: 폼 -->
+                            <!-- [우] 사용자 정보 폼 -->
                             <VBox GridPane.columnIndex="1" spacing="16" alignment="TOP_LEFT">
+
                                 <GridPane fx:id="formGrid" hgap="16" vgap="14">
                                     <columnConstraints>
+                                        <!-- 레이블 칼럼(고정 폭) -->
                                         <ColumnConstraints minWidth="90" prefWidth="110"/>
+                                        <!-- 입력 칼럼(가변 폭) -->
                                         <ColumnConstraints hgrow="ALWAYS"/>
                                     </columnConstraints>
 
@@ -144,10 +176,12 @@
                                               disable="true" maxWidth="Infinity"/>
                                 </GridPane>
 
+                                <!-- 상태/안내 메시지 -->
                                 <Label fx:id="lblHint" text="" styleClass="hint-text" wrapText="true"/>
 
+                                <!-- 우하단 Edit/Save 버튼 -->
                                 <HBox alignment="CENTER_RIGHT">
-                                    <!-- ⛳ 여기: <String> 요소 대신 한 줄 속성으로 -->
+                                    <!-- styleClass 한 줄 속성 표기 -->
                                     <Button fx:id="btnEdit" text="Edit" onAction="#onEditToggle"
                                             styleClass="action-btn accent wide"/>
                                 </HBox>
