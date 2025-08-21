@@ -1,7 +1,7 @@
 package com.share.dairy.api;
 
-import com.share.dairy.dto.ImageGenerateDtos.GenerateRequest;
-import com.share.dairy.dto.ImageGenerateDtos.GenerateResponse;
+import com.share.dairy.dto.imageGen.ImageGenerateDtos.GenerateRequest;
+import com.share.dairy.dto.imageGen.ImageGenerateDtos.GenerateResponse;
 import com.share.dairy.service.imageGen.ImageGenService;
 import com.share.dairy.util.CharacterAssetResolver;
 import org.springframework.http.ResponseEntity;
@@ -31,23 +31,32 @@ public class ImageController {
     public ResponseEntity<?> generateTwo(@PathVariable long entryId,
                                          @RequestBody GenerateRequest req) {
         // 1) 입력 검증
+        // 수정 버전
         if (req == null || req.keyword == null || req.keyword.isBlank()
-                || req.character == null || req.character.isBlank()) {
+                || req.character == null) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "error","missing fields", "need","keyword & character"
+                    "error", "missing fields", "need", "keyword & character"
             ));
         }
+//        if (req == null || req.keyword == null || req.keyword.isBlank()
+//                || req.character == null || req.character.isBlank()) {
+//            return ResponseEntity.badRequest().body(Map.of(
+//                    "error","missing fields", "need","keyword & character"
+//            ));
+//        }
         // 2) 캐릭터 PNG 확인
         final Path baseCharPng;
+
         try {
-            baseCharPng = assetResolver.resolve(req.character);
+            baseCharPng = assetResolver.resolve(req.character.name().toLowerCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error","character file not found", "detail", e.getMessage()
             ));
         }
-        // 3) 생성 실행
+        // 3) 생성 실행 (수정: 2단계를 합침~)
         try {
+
             var res = imageSvc.generateTwoWithBase_NoMask(
                     entryId, req.keyword, baseCharPng,
                     !(Boolean.TRUE.equals(req.regenerate)), req.size

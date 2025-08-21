@@ -32,6 +32,7 @@ public class UserDao {
         }
     }
 
+    // 아이디 찾기
     public Optional<User> findByLoginId(String loginId) throws SQLException {
         String sql = """
             SELECT user_id, nickname, login_id, password, user_email, character_type,

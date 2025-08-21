@@ -15,7 +15,7 @@
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
       <image>
         <!-- 절대 경로: 클래스패스 루트(/) 기준 -->
-        <Image url="@/mainFrame_images/room_background.jpg"/>
+        <Image url="@/MainFrame_images/room_background.jpg"/>
       </image>
     </ImageView>
 
@@ -68,10 +68,10 @@
                fitWidth="160" fitHeight="200"
                onMouseClicked="#onCharacterClicked"
                >
-       <image>
-        <!-- 절대 경로 캐릭터-->
-        <Image url="@/mainFrame_images/character.png"/>
-      </image>
+<!--       <image>-->
+<!--        &lt;!&ndash; 절대 경로 캐릭터&ndash;&gt;-->
+<!--        <Image url="@/MainFrame_images/character.png"/>-->
+<!--      </image>-->
     </ImageView>
   </children>
 </AnchorPane>

@@ -75,4 +75,18 @@ public class UserRestController {
         ));
     }
 
+    // 아이디 중복 조회
+    @GetMapping("/check_id")
+    public ResponseEntity<Map<String, Object>> checkLoginId(@RequestParam String loginId) throws SQLException {
+        boolean exists = userService.existsByLoginId(loginId);
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
+
+    // 이메일 중복 조회
+    @GetMapping("/check_email")
+    public ResponseEntity<Map<String, Object>> checkEmail(@RequestParam String email) throws SQLException {
+        boolean exists = userService.existsByEmail(email);
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
+
 }
