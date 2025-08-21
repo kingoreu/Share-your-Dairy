@@ -1,7 +1,7 @@
-package com.share.dairy.api;
+package com.share.dairy.api.imageGen;
 
-import com.share.dairy.dto.ImageGenerateDtos.GenerateRequest;
-import com.share.dairy.dto.ImageGenerateDtos.GenerateResponse;
+import com.share.dairy.dto.imageGen.ImageGenerateDtos.GenerateRequest;
+import com.share.dairy.dto.imageGen.ImageGenerateDtos.GenerateResponse;
 import com.share.dairy.service.imageGen.ImageGenService;
 import com.share.dairy.util.CharacterAssetResolver;
 import org.springframework.http.ResponseEntity;
