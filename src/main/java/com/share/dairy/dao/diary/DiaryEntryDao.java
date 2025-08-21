@@ -106,7 +106,7 @@ public class DiaryEntryDao {
             return keys.next() ? keys.getLong(1) : 0L;
         }
     }
-    }
+}
 
     /** 본문만 수정 */
     public int updateContent(Connection con, long entryId, String content) throws SQLException {

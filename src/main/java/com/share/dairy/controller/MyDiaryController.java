@@ -3,6 +3,8 @@ package com.share.dairy.controller;
 import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.model.enums.Visibility;
 import com.share.dairy.service.diary.DiaryWriteService;
+import com.share.dairy.app.music.MusicDialog; // ★ 추가: MUSIC 모달
+
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,6 +30,9 @@ public class MyDiaryController {
     /* 작성 화면 필드(있을 수도 있고 없을 수도 있음) */
     @FXML private TextField titleField, placeField, musicField, timeField;
     @FXML private TextArea contentArea;
+
+    /* 상단 네비에 MUSIC 버튼이 fx:id로 연결돼 있다면 사용 */
+    @FXML private Button btnMusic; // ★ 선택적: 있으면 initialize에서 핸들러 연결
 
     /* 목록 컨테이너(있으면 목록 모드) */
     @FXML private VBox listContainer;
@@ -55,10 +60,21 @@ public class MyDiaryController {
 
         // 목록 모드면 목록 렌더
         if (listContainer != null) refreshList();
+
+        // ★ MUSIC 버튼이 존재하면 클릭 시 모달 띄우기
+        if (btnMusic != null) {
+            btnMusic.setOnAction(e -> openMusicDialog());
+        }
     }
 
     @FXML private void onPlace(){ if (placeField != null) placeField.requestFocus(); }
-    @FXML private void onMusic(){ if (musicField != null) musicField.requestFocus(); }
+
+    /* ★ 네비의 MUSIC 항목과 연결되어 있다면, 모달을 띄우도록 변경 */
+    @FXML
+    private void onMusic(){
+        openMusicDialog();
+    }
+
     @FXML private void onTime(){  if (timeField  != null) timeField.requestFocus();  }
 
     @FXML
@@ -241,5 +257,15 @@ public class MyDiaryController {
             return (Stage) contentArea.getScene().getWindow();
         }
         return null;
+    }
+
+    /* ★ MUSIC 검색/재생 모달 열기 (공용) */
+    private void openMusicDialog() {
+        try {
+            new MusicDialog().show();
+        } catch (Throwable ex) {
+            new Alert(Alert.AlertType.ERROR, "음악 검색창을 열 수 없습니다:\n" + (ex.getMessage() == null ? ex.toString() : ex.getMessage()))
+                    .showAndWait();
+        }
     }
 }

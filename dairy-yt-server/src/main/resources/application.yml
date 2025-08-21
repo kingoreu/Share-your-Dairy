@@ -1,0 +1,7 @@
+server:
+  port: 8090
+
+youtube:
+  api-key: ${IzaSyCd4xSQTWTi9EhP4A6RHt7anA0g5vIlijE:}
+  region: KR
+  max-results: 8

@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class YouTubeService {
 
-    @Value("${youtube.apiKey:}")
+   @Value("${youtube.api-key:}")
     private String apiKey;
 
     private static final String SEARCH =
