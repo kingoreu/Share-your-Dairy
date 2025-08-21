@@ -2,66 +2,82 @@
 package com.share.dairy.util;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
+import java.io.InputStream;
+import java.nio.file.*;
 
 /**
- * users.character_type(코드) → base-characters/<asset>.(png|jpg|jpeg|webp) 로 매핑.
- * - 코드: HAMSTER, RACCOON, DOG, CAT, BEAR, DEER, DUCK, RABBIT, WOLF, RICHARD, TAKO, ZZUNI
- * - 에셋 파일명은 소문자 관례로 준비 (예: hamster.png, raccoon.png, zzuni.png)
+ * 캐릭터 PNG를 “file:” 또는 “classpath:”에서 찾아 Path로 돌려준다.
+ *
+ * application.yml 예:
+ * app:
+ *   characters:
+ *     location: classpath:character   # src/main/resources/character/HAMSTER.png
+ *
+ * 또는
+ * app:
+ *   characters:
+ *     location: file:./base-characters # 프로젝트 루트 기준 로컬 폴더
  */
 @Component
 public class CharacterAssetResolver {
 
-    @Value("${app.characters.root-dir:./base-characters}")
-    private String charactersRootDir;
+    @Value("${app.characters.location:classpath:character}")
+    private String location;
 
-    // 대문자 코드 → 에셋 파일명(소문자) 매핑
-    private static final Map<String,String> CODE_TO_ASSET = Map.ofEntries(
-            Map.entry("HAMSTER","hamster"),
-            Map.entry("RACCOON","raccoon"),
-            Map.entry("DOG","dog"),
-            Map.entry("CAT","cat"),
-            Map.entry("BEAR","bear"),
-            Map.entry("DEER","deer"),
-            Map.entry("DUCK","duck"),
-            Map.entry("RABBIT","rabbit"),
-            Map.entry("WOLF","wolf"),
-            Map.entry("RICHARD","richard"),
-            Map.entry("TAKO","tako"),
-            Map.entry("ZZUNI","zzuni")
-    );
+    private final ResourceLoader resourceLoader;
 
-    /** DB의 character_type 코드를 받아 에셋 PNG 경로를 찾는다. */
-    public Path resolveByCharacterType(String code) {
-        if (code == null || code.isBlank())
-            throw new IllegalArgumentException("character_type이 비어 있습니다.");
-        String asset = CODE_TO_ASSET.get(code.trim().toUpperCase());
-        if (asset == null) asset = code.trim().toLowerCase(); // 혹시 모를 예외 입력 방어
-        return resolve(asset); // base-characters/<asset>.(png|jpg|jpeg|webp)
+    public CharacterAssetResolver(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
     }
 
-    /** 파일명 또는 이름만 줘도 됨(확장자 자동 탐색) */
+    /** character_type(HAMSTER 등)로 파일을 찾아 Path 반환 (없으면 IllegalArgumentException) */
     public Path resolve(String name) {
         if (name == null || name.isBlank())
             throw new IllegalArgumentException("character가 비었습니다.");
 
-        Path dir = Path.of(charactersRootDir).toAbsolutePath();
-        System.out.println("[CharacterAssetResolver] dir = " + dir);
-
         String base = name.trim().replaceAll("(?i)\\.(png|jpg|jpeg|webp)$", "");
-        String[] exts = {".png", ".jpg", ".jpeg", ".webp"};
+        String[] bases = { base, base.toLowerCase(), base.toUpperCase() };
+        String[] exts  = { ".png", ".jpg", ".jpeg", ".webp" };
 
-        for (String ext : exts) {
-            Path p = dir.resolve(base + ext);
-            if (Files.exists(p)) {
-                System.out.println("[CharacterAssetResolver] matched = " + p);
-                return p;
+        for (String b : bases) {
+            for (String ext : exts) {
+                String candidate = normalize(location, b + ext); // file:/ or classpath:/
+                Resource res = resourceLoader.getResource(candidate);
+                try {
+                    if (res.exists()) {
+                        // 파일시스템이면 바로 Path 사용
+                        if (res.isFile()) {
+                            Path p = res.getFile().toPath();
+                            System.out.println("[CharacterAssetResolver] matched(file) = " + p);
+                            return p;
+                        }
+                        // JAR/classpath이면 임시파일로 복사 후 Path 사용
+                        try (InputStream in = res.getInputStream()) {
+                            Path tmp = Files.createTempFile("char-", ext);
+                            Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+                            System.out.println("[CharacterAssetResolver] matched(classpath→tmp) = " + tmp);
+                            return tmp;
+                        }
+                    }
+                } catch (Exception ignore) { /* 다음 후보 계속 */ }
             }
         }
-        throw new IllegalArgumentException("캐릭터 파일을 찾을 수 없습니다: " + base + ".(png/jpg/jpeg/webp)");
+        throw new IllegalArgumentException(
+                "캐릭터 파일을 찾을 수 없습니다: " + base + ".(png/jpg/jpeg/webp) @ " + location
+        );
+    }
+
+    /** 과거 호환용 래퍼 (이름만 다르고 같은 동작) */
+    public Path resolveByCharacterType(String characterType) {
+        return resolve(characterType);
+    }
+
+    private static String normalize(String baseLocation, String filename) {
+        String sep = baseLocation.endsWith("/") ? "" : "/";
+        return baseLocation + sep + filename;
     }
 }

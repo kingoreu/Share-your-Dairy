@@ -17,11 +17,17 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * 이미지 2장 생성:
- *  (1) 키워드 일러스트: /images/generations (JSON)
- *  (2) 캐릭터 액션(무마스크 편집): /images/edits (multipart)
- * - 파일 저장 후 diary_attachments/keyword_images/character_keyword_images 기록
- * - 캐시(useCache=true)면 디스크에 두 파일이 있으면 OpenAI 호출 스킵
+ * 이미지 2장 생성 서비스
+ *  - (1) 키워드 일러스트: /v1/images/generations (JSON)
+ *  - (2) 캐릭터 액션(무마스크 편집): /v1/images/edits (multipart/form-data)
+ *
+ * 생성 후:
+ *  - /generated-images/<entry>_keyword.png, <entry>_character.png 저장
+ *  - diary_attachments upsert, (keyword_images / character_keyword_images) 1회 insert
+ *
+ * 주의:
+ *  - 일부 배포에서 response_format/background 미지원 → 사용 안 함
+ *  - 응답은 b64_json 또는 url → 둘 다 처리
  */
 @Service
 public class ImageGenService {
@@ -29,48 +35,83 @@ public class ImageGenService {
     /** 컨트롤러/워크플로우로 돌려줄 간단 결과 DTO */
     public record Result(String keywordUrl, String characterUrl) {}
 
+    // OpenAI 이미지 엔드포인트
     private static final String GEN_ENDPOINT  = "https://api.openai.com/v1/images/generations";
     private static final String EDIT_ENDPOINT = "https://api.openai.com/v1/images/edits";
 
+    // HTTP 클라이언트 & JSON 매퍼
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(20)).build();
     private final ObjectMapper om = new ObjectMapper();
 
-    @Value("${OPENAI_API_KEY:}")           // 환경변수만 사용(없으면 빈 문자열)
+    // ======== 환경/앱 설정 ========
+
+    /** OpenAI 키: 스프링이 못 줄 수도 있으니(예: .env) 아래 getApiKey()로 보강 */
+    @Value("${OPENAI_API_KEY:}")
     private String openAiApiKey;
 
+    /** 생성 파일 저장 루트(프로젝트 루트 기준 기본값) */
     @Value("${app.media.root-dir:./generated-images}")
     private String mediaRootDir;
 
+    /** 공개 URL 접두사: /media/ (WebConfig에서 정적 매핑) */
     @Value("${app.media.url-prefix:/media/}")
     private String mediaUrlPrefix;
 
+    // ======== DB Repository ========
     private final ImageDbRepository imageDbRepo;
 
     public ImageGenService(ImageDbRepository imageDbRepo) {
         this.imageDbRepo = imageDbRepo;
     }
 
+    // ---------- 유틸: 키/문자열 ----------
+    private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
+    private static String mask(String s) {
+        if (s == null || s.length() < 12) return String.valueOf(s);
+        return s.substring(0, 8) + "…" + s.substring(s.length() - 4);
+    }
+    /** @Value → env → -D 프로퍼티 순으로 키 취득 */
+    private String getApiKey() {
+        if (!isBlank(openAiApiKey)) return openAiApiKey.trim();
+        String v = System.getenv("OPENAI_API_KEY");
+        if (!isBlank(v)) return v.trim();
+        v = System.getProperty("OPENAI_API_KEY");
+        if (!isBlank(v)) return v.trim();
+        return "";
+    }
+
     /**
-     * 캐릭터 "라벨"(예: HAMSTER)을 프롬프트에도 반영하는 오버로드.
+     * 캐릭터 "라벨"(예: HAMSTER, RACCOON ...)을 프롬프트에도 반영하는 오버로드.
      * @param useCache true면 파일 2개가 이미 있으면 OpenAI 호출 생략
      */
     @Transactional
     public Result generateTwoWithBase_NoMask(long entryId, String keyword,
                                              String characterLabel, Path baseCharPng,
                                              boolean useCache, String sizeSq) {
-        if (openAiApiKey == null || openAiApiKey.isBlank()) {
-            throw new IllegalStateException("OPENAI_API_KEY가 설정되지 않았습니다.");
+        // 0) 키 존재 체크(부팅 실패 방지를 위해 여기서 검증)
+        String apiKey = getApiKey();
+        if (isBlank(apiKey)) {
+            throw new IllegalStateException(
+                    "OPENAI_API_KEY가 설정되지 않았습니다. " +
+                            "Run/Debug 환경변수 또는 -DOPENAI_API_KEY, 혹은 Spring @Value로 주입하세요."
+            );
         }
+        System.out.println("[ImageGenService] OPENAI key=" + mask(apiKey));
+
         try {
-            // 1) 분석/사용자 존재 체크(분석 먼저 정책)
+            // 1) 분석/사용자 컨텍스트 확인(정책: 분석이 먼저여야 함)
             var ctxOpt = imageDbRepo.findContext(entryId);
             if (ctxOpt.isEmpty()) {
                 throw new IllegalStateException("diary_analysis가 먼저 생성되어야 합니다. entry_id=" + entryId);
             }
             var ctx = ctxOpt.get();
+            System.out.println("[ImageGenService] ctx.analysisId=" + ctx.analysisId()
+                    + ", userId=" + ctx.userId()
+                    + ", keyword=" + ctx.analysisKeywords()
+                    + ", character=" + characterLabel);
 
-            // 2) 저장 위치/URL
+            // 2) 저장 위치/URL 계산
             Path dir = Path.of(mediaRootDir).toAbsolutePath();
             Files.createDirectories(dir);
 
@@ -79,32 +120,39 @@ public class ImageGenService {
             Path kwPath = dir.resolve(kwName);
             Path chPath = dir.resolve(chName);
 
-            String kwUrl  = mediaUrlPrefix + kwName;
-            String chUrl  = mediaUrlPrefix + chName;
+            String kwUrl = mediaUrlPrefix + kwName;
+            String chUrl = mediaUrlPrefix + chName;
 
             boolean cacheExists = Files.exists(kwPath) && Files.exists(chPath);
             String sz = (sizeSq == null || sizeSq.isBlank()) ? "1024" : sizeSq;
             String sizeStr = sz + "x" + sz;
 
-            // 3) 필요 시 OpenAI 호출
+            // 3) 캐시 미사용 또는 캐시 없으면 OpenAI 호출
             if (!useCache || !cacheExists) {
+                System.out.println("[ImageGenService] generating... size=" + sizeStr + ", cache=" + useCache);
+
                 // (1) 키워드 일러스트
                 String promptKeyword = """
                     키워드 '%s'를 직관적으로 표현한 미니멀 일러스트.
                     앱 UI용으로 단순/선명하고 과한 배경은 지양한다.
                     """.formatted(keyword);
-                byte[] keywordPng = requestImageGenerate(promptKeyword, sizeStr);
+                byte[] keywordPng = requestImageGenerate(apiKey, promptKeyword, sizeStr);
 
-                // (2) 캐릭터 액션(캐릭터 종 라벨 반영)
+                // (2) 캐릭터 액션
+                if (!Files.exists(baseCharPng)) {
+                    throw new IllegalStateException("캐릭터 PNG가 존재하지 않습니다: " + baseCharPng);
+                }
                 String actionPrompt = """
                     동일한 캐릭터(%s)의 외형을 유지하면서 '%s'를 하는 장면.
                     얼굴 무늬/체형/털 색은 유지하고, 소품/포즈만으로 표현하라. 배경은 단순하게.
                     """.formatted(characterLabel, keyword);
-                byte[] characterPng = requestImageEdit_NoMask(actionPrompt, baseCharPng, sizeStr);
+                byte[] characterPng = requestImageEdit_NoMask(apiKey, actionPrompt, baseCharPng, sizeStr);
 
                 // 파일 저장(덮어쓰기)
                 try (OutputStream os = Files.newOutputStream(kwPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) { os.write(keywordPng); }
                 try (OutputStream os = Files.newOutputStream(chPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) { os.write(characterPng); }
+            } else {
+                System.out.println("[ImageGenService] cache hit → " + kwPath + " , " + chPath);
             }
 
             // 4) DB 기록 (첨부 upsert + 생성기록 1회)
@@ -117,6 +165,7 @@ public class ImageGenService {
             return new Result(kwUrl, chUrl);
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("이미지 생성 실패: " + e.getMessage(), e);
         }
     }
@@ -125,29 +174,34 @@ public class ImageGenService {
     @Transactional
     public Result generateTwoWithBase_NoMask(long entryId, String keyword,
                                              Path baseCharPng, boolean useCache, String sizeSq) {
-        String name = baseCharPng.getFileName().toString().replaceFirst("(?i)\\.(png|jpg|jpeg|webp)$", "");
+        String name = baseCharPng.getFileName().toString()
+                .replaceFirst("(?i)\\.(png|jpg|jpeg|webp)$", "");
         return generateTwoWithBase_NoMask(entryId, keyword, name, baseCharPng, useCache, sizeSq);
     }
 
     // ------- OpenAI 호출 유틸: 텍스트→이미지 -------
-    private byte[] requestImageGenerate(String prompt, String size) throws Exception {
+    private byte[] requestImageGenerate(String apiKey, String prompt, String size) throws Exception {
         Map<String,Object> body = new LinkedHashMap<>();
         body.put("model", "gpt-image-1");
         body.put("prompt", prompt);
-        body.put("size", size);
+        body.put("size", size); // 예: "1024x1024"
         body.put("n", 1);
 
         String json = om.writeValueAsString(body);
 
         HttpRequest req = HttpRequest.newBuilder(URI.create(GEN_ENDPOINT))
-                .header("Authorization", "Bearer " + openAiApiKey)
+                .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofSeconds(60))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
         HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
+        System.out.println("[OpenAI] generate status=" + res.statusCode());
         if (res.statusCode()/100 != 2) {
+            if (res.statusCode() == 401 || res.statusCode() == 403) {
+                throw new IllegalStateException("OpenAI 인증 실패(키/권한). body=" + res.body());
+            }
             throw new IllegalStateException("OpenAI Generate " + res.statusCode() + ": " + res.body());
         }
 
@@ -170,7 +224,7 @@ public class ImageGenService {
     }
 
     // ------- OpenAI 호출 유틸: 편집(무마스크) -------
-    private byte[] requestImageEdit_NoMask(String prompt, Path imagePng, String size) throws Exception {
+    private byte[] requestImageEdit_NoMask(String apiKey, String prompt, Path imagePng, String size) throws Exception {
         Multipart mp = new Multipart("----JavaBoundary" + UUID.randomUUID());
         mp.addText("model", "gpt-image-1");
         mp.addText("prompt", prompt);
@@ -179,14 +233,18 @@ public class ImageGenService {
         mp.addFile("image[]", imagePng, "image/png"); // image[] 필드명 호환성 좋음
 
         HttpRequest req = HttpRequest.newBuilder(URI.create(EDIT_ENDPOINT))
-                .header("Authorization", "Bearer " + openAiApiKey)
+                .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", mp.contentType())
                 .timeout(Duration.ofSeconds(90))
                 .POST(mp.publisher())
                 .build();
 
         HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
+        System.out.println("[OpenAI] edit status=" + res.statusCode());
         if (res.statusCode()/100 != 2) {
+            if (res.statusCode() == 401 || res.statusCode() == 403) {
+                throw new IllegalStateException("OpenAI 인증 실패(키/권한). body=" + res.body());
+            }
             throw new IllegalStateException("OpenAI Edit " + res.statusCode() + ": " + res.body());
         }
 

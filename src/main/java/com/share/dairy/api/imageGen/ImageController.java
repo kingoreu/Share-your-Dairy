@@ -1,7 +1,9 @@
+// src/main/java/com/share/dairy/api/ImageController.java
 package com.share.dairy.api.imageGen;
 
 import com.share.dairy.dto.imageGen.ImageGenerateDtos.GenerateRequest;
 import com.share.dairy.dto.imageGen.ImageGenerateDtos.GenerateResponse;
+import com.share.dairy.service.imageGen.DiaryWorkflowService;
 import com.share.dairy.service.imageGen.ImageGenService;
 import com.share.dairy.util.CharacterAssetResolver;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +13,8 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * POST /api/diary/{entryId}/images
- * Body: {"keyword":"야구","character":"raccoon","regenerate":false,"size":"1024"}
- * Resp: {"keywordImageUrl":"/media/12345_keyword.png","characterImageUrl":"/media/12345_character.png"}
+ * 이미지 생성 API
+ * - 자동 파이프라인이 기본이지만, 재생성/디버깅을 위해 수동 엔드포인트도 제공
  */
 @RestController
 @RequestMapping("/api")
@@ -21,35 +22,47 @@ public class ImageController {
 
     private final ImageGenService imageSvc;
     private final CharacterAssetResolver assetResolver;
+    private final DiaryWorkflowService workflow;
 
-    public ImageController(ImageGenService imageSvc, CharacterAssetResolver assetResolver) {
+    public ImageController(ImageGenService imageSvc,
+                           CharacterAssetResolver assetResolver,
+                           DiaryWorkflowService workflow) {
         this.imageSvc = imageSvc;
         this.assetResolver = assetResolver;
+        this.workflow = workflow;
     }
 
+    /** (신규) DB에서 키워드/캐릭터 읽어 자동 생성: entryId만 필요 */
+    @PostMapping("/diary/{entryId}/images/auto")
+    public ResponseEntity<?> autoGenerate(@PathVariable long entryId,
+                                          @RequestParam(defaultValue = "false") boolean regenerate,
+                                          @RequestParam(defaultValue = "1024") String size) {
+        try {
+            var res = workflow.generateFromDb(entryId, regenerate, size);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(Map.of(
+                    "error","auto generation failed",
+                    "detail", e.getMessage()
+            ));
+        }
+    }
+
+    /** (기존) 수동 생성: 클라가 keyword/character를 직접 보냄(재생성/디버깅용) */
     @PostMapping("/diary/{entryId}/images")
     public ResponseEntity<?> generateTwo(@PathVariable long entryId,
                                          @RequestBody GenerateRequest req) {
-        // 1) 입력 검증
         if (req == null || req.keyword == null || req.keyword.isBlank()
                 || req.character == null || req.character.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error","missing fields", "need","keyword & character"
             ));
         }
-        // 2) 캐릭터 PNG 확인
-        final Path baseCharPng;
         try {
-            baseCharPng = assetResolver.resolve(req.character);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error","character file not found", "detail", e.getMessage()
-            ));
-        }
-        // 3) 생성 실행
-        try {
+            Path baseCharPng = assetResolver.resolve(req.character);
             var res = imageSvc.generateTwoWithBase_NoMask(
-                    entryId, req.keyword, baseCharPng,
+                    entryId, req.keyword, req.character, baseCharPng,
                     !(Boolean.TRUE.equals(req.regenerate)), req.size
             );
             return ResponseEntity.ok(new GenerateResponse(res.keywordUrl(), res.characterUrl()));
