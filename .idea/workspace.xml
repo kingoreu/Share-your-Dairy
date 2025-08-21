@@ -5,22 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/event/DiaryAnalyzedEvent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/listener/DiaryPipelineListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/DiaryWorkflowService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/imageGen/ImageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/imageGen/ImageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/diary_analysis/DiaryAnalysisController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/diary_analysis/DiaryAnalysisController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/ImageDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/ImageDbRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary_analysis/DiaryAnalysisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary_analysis/DiaryAnalysisService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/CharacterAssetResolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/CharacterAssetResolver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,7 +160,7 @@
       <workItem from="1755659764157" duration="15668000" />
       <workItem from="1755735166064" duration="13874000" />
       <workItem from="1755754153369" duration="4098000" />
-      <workItem from="1755758299949" duration="1627000" />
+      <workItem from="1755758299949" duration="4946000" />
     </task>
     <servers />
   </component>
