@@ -134,7 +134,7 @@ public class ImageGenService {
                 // (1) 키워드 일러스트
                 String promptKeyword = """
                     키워드 '%s'를 직관적으로 표현한 미니멀 일러스트.
-                    앱 UI용으로 단순/선명하고 과한 배경은 지양한다.
+                    앱 UI용으로 단순/선명하고 배경은 없이 완전 투명하게
                     """.formatted(keyword);
                 byte[] keywordPng = requestImageGenerate(apiKey, promptKeyword, sizeStr);
 
@@ -144,7 +144,7 @@ public class ImageGenService {
                 }
                 String actionPrompt = """
                     동일한 캐릭터(%s)의 외형을 유지하면서 '%s'를 하는 장면.
-                    얼굴 무늬/체형/털 색은 유지하고, 소품/포즈만으로 표현하라. 배경은 단순하게.
+                    얼굴 무늬/체형/털 색은 유지하고, 소품/포즈만으로 표현하라. 배경은 없이 완전 투명하게.
                     """.formatted(characterLabel, keyword);
                 byte[] characterPng = requestImageEdit_NoMask(apiKey, actionPrompt, baseCharPng, sizeStr);
 
@@ -162,9 +162,6 @@ public class ImageGenService {
 
             // 두 테이블 모두 analyzed_id + user_id 단위로 1회만 기록
             // 그리고 현재 스키마에 'keywords' 컬럼이 있으므로 동일 문구를 같이 저장
-            final String kws = ctx.analysisKeywords();
-            imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), kws);
-            imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), kws);
 
             System.out.println("[ImageGenService] saved → " + kwPath + " / " + chPath);
             return new Result(kwUrl, chUrl);
