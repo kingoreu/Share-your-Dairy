@@ -17,6 +17,12 @@ public final class UserSession {
         this.email = email;
         this.characterType = characterType;
     }
+    // 현재 로그인한 사용자 ID를 반환 (없으면 null)
+    public static Long currentId() { return current != null ? current.userId : null; }
+    public static long requireId() {
+    if (current == null) throw new IllegalStateException("로그인 세션이 없습니다.");
+    return current.userId;
+}
 
     /** 현재 세션 저장/조회/해제 */
     public static void set(UserSession s) { current = s; }

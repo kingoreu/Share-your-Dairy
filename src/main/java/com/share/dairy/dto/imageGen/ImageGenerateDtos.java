@@ -1,4 +1,4 @@
-package com.share.dairy.dto;
+package com.share.dairy.dto.imageGen;
 
 /** 이미지 생성 API 요청/응답 DTO */
 public class ImageGenerateDtos {
