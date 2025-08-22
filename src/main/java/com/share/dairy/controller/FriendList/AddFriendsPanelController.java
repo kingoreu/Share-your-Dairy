@@ -1,275 +1,312 @@
 package com.share.dairy.controller.FriendList;
 
+import com.share.dairy.auth.UserSession;
 import com.share.dairy.controller.OverlayChildController;
-
-import javafx.event.ActionEvent;
+import com.share.dairy.dao.friend.FriendshipDao;
+import com.share.dairy.model.enums.FriendshipStatus;
+import com.share.dairy.model.friend.Friendship;
+import com.share.dairy.util.DBConnection;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.sql.*;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.sql.Connection;
+import java.util.*;
 
-import javafx.scene.input.KeyCode;            // ESC 단축키
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.layout.BorderPane;        // 루트 컨테이너
-import javafx.scene.layout.StackPane;
-
-/**
- * Add Friends 화면 컨트롤러 (Overlay 흐름 적용)
- * - 홈/ESC: goHome() → host.closeOverlay(), 단 host==null이면 메인 FXML로 안전 fallback
- * - 탭 이동: openOverlay("...") 사용
- * - 시그니처: Initializable 요구에 맞춰 initialize(URL, ResourceBundle) 구현
- */
 public class AddFriendsPanelController extends OverlayChildController {
 
-    /* ===== FXML 바인딩 ===== */
-    @FXML private BorderPane root;        // ESC 등록/오버레이 제어
-    @FXML private StackPane  card;        // 캐릭터 카드(상한은 FXML에서 지정)
-    @FXML private ImageView  imgCharacter;
-
+    // ===== FXML =====
+    @FXML private ImageView imgCharacter;
     @FXML private TextField tfSearchId;
-    @FXML private Label     lblResult;
-    @FXML private Button    btnAdd;
-    @FXML private Button    btnSearch;
-
-    /* ===== 검색 결과 상태(ADD 버튼 제어용) ===== */
+    @FXML private Label lblResult;
+    @FXML private Button btnAdd;
+    @FXML private ListView<PendingRow> lvPending;
+    @FXML private StackPane card;
+    // ===== 내부 상태 =====
+    private final FriendshipDao friendshipDao = new FriendshipDao();
     private Long   foundUserId   = null;
     private String foundNickname = null;
-    private String foundCharType = null;
+    private String foundCharacter= null;
 
-    /* ===== Initializable 시그니처로 구현 (중요!) ===== */
-    @Override
+    private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
+            Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
+            Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
+            Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
+            Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
+            Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
+            Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
+    );
+
+    /* =========================
+     *           INIT
+     * ========================= */
+    @FXML
     public void initialize(URL url, ResourceBundle rb) {
-        // [레이아웃] 이미지가 카드 안에서만 커지도록 바인딩 (패딩 18px * 2 = 36px 고려)
-        if (card != null && imgCharacter != null) {
-            imgCharacter.fitWidthProperty().bind(card.widthProperty().subtract(36));
-            imgCharacter.fitHeightProperty().bind(card.heightProperty().subtract(36));
-            imgCharacter.setPreserveRatio(true);
-            imgCharacter.setSmooth(true);
-            imgCharacter.setCache(true);
+        tfSearchId.setOnAction(e -> onSearch());
+        btnAdd.setDisable(true);
+        lblResult.setText("");
+        setCharacterPreview("RACCOON");
+        imgCharacter.setPreserveRatio(true);
+        imgCharacter.setSmooth(true);
+        imgCharacter.setCache(true);
+        // 카드 안쪽(패딩 제외) 크기에 맞춰서 자동 리사이즈
+        imgCharacter.fitWidthProperty().bind(card.widthProperty().subtract(36));
+        imgCharacter.fitHeightProperty().bind(card.heightProperty().subtract(36));
+        lvPending.setCellFactory(list -> new PendingCell());
+        reloadPending();
+    }
+
+    /* =========================
+     *        NAVIGATION
+     * ========================= */
+    @FXML private void goMyInfo()    { open("/fxml/FriendList/MyInfoPanel.fxml"); }
+    @FXML private void goBuddyList() { open("/fxml/FriendList/FriendListPanel.fxml"); }
+
+    private void switchScene(String fxmlPath) {
+        try {
+            URL url = getClass().getResource(fxmlPath);
+            if (url == null) throw new IllegalStateException("FXML not found: " + fxmlPath);
+            Parent root = FXMLLoader.load(url);
+            Node any = (tfSearchId != null) ? tfSearchId : imgCharacter;
+            if (any != null && any.getScene() != null) any.getScene().setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            toast("화면 전환 실패: " + e.getMessage());
+        }
+    }
+
+    /* =========================
+     *        SEARCH FLOW
+     * ========================= */
+    @FXML
+    private void onSearch() {
+        String q = Optional.ofNullable(tfSearchId.getText()).orElse("").trim();
+        if (q.isEmpty()) { toast("ID 또는 닉네임을 입력하세요."); return; }
+
+        var me = UserSession.get();
+        if (me == null) { toast("로그인 세션이 없습니다."); return; }
+
+        var u = findUserByLoginOrNickname(q);
+        if (u == null) {
+            foundUserId = null; foundNickname = null; foundCharacter = null;
+            btnAdd.setDisable(true);
+            lblResult.setText("검색 결과가 없습니다.");
+            setCharacterPreview("RACCOON");
+            return;
+        }
+        if (u.userId == me.getUserId()) {
+            foundUserId = null;
+            btnAdd.setDisable(true);
+            lblResult.setText("본인은 추가할 수 없어요.");
+            setCharacterPreview(u.character);
+            return;
         }
 
-        // Enter 키로도 검색되게
-        if (tfSearchId != null) tfSearchId.setOnAction(e -> onSearch(null));
+        foundUserId   = u.userId;
+        foundNickname = (u.nickname != null && !u.nickname.isBlank()) ? u.nickname : u.loginId;
+        foundCharacter= normalize(u.character);
+        setCharacterPreview(foundCharacter);
 
-        // 초기 상태
-        if (btnAdd != null) btnAdd.setDisable(true);
-        setCharacterPreviewByType(null); // 기본 이미지
-        if (lblResult != null) lblResult.setText("");
+        // 현재 관계 상태 한 번에 확인
+        RelationState state = getRelationState(me.getUserId(), foundUserId);
+        switch (state) {
+            case NONE -> { lblResult.setText("검색 결과: " + foundNickname); btnAdd.setDisable(false); }
+            case SENT_BY_ME -> { lblResult.setText("이미 친구 요청을 보냈어요: " + foundNickname); btnAdd.setDisable(true); }
+            case SENT_BY_OTHER -> { lblResult.setText("상대가 먼저 보낸 대기 요청이 있어요. 아래 목록에서 수락/거절하세요."); btnAdd.setDisable(true); }
+            case ACCEPTED -> { lblResult.setText("이미 친구입니다: " + foundNickname); btnAdd.setDisable(true); }
+        }
+    }
 
-        // [ESC 단축키 등록]
-        root.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                newScene.getAccelerators().put(
-                        new KeyCodeCombination(KeyCode.ESCAPE),
-                        this::goHome // 아래 override된 goHome 사용(미주입 시 fallback 수행)
+    @FXML
+    private void onAdd() {
+        if (foundUserId == null) { toast("먼저 검색을 해 주세요."); return; }
+        var me = UserSession.get(); if (me == null) { toast("로그인 세션이 없습니다."); return; }
+
+        try (Connection con = DBConnection.getConnection()) {
+            // 1) 선제 상태 확인 (양방향 1회)
+            var either = friendshipDao.findEither(con, me.getUserId(), foundUserId);
+            if (either.isPresent()) {
+                Friendship f = either.get();
+                if (f.getFriendshipStatus() == FriendshipStatus.ACCEPTED) {
+                    lblResult.setText("이미 친구입니다: " + foundNickname);
+                    btnAdd.setDisable(true); return;
+                }
+                if (f.getFriendshipStatus() == FriendshipStatus.PENDING) {
+                    if (f.getUserId() == me.getUserId()) {
+                        lblResult.setText("이미 친구 요청을 보냈어요: " + foundNickname);
+                    } else {
+                        lblResult.setText("상대가 먼저 보낸 대기 요청이 있어요. 아래 목록에서 수락/거절하세요.");
+                    }
+                    btnAdd.setDisable(true); return;
+                }
+            }
+
+            // 2) 신규 요청(PENDING) — 역방향 중복은 uq_friend_pair 로 차단
+            con.setAutoCommit(false);
+            int changed = friendshipDao.upsertPending(con, me.getUserId(), foundUserId);
+            con.commit();
+
+            if (changed > 0) {
+                lblResult.setText("친구 요청을 보냈어요: " + foundNickname);
+                btnAdd.setDisable(true);
+                reloadPending();
+            } else {
+                lblResult.setText("요청을 보낼 수 없습니다. 잠시 후 다시 시도해 주세요.");
+            }
+        } catch (java.sql.SQLIntegrityConstraintViolationException dup) {
+            String msg = dup.getMessage();
+            if (msg != null && msg.contains("uq_friend_pair")) {
+                lblResult.setText("상대가 먼저 보낸 대기 요청이 있어요. 아래 목록에서 수락/거절하세요.");
+            } else {
+                lblResult.setText("이미 보낸 요청이 있거나 친구 상태입니다.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            toast("요청 실패: " + e.getMessage());
+        }
+    }
+
+    /* =========================
+     *     PENDING LIST (수락/거절)
+     * ========================= */
+    private void reloadPending() {
+        var me = UserSession.get(); if (me == null) return;
+        try {
+            var list = new ArrayList<PendingRow>();
+            var pendings = friendshipDao.findPendingFor(me.getUserId()); // 받은 요청들
+            for (var f : pendings) {
+                long requester = f.getUserId();
+                var ui = fetchUser(requester);
+                if (ui == null) continue;
+                list.add(new PendingRow(requester, ui.loginId, ui.nickname, normalize(ui.character)));
+            }
+            lvPending.getItems().setAll(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            toast("요청 목록을 불러오지 못했습니다: " + e.getMessage());
+        }
+    }
+
+    private void accept(long requesterId) {
+        var me = UserSession.get(); if (me == null) return;
+        try (var con = DBConnection.getConnection()) {
+            friendshipDao.respondToIncoming(con, requesterId, me.getUserId(), FriendshipStatus.ACCEPTED);
+        } catch (Exception e) { e.printStackTrace(); toast("수락 실패: " + e.getMessage()); }
+        reloadPending();
+        if (Objects.equals(foundUserId, requesterId)) {
+            lblResult.setText("이미 친구입니다: " + foundNickname);
+            btnAdd.setDisable(true);
+        }
+    }
+
+    private void reject(long requesterId) {
+        var me = UserSession.get(); if (me == null) return;
+        try (var con = DBConnection.getConnection()) {
+            friendshipDao.respondToIncoming(con, requesterId, me.getUserId(), FriendshipStatus.REJECTED);
+        } catch (Exception e) { e.printStackTrace(); toast("거절 실패: " + e.getMessage()); }
+        reloadPending();
+    }
+
+    /* =========================
+     *           UTIL
+     * ========================= */
+    private void setCharacterPreview(String type) {
+        String file = CHARACTER_FILE.getOrDefault(normalize(type), "raccoon.png");
+        try (InputStream in = getClass().getResourceAsStream("/character/" + file)) {
+            imgCharacter.setImage(in != null ? new Image(in) : null);
+        } catch (Exception ignored) {}
+    }
+    private String normalize(String raw) { return raw == null ? "" : raw.trim().toUpperCase(); }
+    private void toast(String s) { if (lblResult != null) lblResult.setText(s); }
+
+    /* 관계 상태 판별: DAO의 findEither 1회로 처리 */
+    private RelationState getRelationState(long me, long target) {
+        try (var con = DBConnection.getConnection()) {
+            var either = friendshipDao.findEither(con, me, target);
+            if (either.isEmpty()) return RelationState.NONE;
+            var f = either.get();
+            if (f.getFriendshipStatus() == FriendshipStatus.ACCEPTED) return RelationState.ACCEPTED;
+            if (f.getFriendshipStatus() == FriendshipStatus.PENDING) {
+                return (f.getUserId() == me) ? RelationState.SENT_BY_ME : RelationState.SENT_BY_OTHER;
+            }
+            return RelationState.NONE;
+        } catch (Exception e) { e.printStackTrace(); return RelationState.NONE; }
+    }
+    private enum RelationState { NONE, SENT_BY_ME, SENT_BY_OTHER, ACCEPTED }
+
+    /* ===== 사용자 조회 도우미 ===== */
+    private static class UserMini {
+        long userId; String loginId; String nickname; String character;
+        UserMini(long id, String lid, String nn, String ch) { userId=id; loginId=lid; nickname=nn; character=ch; }
+    }
+    private UserMini fetchUser(long userId) {
+        String sql = "SELECT user_id, login_id, nickname, character_type FROM users WHERE user_id=?";
+        try (var con = DBConnection.getConnection(); var ps = con.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) return new UserMini(
+                        rs.getLong("user_id"), rs.getString("login_id"),
+                        rs.getString("nickname"), rs.getString("character_type")
                 );
             }
-        });
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
     }
-
-    /* ===== Overlay 주입 완료 알림(Optional 디버깅용) ===== */
-    @Override
-    protected void onHostReady() {
-        // System.out.println("Overlay host injected? " + (host != null));
-    }
-
-    /* ===== 홈/ESC 동작: host 없으면 안전하게 메인으로 fallback ===== */
-    @FXML @Override
-    protected void goHome() {
-        if (host != null) {
-            host.closeOverlay();
-            return;
-        }
-        // ★ host 미주입 환경(직접 FXMLLoader로 열었을 때 등)에 대비한 안전 fallback
-        fallbackToMain();
-    }
-
-    /** host 없는 경우를 위한 안전한 메인 전환 */
-    private void fallbackToMain() {
-        try {
-            // 프로젝트에 맞게 경로 조정
-            javafx.fxml.FXMLLoader loader =
-                    new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
-            javafx.scene.Parent next = loader.load();
-            root.getScene().setRoot(next);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            setMsg("메인 화면 전환 실패: " + ex.getMessage());
-        }
-    }
-
-    /* ===== 좌측 사이드바 네비게이션 ===== */
-
-    @FXML
-    private void goMyInfo(ActionEvent e) {
-        if (host != null) openOverlay("/fxml/FriendList/MyInfoPanel.fxml");
-        else setMsg("호스트 미주입 상태입니다. (Main에서 openOverlay로 열어주세요)");
-    }
-
-    @FXML
-    private void goBuddyList(ActionEvent e) {
-        if (host != null) openOverlay("/fxml/FriendList/FriendListPanel.fxml");
-        else setMsg("호스트 미주입 상태입니다. (Main에서 openOverlay로 열어주세요)");
-    }
-
-    /* ===== Search 버튼 ===== */
-    @FXML
-    private void onSearch(ActionEvent e) {
-        String q = safeTrim(tfSearchId != null ? tfSearchId.getText() : "");
-        foundUserId = null;
-        foundNickname = null;
-        foundCharType = null;
-        if (btnAdd != null) btnAdd.setDisable(true);
-
-        if (q.isEmpty()) {
-            setMsg("검색할 ID를 입력해 주세요.");
-            setCharacterPreviewByType(null);
-            return;
-        }
-
-        long me = getCurrentUserId();
-
-        Optional<UserRow> row = findUserByLoginIdOrNickname(q);
-        if (!row.isPresent()) {
-            setMsg("일치하는 사용자를 찾지 못했어요.");
-            setCharacterPreviewByType(null);
-            return;
-        }
-
-        UserRow u = row.get();
-
-        if (u.userId == me) {
-            setMsg("본인은 친구로 추가할 수 없어요. 다른 ID를 검색해 주세요.");
-            setCharacterPreviewByType(u.characterType);
-            return;
-        }
-
-        FriendshipState state = checkFriendshipState(me, u.userId);
-        switch (state) {
-            case NONE -> {
-                setMsg("찾았어요: " + u.nickname + "  (추가 가능)");
-                foundUserId   = u.userId;
-                foundNickname = u.nickname;
-                foundCharType = u.characterType;
-                if (btnAdd != null) btnAdd.setDisable(false);
+    private UserMini findUserByLoginOrNickname(String q) {
+        String sql = """
+            SELECT user_id, login_id, nickname, character_type
+              FROM users
+             WHERE login_id = ? OR nickname = ?
+             LIMIT 1
+        """;
+        try (var con = DBConnection.getConnection(); var ps = con.prepareStatement(sql)) {
+            ps.setString(1, q); ps.setString(2, q);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) return new UserMini(
+                        rs.getLong("user_id"), rs.getString("login_id"),
+                        rs.getString("nickname"), rs.getString("character_type")
+                );
             }
-            case PENDING_ME    -> setMsg("이미 친구 요청을 보냈어요. 상대방의 수락을 기다려 주세요.");
-            case PENDING_OTHER -> setMsg("상대방이 먼저 친구 요청을 보냈어요. 요청함/받음 화면에서 처리해 주세요.");
-            case ACCEPTED      -> setMsg("이미 친구예요!");
-            default            -> setMsg("상태를 확인할 수 없어요.");
-        }
-
-        // 캐릭터 미리보기
-        if (foundCharType != null) setCharacterPreviewByType(foundCharType);
-        else setCharacterPreviewByType(u.characterType);
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
     }
 
-    /* ===== ADD 버튼 ===== */
-    @FXML
-    private void onAdd(ActionEvent e) {
-        if (foundUserId == null) { setMsg("먼저 ID를 검색해 주세요."); return; }
+    /* ===== ListView Cell: 수락/거절 버튼 포함 ===== */
+    private class PendingCell extends ListCell<PendingRow> {
+        private final ImageView icon = new ImageView();
+        private final Label name = new Label();
+        private final Button accept = new Button("수락");
+        private final Button reject = new Button("거절");
+        private final HBox root = new HBox(12, icon, name, new HBox(8, accept, reject));
 
-        long me = getCurrentUserId();
-        if (me == foundUserId) { setMsg("본인은 추가할 수 없어요."); return; }
-
-        FriendshipState state = checkFriendshipState(me, foundUserId);
-        if (state != FriendshipState.NONE) {
-            setMsg("이미 관계가 존재합니다. 상태: " + state);
-            return;
+        PendingCell() {
+            icon.setFitWidth(42); icon.setFitHeight(42); icon.setPreserveRatio(true);
+            name.setStyle("-fx-font-size:14px;-fx-font-weight:700;");
+            HBox.setHgrow(name, javafx.scene.layout.Priority.ALWAYS);
+            accept.getStyleClass().addAll("action-btn","primary");
+            reject.getStyleClass().addAll("action-btn","danger");
+            root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         }
-
-        boolean ok = insertFriendRequest(me, foundUserId);
-        if (ok) {
-            setMsg("친구 요청을 보냈어요: " + foundNickname);
-            if (btnAdd != null) btnAdd.setDisable(true);
-        } else {
-            setMsg("친구 요청 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
-        }
-    }
-
-    /* ===== 뷰 유틸 ===== */
-
-    private void setMsg(String msg) {
-        if (lblResult != null) lblResult.setText(msg);
-    }
-
-    private static String safeTrim(String s) { return s == null ? "" : s.trim(); }
-
-    /**
-     * 캐릭터 타입별 미리보기 (데모 매핑)
-     * - A/B/C → /characters/char_*.png
-     * - 기본 → /characters/character_default.png
-     * - 초대형 원본 대비 Image(800x800)로 생성
-     */
-    private void setCharacterPreviewByType(String type) {
-        String path;
-        if ("A".equalsIgnoreCase(type))      path = "/characters/char_a.png";
-        else if ("B".equalsIgnoreCase(type)) path = "/characters/char_b.png";
-        else if ("C".equalsIgnoreCase(type)) path = "/characters/char_c.png";
-        else                                 path = "/characters/character_default.png";
-
-        try (InputStream in = getClass().getResourceAsStream(path)) {
-            if (in != null) {
-                Image img = new Image(in, 800, 800, true, true);
-                imgCharacter.setImage(img);
-            } else {
-                imgCharacter.setImage(null);
-            }
-        } catch (Exception ex) {
-            imgCharacter.setImage(null);
+        @Override protected void updateItem(PendingRow it, boolean empty) {
+            super.updateItem(it, empty);
+            if (empty || it == null) { setGraphic(null); return; }
+            String file = CHARACTER_FILE.getOrDefault(it.character, "raccoon.png");
+            try (InputStream in = getClass().getResourceAsStream("/character/" + file)) {
+                icon.setImage(in != null ? new Image(in) : null);
+            } catch (Exception ignored) {}
+            name.setText(it.nickname + " (" + it.loginId + ")");
+            accept.setOnAction(e -> accept(it.userId));
+            reject.setOnAction(e -> reject(it.userId));
+            setGraphic(root);
         }
     }
-
-    /* ===== DB 스텁/예시 ===== */
-
-    private long getCurrentUserId() { return 1L; } // TODO: UserSession.get().getUserId() 등으로 교체
-
-    private Connection getConnection() throws SQLException {
-        // TODO: DatabaseManager.getInstance().getConnection();
-        throw new SQLException("DatabaseManager 연결을 구현하세요.");
-    }
-
-    private Optional<UserRow> findUserByLoginIdOrNickname(String q) {
-        // 데모: "K.K"만 매칭
-        if ("K.K".equalsIgnoreCase(q)) {
-            UserRow u = new UserRow();
-            u.userId = 2L;
-            u.loginId = "K.K";
-            u.nickname = "K.K";
-            u.characterType = "A";
-            return Optional.of(u);
-        }
-        return Optional.empty();
-    }
-
-    private FriendshipState checkFriendshipState(long me, long target) {
-        // 데모: 항상 NONE
-        return FriendshipState.NONE;
-    }
-
-    private boolean insertFriendRequest(long me, long target) {
-        // 데모: 성공 가정
-        return true;
-    }
-
-    /* ===== 내부 타입 ===== */
-
-    private static class UserRow {
-        long   userId;
-        String loginId;
-        String nickname;
-        String characterType; // 'A' / 'B' / 'C' ...
-    }
-
-    private enum FriendshipState {
-        NONE, PENDING_ME, PENDING_OTHER, ACCEPTED
-    }
+    private record PendingRow(long userId, String loginId, String nickname, String character) {}
 }

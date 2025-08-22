@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.share.dairy.repo.imageGen.ImageDbRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+// ❌ @Transactional 제거: 외부 API 호출은 트랜잭션 밖에서(Workflow에서 관리)
 
 import java.io.OutputStream;
 import java.net.URI;
@@ -23,7 +23,8 @@ import java.util.*;
  *
  * 생성 후:
  *  - /generated-images/<entry>_keyword.png, <entry>_character.png 저장
- *  - diary_attachments upsert, (keyword_images / character_keyword_images) 1회 insert
+ *  - ✅ DB 저장은 하지 않고, 생성된 "공개 URL"만 반환한다.
+ *    (실제 DB 저장은 DiaryWorkflowService가 수행)
  *
  * 주의:
  *  - 일부 배포에서 response_format/background 미지원 → 사용 안 함
@@ -32,7 +33,7 @@ import java.util.*;
 @Service
 public class ImageGenService {
 
-    /** 컨트롤러/워크플로우로 돌려줄 간단 결과 DTO */
+    /** Workflow로 돌려줄 간단 결과 DTO (공개 URL 두 개) */
     public record Result(String keywordUrl, String characterUrl) {}
 
     // OpenAI 이미지 엔드포인트
@@ -59,6 +60,8 @@ public class ImageGenService {
     private String mediaUrlPrefix;
 
     // ======== DB Repository ========
+    // ⚠️ 여기서는 "컨텍스트 조회(findContext)"에만 사용한다.
+    //    (DB 저장은 DiaryWorkflowService가 수행)
     private final ImageDbRepository imageDbRepo;
 
     public ImageGenService(ImageDbRepository imageDbRepo) {
@@ -82,10 +85,11 @@ public class ImageGenService {
     }
 
     /**
-     * 캐릭터 "라벨"(예: HAMSTER, RACCOON ...)을 프롬프트에도 반영하는 오버로드.
+     * 캐릭터 "라벨"(예: HAMSTER, RACCOON ...)을 프롬프트에도 반영.
+     *
+     * ✅ 트랜잭션 없음: 외부 API 호출은 느릴 수 있으므로 서비스 레벨에서 트랜잭션을 열지 않는다.
      * @param useCache true면 파일 2개가 이미 있으면 OpenAI 호출 생략
      */
-    @Transactional
     public Result generateTwoWithBase_NoMask(long entryId, String keyword,
                                              String characterLabel, Path baseCharPng,
                                              boolean useCache, String sizeSq) {
@@ -120,7 +124,7 @@ public class ImageGenService {
             Path kwPath = dir.resolve(kwName);
             Path chPath = dir.resolve(chName);
 
-            String kwUrl = mediaUrlPrefix + kwName;
+            String kwUrl = mediaUrlPrefix + kwName; // 공개 URL (정적 리소스 매핑)
             String chUrl = mediaUrlPrefix + chName;
 
             boolean cacheExists = Files.exists(kwPath) && Files.exists(chPath);
@@ -155,16 +159,17 @@ public class ImageGenService {
                 System.out.println("[ImageGenService] cache hit → " + kwPath + " , " + chPath);
             }
 
-            // 4) DB 기록 (첨부 upsert + 생성기록 1회)
-            // 4) DB 기록 (첨부 upsert + 생성기록 1회)
-            imageDbRepo.upsertAttachment(entryId, kwUrl, 10); // 키워드 일러스트
-            imageDbRepo.upsertAttachment(entryId, chUrl, 20); // 캐릭터 액션
-
-            // 두 테이블 모두 analyzed_id + user_id 단위로 1회만 기록
-            // 그리고 현재 스키마에 'keywords' 컬럼이 있으므로 동일 문구를 같이 저장
+            // 4) ✅ DB 기록은 여기서 하지 않는다.
+            //    (예전 코드)
+            //    imageDbRepo.upsertAttachment(entryId, kwUrl, 10);
+            //    imageDbRepo.upsertAttachment(entryId, chUrl, 20);
+            //
+            //    (새 정책)
+            //    DiaryWorkflowService가
+            //    insertKeywordImageIfAbsent / insertCharacterImageIfAbsent 를 호출해 저장한다.
 
             System.out.println("[ImageGenService] saved → " + kwPath + " / " + chPath);
-            return new Result(kwUrl, chUrl);
+            return new Result(kwUrl, chUrl); // ✅ URL만 반환 → 워크플로우가 DB에 저장
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,7 +178,6 @@ public class ImageGenService {
     }
 
     /** 하위 호환: 캐릭터 라벨을 파일명에서 추정(hamster.png → "hamster") */
-    @Transactional
     public Result generateTwoWithBase_NoMask(long entryId, String keyword,
                                              Path baseCharPng, boolean useCache, String sizeSq) {
         String name = baseCharPng.getFileName().toString()
@@ -189,7 +193,7 @@ public class ImageGenService {
         body.put("size", size); // 예: "1024x1024"
         body.put("n", 1);
 
-        String json = om.writeValueAsString(body);
+        String json = new ObjectMapper().writeValueAsString(body);
 
         HttpRequest req = HttpRequest.newBuilder(URI.create(GEN_ENDPOINT))
                 .header("Authorization", "Bearer " + apiKey)
