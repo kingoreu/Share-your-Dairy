@@ -47,6 +47,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.share.dairy.util.DBConnection;
 import io.github.cdimascio.dotenv.Dotenv;    // ✅ .env 로더
 import okhttp3.*;
 
@@ -133,19 +134,10 @@ public class DiaryAnalysisService {
             "gpt-3.5-turbo" // 필요시 gpt-4o-mini 등으로 교체 가능
     );
 
-    /** JDBC 커넥션 정보(기본값 제공) */
-    private static final String JDBC_URL = Objects.requireNonNullElse(
-            envFirst("JDBC_URL", "SPRING_DATASOURCE_URL"),
-            "jdbc:mysql://localhost:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul"
-    );
-    private static final String JDBC_USER = Objects.requireNonNullElse(
-            envFirst("JDBC_USER", "SPRING_DATASOURCE_USERNAME"),
-            "root"
-    );
-    private static final String JDBC_PASS = Objects.requireNonNullElse(
-            envFirst("JDBC_PASS", "SPRING_DATASOURCE_PASSWORD"),
-            "1234"
-    );
+    // ➕ [추가] 커넥션은 항상 DBConnection을 통해 연다(= application.properties 사용)
+    private static Connection openCon() throws SQLException {
+        return DBConnection.getConnection();
+    }
 
     // ========================= HTTP/JSON =========================
 
@@ -164,7 +156,6 @@ public class DiaryAnalysisService {
         }
         System.out.println("[OpenAI] key=" + maskedKey);
         System.out.println("[OpenAI] url=" + OPENAI_URL + ", model=" + OPENAI_MODEL);
-        System.out.println("[JDBC] url=" + JDBC_URL + ", user=" + JDBC_USER);
 
         long entryId = (args.length > 0) ? Long.parseLong(args[0]) : 1L;
         new DiaryAnalysisService().process(entryId);
@@ -196,7 +187,7 @@ public class DiaryAnalysisService {
     /** diary_entries에서 본문을 조회 */
     private String getDiaryContent(long entryId) throws SQLException {
         String sql = "SELECT diary_content FROM diary_entries WHERE entry_id = ?";
-        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        try (Connection conn = openCon();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, entryId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -216,7 +207,7 @@ public class DiaryAnalysisService {
               analysis_keywords = VALUES(analysis_keywords),
               analyzed_at = CURRENT_TIMESTAMP
             """;
-        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        try (Connection conn = openCon();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, entryId);
             ps.setString(2, r.summary);
