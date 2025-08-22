@@ -137,8 +137,9 @@ public class ImageGenService {
 
                 // (1) 키워드 일러스트
                 String promptKeyword = """
-                    키워드 '%s'를 직관적으로 표현한 미니멀 일러스트.
-                    앱 UI용으로 단순/선명하고 배경은 없이 완전 투명하게
+                        A minimal, flat icon-style illustration that intuitively represents the keyword “%s”.
+                        Simple geometric shapes, crisp clean outlines, 2–3 colors max, no text, no gradients, no shadows.
+                        Centered composition with even padding. Transparent background (PNG), no background elements.
                     """.formatted(keyword);
                 byte[] keywordPng = requestImageGenerate(apiKey, promptKeyword, sizeStr);
 
@@ -147,8 +148,9 @@ public class ImageGenService {
                     throw new IllegalStateException("캐릭터 PNG가 존재하지 않습니다: " + baseCharPng);
                 }
                 String actionPrompt = """
-                    동일한 캐릭터(%s)의 외형을 유지하면서 '%s'를 하는 장면.
-                    얼굴 무늬/체형/털 색은 유지하고, 소품/포즈만으로 표현하라. 배경은 없이 완전 투명하게.
+                        Keep the exact same character as “%s”: preserve facial markings, body shape, and fur color.
+                        Show the character doing “%s” using only pose and small props; do not alter face patterns or body shape.
+                        Same art style and proportions as the original, clean outlines, no text. Transparent background (PNG), no background.   
                     """.formatted(characterLabel, keyword);
                 byte[] characterPng = requestImageEdit_NoMask(apiKey, actionPrompt, baseCharPng, sizeStr);
 

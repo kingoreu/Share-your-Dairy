@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated-images/24_character.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated-images/24_keyword.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/auth/UserSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/auth/UserSession.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +160,7 @@
       <workItem from="1755754153369" duration="4098000" />
       <workItem from="1755758299949" duration="13966000" />
       <workItem from="1755821476080" duration="18216000" />
-      <workItem from="1755843498283" duration="2226000" />
+      <workItem from="1755843498283" duration="3425000" />
     </task>
     <servers />
   </component>
