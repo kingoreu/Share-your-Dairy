@@ -34,7 +34,7 @@ public class CalendarController extends OverlayChildController {
     private Image PLACEHOLDER;
 
     // TODO: 로그인 사용자 id 연동
-    private long userId = 1L;
+
 
     @FXML
     @Override
@@ -115,7 +115,8 @@ public class CalendarController extends OverlayChildController {
         // 3) DB에서 날짜→이미지 URL 맵 조회 (없어도 렌더 계속)
         Map<LocalDate, String> imageByDate = Collections.emptyMap();
         try {
-            imageByDate = repo.findKeywordImages(userId, first, last);
+            Long uid = com.share.dairy.auth.UserSession.currentId();
+            imageByDate = repo.findKeywordImages(uid, first, last);
             if (imageByDate == null) imageByDate = Collections.emptyMap();
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -168,7 +168,7 @@ public class MyDiaryController {
     if (listContainer == null) return;
 
     Long uid = com.share.dairy.auth.UserSession.currentId();
-    if (uid == null) { // ✅ 로그인 이전에 불릴 수 있으니 가드
+    if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
         listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
         return;
     }
