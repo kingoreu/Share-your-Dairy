@@ -20,9 +20,12 @@ public class YouTubeService {
    @Value("${youtube.api-key:}")
     private String apiKey;
 
-    private static final String SEARCH =
+     private static final String SEARCH =
         "https://www.googleapis.com/youtube/v3/search" +
-        "?part=snippet&type=video&videoEmbeddable=true&maxResults=%d&q=%s&key=%s";
+        "?part=snippet&type=video" +
+        "&videoEmbeddable=true" +
+        "&videoSyndicated=true" +         // ✅ 외부 사이트 재생 허용 영상만
+        "&maxResults=%d&q=%s&key=%s";
 
     public List<VideoDto> search(String query, int max) {
         if (apiKey == null || apiKey.isBlank()) {
