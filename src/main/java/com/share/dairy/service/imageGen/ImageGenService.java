@@ -156,10 +156,15 @@ public class ImageGenService {
             }
 
             // 4) DB 기록 (첨부 upsert + 생성기록 1회)
-            imageDbRepo.upsertAttachment(entryId, kwUrl, 10); // 키워드 일러스트 우선순위 10
-            imageDbRepo.upsertAttachment(entryId, chUrl, 20); // 캐릭터 액션 우선순위 20
-            imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId());
-            imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId());
+            // 4) DB 기록 (첨부 upsert + 생성기록 1회)
+            imageDbRepo.upsertAttachment(entryId, kwUrl, 10); // 키워드 일러스트
+            imageDbRepo.upsertAttachment(entryId, chUrl, 20); // 캐릭터 액션
+
+            // 두 테이블 모두 analyzed_id + user_id 단위로 1회만 기록
+            // 그리고 현재 스키마에 'keywords' 컬럼이 있으므로 동일 문구를 같이 저장
+            final String kws = ctx.analysisKeywords();
+            imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), kws);
+            imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), kws);
 
             System.out.println("[ImageGenService] saved → " + kwPath + " / " + chPath);
             return new Result(kwUrl, chUrl);

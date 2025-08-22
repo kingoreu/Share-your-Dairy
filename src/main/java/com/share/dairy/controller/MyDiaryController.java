@@ -17,6 +17,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,7 +37,12 @@ public class MyDiaryController {
     @FXML private VBox listContainer;
 
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
+    // ✅ 수정: 하드코딩 제거(=FK 오류 원인). 외부에서 로그인 유저 ID 주입받도록 함.
     private final Long currentUserId = 1L; // 로그인 붙기 전 임시
+
+    // ✅ 추가: 서버 URL/HTTP 클라이언트 (이미지 자동 생성 REST 호출용)
+    private static final String BASE_URL = "http://localhost:8080";
+    private static final HttpClient HTTP = HttpClient.newHttpClient();
 
     /* 저장 후 후처리(목록 갱신 등) */
     private Runnable afterSave;
@@ -67,11 +76,12 @@ public class MyDiaryController {
     @FXML
     private void onSave() {
         try {
+
             String title   = (titleField  != null) ? titleField.getText().trim()  : "";
             String content = (contentArea != null) ? contentArea.getText().trim() : "";
             if (content.isBlank()) {
-              new Alert(Alert.AlertType.WARNING, "본문을 입력해 주세요.").showAndWait();
-              return;
+                new Alert(Alert.AlertType.WARNING, "본문을 입력해 주세요.").showAndWait();
+                return;
             }
 
             DiaryEntry entry = new DiaryEntry();
@@ -88,21 +98,48 @@ public class MyDiaryController {
             new Thread(() -> {
                 try {
                     new DiaryAnalysisService().process(entryId);
+
+                    // ✅ 추가: “분석 완료 → 이미지 생성 시작” 비차단 알림
                     Platform.runLater(() ->
-                        new Alert(Alert.AlertType.INFORMATION,
-                            "일기 저장 및 분석 완료!\nentry_id=" + entryId).showAndWait()
+                            new Alert(Alert.AlertType.INFORMATION,
+                                    "분석 완료! 키워드/캐릭터 이미지 생성을 시작합니다.").show()
                     );
+
+
+                    // ✅ 추가: 이미지 자동 생성 트리거 (서버 REST: POST /api/diary/{id}/images/auto)
+                    triggerAutoImage(entryId);
+
+                    // ✅ 변경: 최종 완료 알림(이미지까지 완료)
+                    Platform.runLater(() ->
+                            new Alert(Alert.AlertType.INFORMATION,
+                                    "일기 저장 및 분석/이미지 생성 완료!\nentry_id=" + entryId).showAndWait()
+                    );
+
+
+                    // ✅ 추가: 콜백 호출들 — 목록 리프레시/허브 전환 등
+                    if (onSaved != null) Platform.runLater(() -> onSaved.accept(entryId));
+                    if (afterSave != null) Platform.runLater(afterSave);
+
+                    // ✅ 추가: 모달로 열렸다면 닫아주기
+                    if (dialogMode) {
+                        Platform.runLater(() -> {
+                            Stage st = currentStage();
+                            if (st != null) st.close();
+                        });
+                    }
+
                 } catch (Exception ex) {
                     Platform.runLater(() ->
-                        new Alert(Alert.AlertType.ERROR, "분석 중 오류: " + ex.getMessage()).showAndWait()
+                            new Alert(Alert.AlertType.ERROR,
+                                    "분석/이미지 생성 중 오류: " + ex.getMessage()).showAndWait()
                     );
                 }
             }).start();
 
-            } catch (Exception e) {
-                new Alert(Alert.AlertType.ERROR, "저장 중 오류: " + e.getMessage()).showAndWait();
-            }   
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "저장 중 오류: " + e.getMessage()).showAndWait();
         }
+    }
 
     /** 목록 화면에서 연필(FAB) → 새 일기 모달 띄우기 */
     @FXML
@@ -114,8 +151,6 @@ public class MyDiaryController {
 
         MyDiaryController child = fxml.getController();
         child.setDialogMode(true);
-        child.setOnSaved(id -> refreshList());
-
         Stage dlg = new Stage();
         if (listContainer != null && listContainer.getScene() != null) {
             dlg.initOwner(listContainer.getScene().getWindow());
@@ -133,7 +168,9 @@ public class MyDiaryController {
         if (listContainer == null) return;
         List<DiaryEntry> rows;
         try {
-            rows = diaryWriteService.loadMyDiaryList(currentUserId);
+            rows = diaryWriteService.loadMyDiaryList(
+                    Optional.ofNullable(currentUserId).orElse(0L)  // ✅ NPE 방지
+            );
         } catch (RuntimeException ex) {
             new Alert(Alert.AlertType.ERROR, "일기 목록 조회 실패").showAndWait();
             return;
@@ -200,5 +237,20 @@ public class MyDiaryController {
             return (Stage) contentArea.getScene().getWindow();
         }
         return null;
+    }
+    // =========================
+    // ✅ 추가: 이미지 자동 생성 호출/폴링 유틸
+    // =========================
+    private void triggerAutoImage(long entryId) throws Exception {
+        HttpRequest req = HttpRequest.newBuilder(
+                        URI.create(BASE_URL + "/api/diary/" + entryId + "/images/auto"))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> res = HTTP.send(req, HttpResponse.BodyHandlers.ofString());
+        if (res.statusCode() / 100 != 2) {
+            throw new IllegalStateException(
+                    "이미지 자동 생성 실패: HTTP " + res.statusCode() + "\n" + res.body());
+        }
     }
 }
