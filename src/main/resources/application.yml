@@ -1,3 +1,4 @@
+
 server:
   port: 8080
   error:
@@ -15,7 +16,7 @@ app:
     root-dir: ./generated-images
     url-prefix: /media/
   characters:
-    root-dir: ./base-characters
+    location: classpath:character   # ← src/main/resources/character 를 의미
 
 openai:
   api-key: ${OPENAI_API_KEY:}        # 비어있으면 분석 스킵(코드에서 가드 권장)

@@ -18,7 +18,7 @@
                 <padding><Insets top="16" right="24" bottom="8" left="24"/></padding>
 
                 <!-- 홈 아이콘: 배경/테두리 없음 -->
-                <Button fx:id="btnHomeTop" styleClass="home-btn" StackPane.alignment="CENTER_LEFT">
+                <Button fx:id="btnHomeTop" styleClass="home-btn" onAction="#goHome" StackPane.alignment="CENTER_LEFT">
                     <graphic>
                         <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
                             <image>
@@ -40,67 +40,67 @@
 
     <!-- ========== 좌측 사이드바(네비) ========== -->
     <!-- 왼쪽 사이드바 -->
-<left>
-    <VBox fx:id="sidebar" spacing="18" alignment="TOP_CENTER"
-          prefWidth="170" minWidth="170" maxWidth="170"
-          styleClass="sidebar">
+    <left>
+        <VBox fx:id="sidebar" spacing="18" alignment="TOP_CENTER"
+              prefWidth="170" minWidth="170" maxWidth="170"
+              styleClass="sidebar">
 
-        <!-- MY Info -->
-        <Button fx:id="btnMyInfo" text="" onAction="#goMyInfo"
-                prefWidth="130" prefHeight="120"
-                styleClass="side-btn">
-            <graphic>
-                <VBox alignment="CENTER" spacing="6">
-                    <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
-                        <image>
-                            <Image url="@/common_images/myinfo-icon.png"/>
-                        </image>
-                    </ImageView>
-                    <!-- 구분선 -->
-                    <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
-                    <Label text="MY"   styleClass="side-label-top"/>
-                    <Label text="Info" styleClass="side-label-bottom"/>
-                </VBox>
-            </graphic>
-        </Button>
+            <!-- MY Info -->
+            <Button fx:id="btnMyInfo" text="" onAction="#goMyInfo"
+                    prefWidth="130" prefHeight="120"
+                    styleClass="side-btn">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image>
+                                <Image url="@/common_images/myinfo-icon.png"/>
+                            </image>
+                        </ImageView>
+                        <!-- 구분선 -->
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="MY"   styleClass="side-label-top"/>
+                        <Label text="Info" styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
 
-        <!-- ADD Friends -->
-        <Button fx:id="btnAddFriends" text="" onAction="#goAddFriends"
-                prefWidth="130" prefHeight="120"
-                styleClass="side-btn">
-            <graphic>
-                <VBox alignment="CENTER" spacing="6">
-                    <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
-                        <image>
-                            <Image url="@/common_images/addfriends-icon.png"/>
-                        </image>
-                    </ImageView>
-                    <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
-                    <Label text="ADD"     styleClass="side-label-top"/>
-                    <Label text="Friends" styleClass="side-label-bottom"/>
-                </VBox>
-            </graphic>
-        </Button>
+            <!-- ADD Friends -->
+            <Button fx:id="btnAddFriends" text="" onAction="#goAddFriends"
+                    prefWidth="130" prefHeight="120"
+                    styleClass="side-btn">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image>
+                                <Image url="@/common_images/addfriends-icon.png"/>
+                            </image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="ADD"     styleClass="side-label-top"/>
+                        <Label text="Friends" styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
 
-        <!-- BUDDY List (현재 위치 표시용 active 클래스 추가) -->
-        <Button fx:id="btnBuddyList" text="" disable="true"
-                prefWidth="130" prefHeight="120"
-                styleClass="side-btn active">
-            <graphic>
-                <VBox alignment="CENTER" spacing="6">
-                    <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
-                        <image>
-                            <Image url="@/common_images/buddylist-icon.png"/>
-                        </image>
-                    </ImageView>
-                    <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
-                    <Label text="BUDDY" styleClass="side-label-top"/>
-                    <Label text="List"  styleClass="side-label-bottom"/>
-                </VBox>
-            </graphic>
-        </Button>
-    </VBox>
-</left>
+            <!-- BUDDY List (현재 위치 표시용 active 클래스 추가) -->
+            <Button fx:id="btnBuddyList" text="" disable="true"
+                    prefWidth="130" prefHeight="120"
+                    styleClass="side-btn active">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image>
+                                <Image url="@/common_images/buddylist-icon.png"/>
+                            </image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="BUDDY" styleClass="side-label-top"/>
+                        <Label text="List"  styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
+        </VBox>
+    </left>
     <!-- ========== 중앙 컨텐츠: 흰 라운드 상자 안에 Scroll + 2열 Grid ========== -->
     <center>
         <StackPane styleClass="content-wrap">
@@ -136,13 +136,13 @@
                 <!-- Select/Delete: 흰 라운드 내부 우하단에 떠 있게 -->
                 <HBox spacing="16" alignment="CENTER_RIGHT"
                       AnchorPane.rightAnchor="22" AnchorPane.bottomAnchor="18">
-                    <Button fx:id="btnSelect" text="Select">
+                    <Button fx:id="btnSelect" onAction="#onSelect" text="Select">
                         <styleClass>
                             <String fx:value="action-btn"/>
                             <String fx:value="primary"/>
                         </styleClass>
                     </Button>
-                    <Button fx:id="btnDelete" text="Delete">
+                    <Button fx:id="btnDelete" onAction="#onDelete" text="Delete">
                         <styleClass>
                             <String fx:value="action-btn"/>
                             <String fx:value="danger"/>

@@ -1,10 +1,13 @@
 package com.share.dairy.controller;
 
+import com.share.dairy.dao.diary.DiaryEntryDao;
 import com.share.dairy.app.music.MusicDialog;
 import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.model.enums.Visibility;
 import com.share.dairy.service.diary.DiaryWriteService;
+import com.share.dairy.service.diary_analysis.DiaryAnalysisService;
 import javafx.application.Platform;
+
 import javafx.concurrent.Worker;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -23,6 +26,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -62,7 +69,11 @@ public class MyDiaryController {
     private boolean isMuted         = false;
 
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
-    private final Long currentUserId = 1L; // 로그인 붙기 전 임시
+
+
+    // ✅ 추가: 서버 URL/HTTP 클라이언트 (이미지 자동 생성 REST 호출용)
+    private static final String BASE_URL = "http://localhost:8080";
+    private static final HttpClient HTTP = HttpClient.newHttpClient();
 
     /* 새 일기 모달 모드 & 저장 콜백(필요 시) */
     private boolean        dialogMode = false;
@@ -119,14 +130,47 @@ public class MyDiaryController {
 
     /** SAVE: 제목/내용 저장(제목 없으면 공백 저장) */
     @FXML
-    private void onSave() {
-        String content = (contentArea != null) ? contentArea.getText() : null;
-        if (content == null || content.trim().isEmpty()) {
-            new Alert(Alert.AlertType.WARNING, "내용을 입력하세요.").showAndWait();
-            return;
-        }
+    private void onSave()  {
+        try {
+            Long uid = com.share.dairy.auth.UserSession.currentId();
+            String title   = (titleField  != null) ? titleField.getText().trim()  : "";
+            String content = (contentArea != null) ? contentArea.getText().trim() : "";
+            if (content.isBlank()) {
+                new Alert(Alert.AlertType.WARNING, "본문을 입력해 주세요.").showAndWait();
+                return;
+            }
         String title = (titleField != null) ? titleField.getText() : null;
 
+            DiaryEntry entry = new DiaryEntry();
+            entry.setUserId(uid);
+            entry.setEntryDate(LocalDate.now());
+            entry.setTitle(title);
+            entry.setDiaryContent(content);
+            entry.setVisibility(Visibility.PRIVATE); // ✅ enum으로 설정
+
+            DiaryEntryDao dao = new DiaryEntryDao();
+            long entryId = dao.save(entry);
+
+            // 저장 직후 분석(백그라운드 실행: UI 멈춤 방지)
+            new Thread(() -> {
+                try {
+                    new DiaryAnalysisService().process(entryId);
+
+                    // ✅ 추가: “분석 완료 → 이미지 생성 시작” 비차단 알림
+                    Platform.runLater(() ->
+                            new Alert(Alert.AlertType.INFORMATION,
+                                    "분석 완료! 키워드/캐릭터 이미지 생성을 시작합니다.").show()
+                    );
+
+
+                    // ✅ 추가: 이미지 자동 생성 트리거 (서버 REST: POST /api/diary/{id}/images/auto)
+                    triggerAutoImage(entryId);
+
+                    // ✅ 변경: 최종 완료 알림(이미지까지 완료)
+                    Platform.runLater(() ->
+                            new Alert(Alert.AlertType.INFORMATION,
+                                    "일기 저장 및 분석/이미지 생성 완료!\nentry_id=" + entryId).showAndWait()
+                    );
         DiaryEntry entry = new DiaryEntry();
         entry.setUserId(currentUserId);
         entry.setEntryDate(java.time.LocalDate.now());
@@ -139,20 +183,29 @@ public class MyDiaryController {
             long newId = diaryWriteService.create(entry);
             new Alert(Alert.AlertType.INFORMATION, "저장 완료! (ID: " + newId + ")").showAndWait();
 
-            if (dialogMode) {
-                if (onSaved != null) onSaved.accept(newId);
-                Stage st = currentStage();
-                if (st != null) st.close();
-                return;
-            }
 
-            if (afterSave != null) afterSave.run();
-            if (listContainer != null) refreshList();
-            if (titleField  != null) titleField.clear();
-            if (contentArea != null) contentArea.clear();
+                    // ✅ 추가: 콜백 호출들 — 목록 리프레시/허브 전환 등
+                    if (onSaved != null) Platform.runLater(() -> onSaved.accept(entryId));
+                    if (afterSave != null) Platform.runLater(afterSave);
 
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "저장 실패: " + e.getMessage()).showAndWait();
+                    // ✅ 추가: 모달로 열렸다면 닫아주기
+                    if (dialogMode) {
+                        Platform.runLater(() -> {
+                            Stage st = currentStage();
+                            if (st != null) st.close();
+                        });
+                    }
+
+                } catch (Exception ex) {
+                    Platform.runLater(() ->
+                            new Alert(Alert.AlertType.ERROR,
+                                    "분석/이미지 생성 중 오류: " + ex.getMessage()).showAndWait()
+                    );
+                }
+            }).start();
+
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "저장 중 오류: " + e.getMessage()).showAndWait();
         }
     }
 
@@ -192,9 +245,11 @@ public class MyDiaryController {
         if (listContainer == null) return;
         listContainer.getChildren().clear();
 
+        Long uid = com.share.dairy.auth.UserSession.currentId();
         List<DiaryEntry> rows;
         try {
-            rows = diaryWriteService.loadMyDiaryList(currentUserId);
+            rows = diaryWriteService.loadMyDiaryList(uid);
+
         } catch (RuntimeException ex) {
             listContainer.getChildren().add(new Label("목록 조회 실패: " + deepestMessage(ex)));
             return;
@@ -456,5 +511,20 @@ public class MyDiaryController {
             musicMuteBtn.setText(isMuted ? "🔇" : "🔈");
         }
         // 패널 왼쪽 버튼 아이콘도 같이 쓰고 싶으면 FXML에서 동일 버튼을 musicMuteBtn로 매핑하면 됨.
+    }
+    // =========================
+    // ✅ 추가: 이미지 자동 생성 호출/폴링 유틸
+    // =========================
+    private void triggerAutoImage(long entryId) throws Exception {
+        HttpRequest req = HttpRequest.newBuilder(
+                        URI.create(BASE_URL + "/api/diary/" + entryId + "/images/auto"))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> res = HTTP.send(req, HttpResponse.BodyHandlers.ofString());
+        if (res.statusCode() / 100 != 2) {
+            throw new IllegalStateException(
+                    "이미지 자동 생성 실패: HTTP " + res.statusCode() + "\n" + res.body());
+        }
     }
 }
