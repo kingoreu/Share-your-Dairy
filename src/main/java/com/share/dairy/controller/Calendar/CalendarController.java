@@ -33,8 +33,6 @@ public class CalendarController extends OverlayChildController {
     private DiaryImageRepository repo;
     private Image PLACEHOLDER;
 
-    // TODO: 로그인 사용자 id 연동
-
 
     @FXML
     @Override
