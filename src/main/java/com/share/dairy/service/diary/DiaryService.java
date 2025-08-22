@@ -36,10 +36,8 @@ public class DiaryService {
         d.setTitle(req.getTitle());
         d.setDiaryContent(req.getDiaryContent());
         d.setVisibility(req.getVisibility());
-        d.setSharedDiaryId(req.getSharedDiaryId());
-
-        long entryId = diaryEntryDao.save(d);   // ← insert(...) 대신 save(...)
-        return entryId;
+        d.setSharedDiaryId(req.getSharedDiaryId()); // 공유 시작과 동시에 등록 가능
+        return diaryEntryDao.insert(d);
     }
 
     public void updateContent(long entryId, String content) throws SQLException {
