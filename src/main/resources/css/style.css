@@ -10,11 +10,13 @@
    ========================= */
 
 /* 1. 전역 폰트 & 글자색 */
-.root {
-    -fx-font-family: "Segoe UI", "Malgun Gothic", sans-serif;
-    -fx-font-size: 14px;
+* {
+    /*-fx-font-family: "Segoe UI", "Malgun Gothic", sans-serif; */
+    -fx-font-family: "DungGeunmo";
+    -fx-font-size: 18px;
     -fx-text-fill: #333;
 }
+/* 이 부분 바꿔야할듯? */
 
 /* 2. (옵션) 루트 컨테이너가 투명해야 할 때 */
 .root-pane {

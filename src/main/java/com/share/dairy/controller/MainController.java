@@ -3,6 +3,7 @@ package com.share.dairy.controller;
 import com.share.dairy.auth.UserSession;
 import com.share.dairy.model.enums.CharacterType;
 import javafx.animation.FadeTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -181,5 +182,18 @@ public class MainController {
         ft.setFromValue(0);
         ft.setToValue(1);
         ft.play();
+    }
+
+    // 로그아웃 만듬
+    @FXML
+    private void onLogout(ActionEvent e) {
+        UserSession.clear();
+        try {
+            Parent loginRoot = FXMLLoader.load(getClass().getResource("/fxml/login/Login.fxml"));
+            javafx.stage.Stage stage = (javafx.stage.Stage) ((Node) e.getSource()).getScene().getWindow();
+            stage.getScene().setRoot(loginRoot);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }
