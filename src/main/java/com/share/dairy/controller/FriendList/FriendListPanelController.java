@@ -1,12 +1,21 @@
 package com.share.dairy.controller.FriendList;
 
-import javafx.css.PseudoClass;
+import com.share.dairy.auth.UserSession;
+import com.share.dairy.controller.OverlayChildController;
+import com.share.dairy.dao.friend.FriendshipDao;
+import com.share.dairy.model.enums.CharacterType;
+import com.share.dairy.model.friend.Friendship;
+import com.share.dairy.util.DBConnection;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -17,274 +26,186 @@ import javafx.scene.control.Label;
 
 import javafx.event.ActionEvent;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import com.share.dairy.controller.OverlayChildController;
-
-/**
- * FriendListPanel 컨트롤러 (Overlay 흐름 적용)
- * ---------------------------------------------------------
- * - 홈 아이콘/ESC : OverlayChildController.goHome() → host.closeOverlay() 호출
- *                   (창을 닫는게 아니라 "오버레이"만 닫고 메인으로 복귀)
- * - AddFriends/MyInfo : openOverlay("...") 사용 (부모가 제공하는 API)
- *   → 더 이상 FXMLLoader/Stage/Scene 직접 제어하지 않음 (안정/일관성 ↑)
- *
- * - 중앙 컨텐츠 :
- *   GridPane(2열, 각 50%)에 카드 렌더링 → 항상 2열 정돈
- * - 하단(컨텐츠 내부 우하단) :
- *   Select/Delete 버튼 유지
- *
- * 주의:
- * - FXML 루트(BorderPane)에 fx:id="root"가 반드시 있어야 ESC 등록이 동작
- * - 현재 페이지(Buddy List) 버튼은 비활성/무시
- */
 public class FriendListPanelController extends OverlayChildController {
 
-    /* ===== FXML 바인딩 ===== */
-    @FXML private BorderPane root;   // ⬅ ESC 단축키 등록/오버레이 제어에 사용
+    /* ===== FXML ===== */
     @FXML private GridPane grid;
-
     @FXML private Button btnSelect;
     @FXML private Button btnDelete;
 
-    @FXML private Button btnHomeTop;
-    @FXML private Button btnMyInfo;
-    @FXML private Button btnAddFriends;
-    @FXML private Button btnBuddyList;
+    /* ===== DAO & 상태 ===== */
+    private final FriendshipDao dao = new FriendshipDao();
+    private final Set<Long> selected = new HashSet<>();
+    private boolean selectMode = false;
 
-    /* ===== 내부 상태 ===== */
-    private final List<Friend> friends = new ArrayList<>();
-    private final Set<FriendCard> selected = new HashSet<>();
+    /* ===== 캐릭터 파일 매핑 ===== */
+//    private static final Map<String,String> CHARACTER_FILE = Map.ofEntries(
+//            Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
+//            Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
+//            Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
+//            Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
+//            Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
+//            Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
+//    );
 
-    // CSS : .friend-card:selected 같은 스타일 변경에 사용
-    private static final PseudoClass PSEUDO_SELECTED = PseudoClass.getPseudoClass("selected");
-
+    /* =========================== init =========================== */
     @FXML
-    public void initialize(java.net.URL url, java.util.ResourceBundle rb) {
-        // 데모 데이터 구성 (실서비스에선 Service/DAO 호출로 교체)
-        seedSampleData();
-
-        // 2열 그리드 렌더링
-        renderGrid();
-
-        // 버튼 핸들러
-        btnSelect.setOnAction(e -> handleSelect());
-        btnDelete.setOnAction(e -> handleDelete());
-
-        // 홈 아이콘 → 부모의 goHome() (오버레이 닫기 = 메인 복귀)
-        btnHomeTop.setOnAction(e -> goHome());
-
-        // 사이드바 : Add Friends / My Info 는 오버레이 전환
-        btnAddFriends.setOnAction(this::goAddFriends);
-        btnMyInfo.setOnAction(this::goMyInfo);
-
-        // 현재 위치(Buddy List)는 무시
-        btnBuddyList.setOnAction(e -> { /* 현재 페이지 */ });
-
-        // 버튼 공통 스타일 클래스(선택)
-        btnSelect.getStyleClass().addAll("action-btn", "primary");
-        btnDelete.getStyleClass().addAll("action-btn", "danger");
-
-        // ===== ESC 단축키 등록 (Scene이 붙은 뒤 가능) =====
-        root.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                newScene.getAccelerators().put(
-                        new KeyCodeCombination(KeyCode.ESCAPE),
-                        this::goHome // OverlayChildController.goHome() → host.closeOverlay()
-                );
-                // (원하면 이벤트 필터 방식도 가능)
-                // newScene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> {
-                //     if (ev.getCode() == KeyCode.ESCAPE) { ev.consume(); goHome(); }
-                // });
-            }
-        });
+    public void initialize(URL url, ResourceBundle rb) {
+        btnDelete.setDisable(true);
+        loadFriends();
     }
 
-    /* =========================
-     * 오버레이 내 네비게이션
-     * ========================= */
+    /* ======================= Navigation ========================= */
+    @FXML private void goMyInfo()    { open("/fxml/FriendList/MyInfoPanel.fxml"); }
+    @FXML private void goAddFriends(){ open("/fxml/FriendList/AddFriendsPanel.fxml"); }
 
-    /** 좌측 사이드바 - Add Friends로 전환 (오버레이 교체) */
-    @FXML
-    private void goAddFriends(ActionEvent e) {
-        openOverlay("/fxml/FriendList/AddFriendsPanel.fxml");
+    private void switchTo(String fxmlPath) {
+        try {
+            URL url = getClass().getResource(fxmlPath);
+            if (url == null) throw new IllegalStateException("FXML not found: " + fxmlPath);
+            Parent root = FXMLLoader.load(url);
+            if (grid != null && grid.getScene() != null) grid.getScene().setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    /** 좌측 사이드바 - My Info로 전환 (오버레이 교체) */
-    @FXML
-    private void goMyInfo(ActionEvent e) {
-        openOverlay("/fxml/FriendList/MyInfoPanel.fxml");
-    }
-
-    /* =========================
-     * 데이터/그리드 렌더링
-     * ========================= */
-
-    /** 데모 데이터 (서비스 연동 전까지 임시) */
-    private void seedSampleData() {
-        String kk    = resource("/common_images/kk.png");
-        String naki  = resource("/common_images/naki.png");
-        String guide = resource("/common_images/guide.png");
-
-        friends.addAll(List.of(
-                new Friend("K.K", kk),
-                new Friend("Naki", naki),
-                new Friend("Guide", guide),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk)
-        ));
-    }
-
-    /** 클래스패스 리소스 → URL 문자열 (ImageView 등에서 바로 사용) */
-    private String resource(String path) {
-        try { return Objects.requireNonNull(getClass().getResource(path)).toExternalForm(); }
-        catch (Exception e) { return null; } // 없는 경우 null 허용(아바타 없이 이름만 표시)
-    }
-
-    /** 2열 GridPane에 카드 렌더링 */
-    private void renderGrid() {
+    /* ===================== Load & Render ======================== */
+    private void loadFriends() {
         grid.getChildren().clear();
+        var me = UserSession.get();
+        if (me == null) return;
+
+        List<Friendship> list;
+        try { list = dao.findFriendsFor(me.getUserId()); }
+        catch (Exception e) { e.printStackTrace(); return; }
 
         int col = 0, row = 0;
-        for (Friend f : friends) {
-            FriendCard card = new FriendCard(f);
+        for (var f : list) {
+            long other = (f.getUserId() == me.getUserId()) ? f.getFriendId() : f.getUserId();
+            var ui = fetchUser(other);
+            if (ui == null) continue;
 
-            // 그리드 칼럼 폭에 맞춰 가로로 꽉 차도록
-            card.setMaxWidth(Double.MAX_VALUE);
-            GridPane.setHgrow(card, Priority.ALWAYS);
-
+            Node card = buildCard(ui.userId, ui.displayName(), ui.character);
             grid.add(card, col, row);
+            GridPane.setMargin(card, new Insets(0, 0, 0, 0));
 
-            // 2열 고정
             col++;
             if (col == 2) { col = 0; row++; }
         }
     }
 
-    /* =========================
-     * Select / Delete 동작
-     * ========================= */
+    private Node buildCard(long friendId, String name, CharacterType type) {
+        StackPane root = new StackPane();
+        root.getStyleClass().add("friend-card");
 
-    /** 선택된 카드들을 안내 */
-    private void handleSelect() {
-        if (selected.isEmpty()) { alert("선택된 친구가 없습니다."); return; }
-        String names = selected.stream()
-                .map(c -> c.friend.name())
-                .distinct()
-                .collect(Collectors.joining(", "));
-        alert("선택된 친구: " + names);
+        Region bg = new Region();
+        bg.getStyleClass().add("friend-card-bg");
+        bg.setMinHeight(88);
+        bg.setPrefHeight(88);
+        bg.setMaxHeight(88);
+
+        ImageView avatar = new ImageView(loadChar(type));
+        avatar.setFitWidth(56);
+        avatar.setFitHeight(56);
+        avatar.setPreserveRatio(true);
+
+        Label title = new Label(name);
+        title.getStyleClass().add("friend-name");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox content = new HBox(12, avatar, title, spacer);
+        content.setAlignment(Pos.CENTER_LEFT);
+        content.setPadding(new Insets(12));
+
+        root.getChildren().addAll(bg, content);
+
+        // 선택 모드: 클릭으로 토글
+        root.setOnMouseClicked(e -> {
+            if (!selectMode) return;
+            if (selected.remove(friendId)) {
+                bg.setStyle(""); // 선택 해제
+            } else {
+                selected.add(friendId);
+                bg.setStyle("-fx-border-color:#7b4e6b; -fx-border-width:2;"); // 선택 표시
+            }
+            btnDelete.setDisable(selected.isEmpty());
+        });
+
+        return root;
     }
 
-    /** 선택 삭제 후, 그리드를 재배치(빈칸 없이) */
-    private void handleDelete() {
-        if (selected.isEmpty()) { alert("삭제할 친구를 선택하세요."); return; }
-
-        Set<Friend> removeSet = selected.stream().map(c -> c.friend).collect(Collectors.toSet());
-        friends.removeIf(removeSet::contains);
-
-        // 그리드에서 제거
-        grid.getChildren().removeIf(n -> n instanceof FriendCard fc && removeSet.contains(fc.friend));
+    /* ================== Select / Delete ========================= */
+    @FXML
+    private void onSelect() {
+        selectMode = !selectMode;
         selected.clear();
-
-        // 레이아웃 정리(갭 없이 다시 채우기)
-        reflowGrid();
+        btnDelete.setDisable(true);
+        btnSelect.setText(selectMode ? "Cancel" : "Select");
+        // 선택 표시 초기화
+        grid.getChildren().forEach(n -> n.setStyle(""));
     }
 
-    /** 삭제 후 공백 없이 다시 배치 */
-    private void reflowGrid() {
-        List<FriendCard> cards = new ArrayList<>();
-        for (javafx.scene.Node n : new ArrayList<>(grid.getChildren())) {
-            if (n instanceof FriendCard fc) {
-                cards.add(fc);
+    @FXML
+    private void onDelete() {
+        if (selected.isEmpty()) return;
+        var me = UserSession.get(); if (me == null) return;
+
+        var confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "선택한 친구를 삭제할까요? (" + selected.size() + "명)", ButtonType.OK, ButtonType.CANCEL);
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        try (var con = DBConnection.getConnection()) {
+            con.setAutoCommit(false);
+            for (long fid : selected) {
+                dao.delete(con, me.getUserId(), fid);  // 양방향 삭제
             }
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        grid.getChildren().clear();
 
-        int col = 0, row = 0;
-        for (FriendCard c : cards) {
-            GridPane.setHgrow(c, Priority.ALWAYS);
-            grid.add(c, col, row);
+        onSelect();     // 선택모드 해제
+        loadFriends();  // 갱신
+    }
 
-            col++;
-            if (col == 2) { col = 0; row++; }
+    /* ======================== Helpers ========================== */
+    private Image loadChar(CharacterType type) {
+//        String key = (type == null ? "" : type.trim().toUpperCase());
+//        String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png");
+        if (type == null) type = CharacterType.ZZUNI;
+        try (InputStream in = getClass().getResourceAsStream(type.getImagePath())) {
+            return in != null ? new Image(in) : null;
+        } catch (Exception e) { return null; }
+    }
+
+    private record UserMini(long userId, String login, String nickname, CharacterType character) {
+        String displayName() {
+            return (nickname != null && !nickname.isBlank()) ? nickname : login;
         }
     }
 
-    /* =========================
-     * 유틸/도우미
-     * ========================= */
-
-    private void alert(String msg) {
-        Alert a = new Alert(AlertType.INFORMATION);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
-    }
-
-    /* =========================
-     * 모델 & 카드 뷰
-     * ========================= */
-
-    /** 간단한 모델 (이름/아바타URL) */
-    public record Friend(String name, String avatarUrl) {}
-
-    /**
-     * 친구 카드 UI
-     * - 배경 Region + (아바타, 이름) HBox
-     * - 클릭 시 선택 토글 (PseudoClass로 스타일 변경)
-     */
-    private class FriendCard extends StackPane {
-        private final Friend friend;
-        private boolean selectedState = false;
-
-        FriendCard(Friend friend) {
-            this.friend = friend;
-
-            // 배경
-            Region bg = new Region();
-            bg.getStyleClass().add("friend-card-bg");
-
-            // 내용(HBox): 아바타 + 이름
-            ImageView avatar = new ImageView();
-            if (friend.avatarUrl() != null) {
-                try { avatar.setImage(new Image(friend.avatarUrl(), true)); } catch (Exception ignored) {}
+    private UserMini fetchUser(long userId) {
+        String sql = "SELECT user_id, login_id, nickname, character_type FROM users WHERE user_id=?";
+        try (var con = DBConnection.getConnection();
+             var ps = con.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next())
+                    return new UserMini(
+                            rs.getLong("user_id"),
+                            rs.getString("login_id"),
+                            rs.getString("nickname"),
+                            CharacterType.fromString(rs.getString("character_type"))
+                    );
             }
-            avatar.setFitWidth(48);
-            avatar.setFitHeight(48);
-            avatar.setPreserveRatio(true);
-
-            Label name = new Label(friend.name());
-            name.getStyleClass().add("friend-name");
-
-            HBox content = new HBox(14, avatar, name);
-            content.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-            content.setPadding(new Insets(12));
-
-            getChildren().addAll(bg, content);
-            getStyleClass().add("friend-card");
-
-            setMinHeight(88);
-            setCursor(Cursor.HAND);
-
-            // 클릭으로 선택 토글
-            setOnMouseClicked(ev -> {
-                if (ev.getButton() == MouseButton.PRIMARY) {
-                    toggleSelected();
-                }
-            });
-        }
-
-        void toggleSelected() { setSelected(!selectedState); }
-        boolean isSelected()  { return selectedState; }
-
-        void setSelected(boolean value) {
-            this.selectedState = value;
-            pseudoClassStateChanged(PSEUDO_SELECTED, value); // CSS : .friend-card:selected 등
-            if (value) selected.add(this); else selected.remove(this);
-        }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
     }
 }

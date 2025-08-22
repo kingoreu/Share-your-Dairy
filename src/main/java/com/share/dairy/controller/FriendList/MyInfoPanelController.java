@@ -25,128 +25,81 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 
-
-/**
- * 내 정보 화면 컨트롤러 (Overlay 버전)
- *
- * - 메인/ESC 처리: OverlayChildController의 goHome() 사용 → host.closeOverlay()
- *   * FXML 홈 버튼 onAction="#goHome"으로 부모 메서드 직접 호출
- *   * ESC 단축키도 this::goHome 등록
- *
- * - 화면 전환:
- *   * AddFriends / BuddyList → openOverlay("...") (부모에서 제공)
- *   * 더 이상 수동 FXMLLoader/Scene 교체 없음
- *
- * - 레이아웃 안정화:
- *   * ImageView 크기를 캐릭터 카드(StackPane) 크기에 바인딩
- *   * 이미지 생성 시 요청 크기(800x800)로 생성
- */
 public class MyInfoPanelController extends OverlayChildController {
 
-    /* ===== FXML 바인딩 ===== */
-    @FXML private BorderPane root;          // FXML 루트(BorderPane) — ESC 등록용
-    @FXML private StackPane  card;          // 캐릭터 미리보기 카드(크기 상한은 FXML에서 지정)
-    @FXML private ImageView  imgCharacter;  // 캐릭터 이미지뷰
+    // ===== FXML 바인딩 =====
+    @FXML private StackPane card;
+    @FXML private ImageView imgCharacter;
 
-    @FXML private TextField      tfId;
-    @FXML private PasswordField  pfPassword;
-    @FXML private TextField      tfEmail;
-    @FXML private TextField      tfNickname;
-    @FXML private ComboBox<String> cbCharacter;
+    @FXML private TextField tfId;
+    @FXML private PasswordField pfPassword;
+    @FXML private TextField tfEmail;
+    @FXML private TextField tfNickname;
+    @FXML private ComboBox<CharacterType> cbCharacter;
 
     @FXML private Button btnEdit;
     @FXML private Label  lblHint;
 
-    /* ===== 내부 상태 ===== */
     private boolean editing = false;
 
-    /** 캐릭터 타입 → 파일명 매핑 (리소스 경로: /character/*.png) */
-    private static final Map<String, String> CHARACTER_FILE = new LinkedHashMap<>() {{
-        put("RACCOON", "raccoon.png");
-        put("DOG",     "dog.png");
-        put("CAT",     "cat.png");
-        put("BEAR",    "bear.png");
-        put("DEER",    "deer.png");
-        put("DUCK",    "duck.png");
-        put("HAMSTER", "hamster.png");
-        put("RABBIT",  "rabbit.png");
-        put("WOLF",    "wolf.png");
-        put("RICHARD", "richard.png");
-        put("TAKO",    "tako.png");
-        put("ZZUNI",   "zzuni.png");
-    }};
+//    private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
+//        Map.entry("RACCOON", "raccoon.png"),
+//        Map.entry("DOG",     "dog.png"),
+//        Map.entry("CAT",     "cat.png"),
+//        Map.entry("BEAR",    "bear.png"),
+//        Map.entry("DEER",    "deer.png"),
+//        Map.entry("DUCK",    "duck.png"),
+//        Map.entry("HAMSTER", "hamster.png"),
+//        Map.entry("RABBIT",  "rabbit.png"),
+//        Map.entry("WOLF",    "wolf.png"),
+//        Map.entry("RICHARD", "richard.png"),
+//        Map.entry("TAKO",    "tako.png"),
+//        Map.entry("ZZUNI",   "zzuni.png")
+//    );
 
-    /* ===== 초기화 ===== */
-    @FXML
+    // ===== 초기화 =====
+    @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        // [레이아웃] 이미지가 카드 안에서만 커지도록 — 패딩(18px*2)을 고려해 36px 감산
+        // 이미지가 카드 폭에 맞게 줄어들도록
         if (card != null && imgCharacter != null) {
             imgCharacter.fitWidthProperty().bind(card.widthProperty().subtract(36));
             imgCharacter.fitHeightProperty().bind(card.heightProperty().subtract(36));
-            imgCharacter.setPreserveRatio(true);
             imgCharacter.setSmooth(true);
+            imgCharacter.setPreserveRatio(true);
             imgCharacter.setCache(true);
         }
 
         // 콤보박스 채우기 + 변경 시 프리뷰 반영
-        cbCharacter.getItems().setAll(CHARACTER_FILE.keySet());
-        cbCharacter.getSelectionModel().selectedItemProperty()
-                .addListener((obs, o, n) -> setCharacterPreviewByType(n));
+        cbCharacter.getItems().setAll(CharacterType.values());
+//        cbCharacter.getSelectionModel().selectedItemProperty().addListener(
+//            (obs, o, n) -> setCharacterPreviewByType(n)
+//        );
+        cbCharacter.getSelectionModel().selectedItemProperty().addListener(
+                (obs, o, n) -> setCharacterPreviewByType(n)
+        );
 
         // 사용자 정보 로드(세션 → 필요 시 DB 보완)
         loadMyInfoFromSessionOrDb();
 
-        // 읽기 전용 시작
         setEditing(false);
-
-        // [ESC 단축키 등록]
-        //  - Scene이 붙는 순간에만 getAccelerators 사용 가능하므로 listener에서 등록
-        //  - Runnable 시그니처에 맞춰 this::goHome 사용(부모의 goHome() 호출)
-        root.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                newScene.getAccelerators().put(
-                        new KeyCodeCombination(KeyCode.ESCAPE),
-                        this::goHome  // OverlayChildController.goHome() → host.closeOverlay()
-                );
-            }
-        });
     }
 
-    /* ===== 사이드바/헤더 네비게이션 ===== */
+    // ===== 네비게이션 =====
+    @FXML private void goAddFriends(){ open("/fxml/FriendList/AddFriendsPanel.fxml"); }
+    @FXML private void goBuddyList() { open("/fxml/FriendList/FriendListPanel.fxml"); }
 
-    // 홈 아이콘: FXML에서 onAction="#goHome"으로 부모 메서드를 바로 호출하면 된다.
-    // (메서드 재정의/오버로드 불필요. 필요하면 아래처럼 위임만 해도 됨)
-    // @FXML private void goHomeClick(ActionEvent e) { goHome(); }
-
-    @FXML
-    private void goAddFriends(ActionEvent e) {
-        // 오버레이 내부 이동: 부모가 제공하는 openOverlay 사용
-        openOverlay("/fxml/FriendList/AddFriendsPanel.fxml");
-    }
-
-    @FXML
-    private void goBuddyList(ActionEvent e) {
-        openOverlay("/fxml/FriendList/FriendListPanel.fxml");
-    }
-
-    /* ===== Edit/Save 토글 ===== */
-
+    // ===== Edit/Save 토글 =====
     @FXML
     private void onEditToggle(ActionEvent e) {
         if (!editing) {
-            // Edit → 입력 가능
             setEditing(true);
             lblHint.setText("수정 후 Save를 눌러 저장하세요.");
             btnEdit.setText("Save");
-            return;
-        }
+        } else {
+            if (!validateInputs()) return;
 
-        // Save → 검증 후 저장
-        if (!validateInputs()) return;
-
-        // (지금은 스텁) 실제 운영은 서버 API(/api/users/{id} PUT)로 교체 권장
-        boolean ok = updateMyInfoLocalStub();
+            // TODO: 서버 API 호출로 바꾸면 더 좋음 (/api/users/{id} PUT)
+            boolean ok = updateMyInfoToDb();
 
         if (ok) {
             setEditing(false);
@@ -160,7 +113,7 @@ public class MyInfoPanelController extends OverlayChildController {
                 // 수정
                 // enum 타입으로 변경 **
                 if (s != null && sel != null) {
-                    s.setCharacterType(CharacterType.fromString(sel)); // 문자열 → Enum
+                    s.setCharacterType(sel); // 문자열 → Enum
                 }
 
                 setCharacterPreviewByType(sel);
@@ -170,35 +123,73 @@ public class MyInfoPanelController extends OverlayChildController {
         }
     }
 
-    /** 입력 가능/불가 상태 전환 */
+    private boolean updateMyInfoToDb() {
+        var s = UserSession.get();
+        if (s == null) {
+            hint("로그인 세션이 없습니다. 다시 로그인해 주세요.");
+            return false;
+        }
+
+        String email     = tfEmail.getText() == null ? "" : tfEmail.getText().trim();
+        String nickname  = tfNickname.getText() == null ? "" : tfNickname.getText().trim();
+        //String character = normalize(cbCharacter.getSelectionModel().getSelectedItem());
+        CharacterType type = cbCharacter.getSelectionModel().getSelectedItem();
+
+        String sql = "UPDATE users SET user_email=?, nickname=?, character_type=?, user_updated_at=NOW() WHERE user_id=?";
+
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setString(2, nickname);
+            ps.setString(3, type != null ? type.name() : null);
+            // ps.setString(3, character);
+            ps.setLong(4, s.getUserId());
+
+            int updated = ps.executeUpdate();
+            if (updated == 1) {
+                // 세션에도 반영
+                s.setEmail(email);
+                s.setNickname(nickname);
+                s.setCharacterType(type);
+                return true;
+            } else {
+                hint("업데이트된 행이 없습니다. user_id를 확인하세요.");
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            hint("DB 업데이트 실패: " + e.getMessage());
+            return false;
+        }
+    }
+
     private void setEditing(boolean on) {
         this.editing = on;
-        tfId.setEditable(false);            // ID는 고정
+        tfId.setEditable(false);
         pfPassword.setEditable(on);
         tfEmail.setEditable(on);
         tfNickname.setEditable(on);
         cbCharacter.setDisable(!on);
     }
 
-    /* ===== 데이터 로딩 ===== */
-
-    /**
-     * 1) UserSession
-     * 2) 필요 시 DB 보완
-     * 3) [개발 편의] 세션 없으면 첫 사용자 1명 로드(운영에선 제거 권장)
-     */
+    // ===== 데이터 로딩 =====
     private void loadMyInfoFromSessionOrDb() {
-        String loginId = null, email = null, nickname = null, character = null;
+        String loginId = null, email = null, nickname = null;
+        CharacterType character = null;
 
         var s = UserSession.get();
         if (s != null) {
             loginId  = s.getLoginId();
             email    = s.getEmail();
             nickname = s.getNickname();
-            // character = s.getCharacterType();
+            character = s.getCharacterType();
             // enum 타입으로 변경 **
-            character = (s.getCharacterType() != null) ? s.getCharacterType().name() : null;
+//            character = (s.getCharacterType() != null)
+//                    ? s.getCharacterType().name()
+//                    : null;
 
+            // 필요 시 DB로 보완 조회(예: null 값이 있을 때)
             if (email == null || nickname == null || character == null) {
                 var info = fetchUserInfoById(s.getUserId());
                 if (info != null) {
@@ -218,21 +209,28 @@ public class MyInfoPanelController extends OverlayChildController {
             }
         }
 
+        // UI 바인딩
         tfId.setText(loginId != null ? loginId : "");
         tfEmail.setText(email != null ? email : "");
         tfNickname.setText(nickname != null ? nickname : "");
 
-        String norm = (character != null) ? normalize(character) : "RACCOON";
-        if (!cbCharacter.getItems().contains(norm)) cbCharacter.getItems().add(norm);
-        cbCharacter.getSelectionModel().select(norm);
+        // 정규화하는 부분 같은데 필요 없음
+//        String norm = (character != null) ? normalize(character) : "RACCOON";
+//        if (!cbCharacter.getItems().contains(norm)) cbCharacter.getItems().add(norm);
+//        cbCharacter.getSelectionModel().select(norm);
+//        setCharacterPreviewByType(norm);
 
-        setCharacterPreviewByType(norm);
+        if (character != null) {
+            cbCharacter.getSelectionModel().select(character);
+            setCharacterPreviewByType(character);
+        } else {
+            cbCharacter.getSelectionModel().clearSelection();
+            setCharacterPreviewByType(CharacterType.ZZUNI);
+        }
     }
 
-    /** 단순 DTO */
-    private record UserInfo(String loginId, String email, String nickname, String character){}
+    private record UserInfo(String loginId, String email, String nickname, CharacterType character){}
 
-    /** user_id로 사용자 1명 조회 */
     private UserInfo fetchUserInfoById(long userId) {
         String sql = "SELECT login_id, user_email, nickname, character_type FROM users WHERE user_id = ?";
         try (Connection c = DBConnection.getConnection();
@@ -241,10 +239,10 @@ public class MyInfoPanelController extends OverlayChildController {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new UserInfo(
-                            rs.getString("login_id"),
-                            rs.getString("user_email"),
-                            rs.getString("nickname"),
-                            rs.getString("character_type")
+                        rs.getString("login_id"),
+                        rs.getString("user_email"),
+                        rs.getString("nickname"),
+                        CharacterType.fromString(rs.getString("character_type"))
                     );
                 }
             }
@@ -255,7 +253,6 @@ public class MyInfoPanelController extends OverlayChildController {
         return null;
     }
 
-    /** 첫 사용자 1명 조회(개발 편의) */
     private UserInfo fetchFirstUser() {
         String sql = "SELECT login_id, user_email, nickname, character_type FROM users ORDER BY user_id LIMIT 1";
         try (Connection c = DBConnection.getConnection();
@@ -263,10 +260,10 @@ public class MyInfoPanelController extends OverlayChildController {
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return new UserInfo(
-                        rs.getString("login_id"),
-                        rs.getString("user_email"),
-                        rs.getString("nickname"),
-                        rs.getString("character_type")
+                    rs.getString("login_id"),
+                    rs.getString("user_email"),
+                    rs.getString("nickname"),
+                    CharacterType.fromString(rs.getString("character_type"))
                 );
             }
         } catch (Exception e) {
@@ -276,15 +273,6 @@ public class MyInfoPanelController extends OverlayChildController {
         return null;
     }
 
-    /* ===== 저장(현재는 스텁) ===== */
-
-    /** 실제 운영은 REST API(/api/users/{id} PUT) 호출로 교체 권장 */
-    private boolean updateMyInfoLocalStub() {
-        // TODO: 서버 호출로 교체
-        return true;
-    }
-
-    /** 기본 유효성 검사 */
     private boolean validateInputs() {
         if (tfEmail.getText() == null || !tfEmail.getText().contains("@")) {
             hint("이메일 형식이 올바르지 않아요.");
@@ -297,35 +285,20 @@ public class MyInfoPanelController extends OverlayChildController {
         return true;
     }
 
-    /* ===== 캐릭터 미리보기 ===== */
-
-    /**
-     * type → 파일명 → 리소스 스트림 → Image 생성
-     * - 레이아웃 안정화를 위해 요청 크기(800x800) 지정
-     */
-    private void setCharacterPreviewByType(String type) {
-        String key  = normalize(type);
-        String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png"); // 기본값
-        String path = "/character/" + file;                             // 리소스 경로(단수 폴더명!)
+    // ===== 캐릭터 미리보기 =====
+    private void setCharacterPreviewByType(CharacterType type) {
+        // String key  = normalize(type);
+        // String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png"); // 기본값
+        if (type == null) type = CharacterType.ZZUNI;
+        String path = type.getImagePath(); // ⚠ 리소스 경로 확인
         try (InputStream in = getClass().getResourceAsStream(path)) {
-            if (in != null) {
-                Image img = new Image(in, 800, 800, true, true);
-                imgCharacter.setImage(img);
-            } else {
-                imgCharacter.setImage(null);
-                hint("이미지를 찾을 수 없어요: " + path);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            hint("이미지 로딩 실패: " + e.getMessage());
-        }
+            imgCharacter.setImage(in != null ? new Image(in) : null);
+        } catch (Exception ignored) {}
     }
 
-    /* ===== 유틸 ===== */
+    private String normalize(String raw) {
+        return raw == null ? "" : raw.trim().toUpperCase();
+    }
 
-    /** 대소문자·양끝 공백 정규화 */
-    private String normalize(String raw) { return raw == null ? "" : raw.trim().toUpperCase(); }
-
-    /** 하단 안내 메시지 */
     private void hint(String s){ if (lblHint != null) lblHint.setText(s); }
 }

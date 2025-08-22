@@ -54,15 +54,18 @@ public class ImageController {
     public ResponseEntity<?> generateTwo(@PathVariable long entryId,
                                          @RequestBody GenerateRequest req) {
         if (req == null || req.keyword == null || req.keyword.isBlank()
-                || req.character == null || req.character.isBlank()) {
+                || req.character == null) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error","missing fields", "need","keyword & character"
             ));
         }
         try {
-            Path baseCharPng = assetResolver.resolve(req.character);
+            // 추가 (enum 에서 파일 경로 추출)
+            String charPath = req.character.getImagePath();
+
+            Path baseCharPng = assetResolver.resolve(charPath);
             var res = imageSvc.generateTwoWithBase_NoMask(
-                    entryId, req.keyword, req.character, baseCharPng,
+                    entryId, req.keyword, req.character.name(), baseCharPng,
                     !(Boolean.TRUE.equals(req.regenerate)), req.size
             );
             return ResponseEntity.ok(new GenerateResponse(res.keywordUrl(), res.characterUrl()));

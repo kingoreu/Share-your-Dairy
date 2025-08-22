@@ -169,7 +169,9 @@ public class MainController {
         contentPane.getChildren().clear();
         contentPane.setVisible(false);
         contentPane.setManaged(false);
+        contentPane.setMouseTransparent(true);      // ✅ 닫을 때는 입력 차단
         contentPane.setStyle("-fx-background-color: transparent;");
+        contentPane.toBack();                       // ✅ 배경으로 내리기
         setOverlayVisible(true);
     }
 
