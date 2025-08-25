@@ -40,19 +40,16 @@ public class DiaryWriteService {
         });
     }
 
-    /** 내 일기 목록 로드 */
-
+    /** 내 일기 목록 로드 (로그인 ID를 파라미터로 받아 사용) */
     public List<DiaryEntry> loadMyDiaryList(Long userId) {
         if (userId == null || userId <= 0)  // ✅ 로그인 없으면 막기
             throw new IllegalStateException("로그인이 필요합니다.");
         try {
-            Long uid = com.share.dairy.auth.UserSession.currentId();
-            return new DiaryEntryDao().findAllByUser(uid); // ✅ 전체조회 금지
+            return diaryEntryDao.findAllByUser(userId);
         } catch (Exception e) {
             throw new RuntimeException("내 일기 조회 실패", e);
         }
     }
-
 
     /** 첨부 없이 본문만 저장 (트랜잭션 포함) */
     public long create(DiaryEntry entry) throws SQLException {
@@ -65,33 +62,32 @@ public class DiaryWriteService {
      * - visibility, sharedDiaryId 는 null 허용
      * - entryDate 가 null이면 오늘 날짜로 저장
      */
-    // 같은 Connection으로 INSERT 수행 (트랜잭션 안에서 호출)
     private long insertEntry(Connection con, DiaryEntry d) throws SQLException {
-            String sql = """
+        final String sql = """
             INSERT INTO diary_entries
               (user_id, entry_date, title, diary_content, visibility, shared_diary_id)
             VALUES (?,?,?,?,?,?)
         """;
 
-            try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                if (d.getUserId() == null) {
-                    throw new SQLException("user_id is null (DiaryEntry.userId 필수)");
-                }
-                LocalDate date = (d.getEntryDate() != null) ? d.getEntryDate() : LocalDate.now();
+        try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            if (d.getUserId() == null) {
+                throw new SQLException("user_id is null (DiaryEntry.userId 필수)");
+            }
+            LocalDate date = (d.getEntryDate() != null) ? d.getEntryDate() : LocalDate.now();
 
             ps.setLong(1, d.getUserId());
-            ps.setObject(2, date);
-            ps.setString(3, (d.getTitle() == null) ? "" : d.getTitle());         // ★ title
+            ps.setDate(2, Date.valueOf(date));
+            ps.setString(3, (d.getTitle() == null) ? "" : d.getTitle()); // ★ title
             ps.setString(4, d.getDiaryContent());
             ps.setString(5, d.getVisibility() == null ? "PRIVATE" : d.getVisibility().name());
             if (d.getSharedDiaryId() == null) ps.setNull(6,  java.sql.Types.BIGINT);
             else ps.setLong(6, d.getSharedDiaryId());
 
-                ps.executeUpdate();
-                try (ResultSet keys = ps.getGeneratedKeys()) {
-                    return keys.next() ? keys.getLong(1) : 0L;
-                }
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                return keys.next() ? keys.getLong(1) : 0L;
             }
+        }
     }
 
     /** 일기 삭제 (첨부 → 본문 순서, 트랜잭션) */
@@ -123,11 +119,11 @@ public class DiaryWriteService {
 
     /** 본문만 업데이트 (트랜잭션) */
     public void updateContent(long entryId, String content) throws SQLException {
-            Tx.inTx(con -> {
-                diaryEntryDao.updateContent(con, entryId, content == null ? "" : content);
-                return null; // commit
-            });
-        }
+        Tx.inTx(con -> {
+            diaryEntryDao.updateContent(con, entryId, content == null ? "" : content);
+            return null; // commit
+        });
+    }
 
     /** (옵션) 제목/내용 동시 업데이트가 필요할 때 사용 */
     public void updateTitleAndContent(long entryId, String title, String content) throws SQLException {

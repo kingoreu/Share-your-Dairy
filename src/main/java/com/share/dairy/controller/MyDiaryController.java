@@ -193,45 +193,44 @@ public class MyDiaryController {
         if (listContainer == null) return;
 
         listContainer.getChildren().clear();
-        if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
-            listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
-            return;
-        }
-
+        if (currentUserId == null || currentUserId.longValue() <= 0L) {
+        listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
+        return;
+}
 
         List<DiaryEntry> rows;
         try {
-            rows = diaryWriteService.loadMyDiaryList(uid); // ✅ 내 것만
+        rows = diaryWriteService.loadMyDiaryList(currentUserId);
+
         } catch (RuntimeException ex) {
-            listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
+            new Alert(Alert.AlertType.ERROR, "일기 목록 조회 실패").showAndWait();
             return;
         }
 
-        for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
+        listContainer.getChildren().clear();
+        for (DiaryEntry d : rows) {
+            listContainer.getChildren().add(makeCard(d));
+        }
     }
-
-    private static String deepestMessage(Throwable t) {
-        Throwable c = t;
-        while (c.getCause() != null) c = c.getCause();
-        return (c.getMessage() != null ? c.getMessage() : t.getMessage());
-    }
-
     private static String guessTitle(DiaryEntry d) {
+        if (d == null) return "(제목 없음)";
         String t = d.getTitle();
-        if (t != null) t = t.trim();
-        if (t != null && !t.isEmpty()) return t;
-        String c = Optional.ofNullable(d.getDiaryContent()).orElse("");
-        c = c.replace("\r"," ").replace("\n"," ").trim();
+        if (t != null) {
+        t = t.trim();
+        if (!t.isEmpty()) return t;
+    }
+        String c = Optional.ofNullable(d.getDiaryContent()).orElse("").replace("\r"," ").replace("\n"," ").trim();
         if (c.isEmpty()) return "(제목 없음)";
-        return c.length() > 30 ? c.substring(0,30) + "…" : c;
+        return c.length() > 30 ? c.substring(0, 30) + "…" : c;
     }
 
     private static String preview(String s) {
         if (s == null) return "";
         String one = s.replace("\r"," ").replace("\n"," ").trim();
-        return (one.length() > 60) ? one.substring(0, 60) + "…" : one;
+        return one.length() > 60 ? one.substring(0, 60) + "…" : one;
     }
 
+    /** 카드: 단순 표시(클릭 동작 없음 — 안정 상태) */
     private VBox makeCard(DiaryEntry d) {
         VBox card = new VBox(6);
         card.getStyleClass().add("diary-card");
