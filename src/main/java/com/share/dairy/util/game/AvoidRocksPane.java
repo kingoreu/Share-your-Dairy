@@ -131,14 +131,15 @@ public final class AvoidRocksPane extends StackPane {
         px = Math.max(6, Math.min(px, W - pw - 6));
 
         // 돌 스폰(0.45~0.95초 간격)
+        int burst = 4; // 한 번에 4개
         spawnTimer -= dt;
         if (spawnTimer <= 0) {
-            spawnTimer = 0.45 + rand.nextDouble() * 0.5;
+            spawnTimer = 0.1 + rand.nextDouble() * 0.2;
             Rock r = new Rock();
             r.r  = 8 + rand.nextDouble() * 14;
             r.x  = r.r + rand.nextDouble() * (W - r.r * 2);
             r.y  = -r.r - 4;
-            r.vy = 180 + rand.nextDouble() * 160;
+            r.vy = 180 + rand.nextDouble() * 200;
             rocks.add(r);
         }
 
