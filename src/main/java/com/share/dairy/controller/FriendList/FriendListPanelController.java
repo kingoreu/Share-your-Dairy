@@ -1,233 +1,203 @@
 package com.share.dairy.controller.FriendList;
 
-import javafx.css.PseudoClass;
+import com.share.dairy.auth.UserSession;
+import com.share.dairy.controller.OverlayChildController;
+import com.share.dairy.dao.friend.FriendshipDao;
+import com.share.dairy.model.friend.Friendship;
+import com.share.dairy.util.DBConnection;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
-import javafx.scene.control.Label;
-import javafx.stage.Stage;
 
-import javafx.event.ActionEvent;
-
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import com.share.dairy.controller.OverlayChildController;
-
-/**
- * FriendListPanel 컨트롤러
- * - 헤더 홈 아이콘: 배경 없이 표시
- * - 중앙: GridPane(2열, 각 50%)에 카드 렌더링 → 항상 정돈된 2열
- * - 하단(컨텐츠 내부 우하단): Select/Delete
- */
 public class FriendListPanelController extends OverlayChildController {
 
-    /* ===== FXML 바인딩 ===== */
+    /* ===== FXML ===== */
     @FXML private GridPane grid;
-
     @FXML private Button btnSelect;
     @FXML private Button btnDelete;
 
-    @FXML private Button btnHomeTop;
-    @FXML private Button btnMyInfo;
-    @FXML private Button btnAddFriends;
-    @FXML private Button btnBuddyList;
+    /* ===== DAO & 상태 ===== */
+    private final FriendshipDao dao = new FriendshipDao();
+    private final Set<Long> selected = new HashSet<>();
+    private boolean selectMode = false;
 
-    /* ===== 내부 상태 ===== */
-    private final List<Friend> friends = new ArrayList<>();
-    private final Set<FriendCard> selected = new HashSet<>();
-    private static final PseudoClass PSEUDO_SELECTED = PseudoClass.getPseudoClass("selected");
+    /* ===== 캐릭터 파일 매핑 ===== */
+    private static final Map<String,String> CHARACTER_FILE = Map.ofEntries(
+            Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
+            Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
+            Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
+            Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
+            Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
+            Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
+    );
 
+    /* =========================== init =========================== */
     @FXML
     public void initialize(URL url, ResourceBundle rb) {
-        seedSampleData();
-        renderGrid();
-
-        btnSelect.setOnAction(e -> handleSelect());
-        btnDelete.setOnAction(e -> handleDelete());
-
-        btnHomeTop.setOnAction(e -> navigateHome());
-        btnMyInfo.setOnAction(e -> navigateMyInfo());
-        btnBuddyList.setOnAction(e -> { /* 현재 화면 */ });
-        btnSelect.getStyleClass().addAll("action-btn", "primary");
-        btnDelete.getStyleClass().addAll("action-btn", "danger");
+        btnDelete.setDisable(true);
+        loadFriends();
     }
 
-    /** 데모 데이터 (실서비스에선 Service/DAO 대체) */
-    private void seedSampleData() {
-        String kk    = resource("/common_images/kk.png");
-        String naki  = resource("/common_images/naki.png");
-        String guide = resource("/common_images/guide.png");
+    /* ======================= Navigation ========================= */
+    @FXML private void goMyInfo()    { open("/fxml/FriendList/MyInfoPanel.fxml"); }
+    @FXML private void goAddFriends(){ open("/fxml/FriendList/AddFriendsPanel.fxml"); }
 
-        friends.addAll(List.of(
-                new Friend("K.K", kk),
-                new Friend("Naki", naki),
-                new Friend("Guide", guide),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk),
-                new Friend("K.K", kk)
-        ));
-    }
-
-    private String resource(String path) {
-        try { return Objects.requireNonNull(getClass().getResource(path)).toExternalForm(); }
-        catch (Exception e) { return null; }
-    }
-
-    /* ====== 2열 GridPane에 카드 렌더링 ====== */
-    private void renderGrid() {
-        grid.getChildren().clear();
-
-        int col = 0, row = 0;
-        for (Friend f : friends) {
-            FriendCard card = new FriendCard(f);
-
-            // GridPane 칼럼 폭에 맞춰 가로로 꽉 차도록
-            card.setMaxWidth(Double.MAX_VALUE);
-            GridPane.setHgrow(card, Priority.ALWAYS);
-
-            grid.add(card, col, row);
-            col++;
-            if (col == 2) { col = 0; row++; }
-        }
-    }
-
-    /* ===== Select / Delete ===== */
-    private void handleSelect() {
-        if (selected.isEmpty()) { alert("선택된 친구가 없습니다."); return; }
-        String names = selected.stream()
-                .map(c -> c.friend.name())
-                .distinct()
-                .collect(Collectors.joining(", "));
-        alert("선택된 친구: " + names);
-    }
-
-    private void handleDelete() {
-        if (selected.isEmpty()) { alert("삭제할 친구를 선택하세요."); return; }
-
-        Set<Friend> removeSet = selected.stream().map(c -> c.friend).collect(Collectors.toSet());
-        friends.removeIf(removeSet::contains);
-
-        // 그리드에서도 제거
-        grid.getChildren().removeIf(n -> n instanceof FriendCard fc && removeSet.contains(fc.friend));
-        selected.clear();
-
-        // 레이아웃 정리(갭 없이 다시 채우기)
-        reflowGrid();
-    }
-
-    /** 삭제 후 공백 없이 다시 배치 */
-    private void reflowGrid() {
-        List<FriendCard> cards = new ArrayList<>();
-        for (javafx.scene.Node n : new ArrayList<>(grid.getChildren())) {
-            if (n instanceof FriendCard fc) {
-                cards.add(fc);
-            }
-        }
-        grid.getChildren().clear();
-
-        int col = 0, row = 0;
-        for (FriendCard c : cards) {
-            GridPane.setHgrow(c, Priority.ALWAYS);
-            grid.add(c, col, row);
-            col++;
-            if (col == 2) { col = 0; row++; }
-        }
-    }
-
-    /* ===== 네비게이션 (연결 지점) ===== */
-    private void navigateHome()      { /* TODO: 라우팅 연결 */ }
-    private void navigateMyInfo()    { /* TODO: 라우팅 연결 */ }
-    private void navigateAddFriends(){ /* TODO: 라우팅 연결 */ }
-    
-
-    private void alert(String msg) {
-        Alert a = new Alert(AlertType.INFORMATION);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
-    }
-
-    @FXML private void goMyInfo()     { System.out.println("goMyInfo"); /* Router.go("MyInfo"); */ }
-    @FXML
-    private void goAddFriends(ActionEvent e) {
+    private void switchTo(String fxmlPath) {
         try {
-            Parent next = FXMLLoader.load(
-                    getClass().getResource("/fxml/FriendList/AddFriendsPanel.fxml")
-            );
-            // 현재 씬의 루트 교체
-            Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(next);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            alert("화면 전환 실패: " + ex.getMessage());
+            URL url = getClass().getResource(fxmlPath);
+            if (url == null) throw new IllegalStateException("FXML not found: " + fxmlPath);
+            Parent root = FXMLLoader.load(url);
+            if (grid != null && grid.getScene() != null) grid.getScene().setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-    @FXML private void goBuddyList()  { System.out.println("goBuddyList"); /* 현재 페이지라면 무시 */ }
 
-    /* ===== 모델 ===== */
-    public record Friend(String name, String avatarUrl) {}
+    /* ===================== Load & Render ======================== */
+    private void loadFriends() {
+        grid.getChildren().clear();
+        var me = UserSession.get();
+        if (me == null) return;
 
-    /* ===== 카드 뷰 ===== */
-    private class FriendCard extends StackPane {
-        private final Friend friend;
-        private boolean selectedState = false;
+        List<Friendship> list;
+        try { list = dao.findFriendsFor(me.getUserId()); }
+        catch (Exception e) { e.printStackTrace(); return; }
 
-        FriendCard(Friend friend) {
-            this.friend = friend;
+        int col = 0, row = 0;
+        for (var f : list) {
+            long other = (f.getUserId() == me.getUserId()) ? f.getFriendId() : f.getUserId();
+            var ui = fetchUser(other);
+            if (ui == null) continue;
 
-            // 배경
-            Region bg = new Region();
-            bg.getStyleClass().add("friend-card-bg");
+            Node card = buildCard(ui.userId, ui.displayName(), ui.character);
+            grid.add(card, col, row);
+            GridPane.setMargin(card, new Insets(0, 0, 0, 0));
 
-            // 내용(HBox): 아바타 + 이름
-            ImageView avatar = new ImageView();
-            if (friend.avatarUrl() != null) {
-                try { avatar.setImage(new Image(friend.avatarUrl(), true)); } catch (Exception ignored) {}
+            col++;
+            if (col == 2) { col = 0; row++; }
+        }
+    }
+
+    private Node buildCard(long friendId, String name, String charType) {
+        StackPane root = new StackPane();
+        root.getStyleClass().add("friend-card");
+
+        Region bg = new Region();
+        bg.getStyleClass().add("friend-card-bg");
+        bg.setMinHeight(88);
+        bg.setPrefHeight(88);
+        bg.setMaxHeight(88);
+
+        ImageView avatar = new ImageView(loadChar(charType));
+        avatar.setFitWidth(56);
+        avatar.setFitHeight(56);
+        avatar.setPreserveRatio(true);
+
+        Label title = new Label(name);
+        title.getStyleClass().add("friend-name");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox content = new HBox(12, avatar, title, spacer);
+        content.setAlignment(Pos.CENTER_LEFT);
+        content.setPadding(new Insets(12));
+
+        root.getChildren().addAll(bg, content);
+
+        // 선택 모드: 클릭으로 토글
+        root.setOnMouseClicked(e -> {
+            if (!selectMode) return;
+            if (selected.remove(friendId)) {
+                bg.setStyle(""); // 선택 해제
+            } else {
+                selected.add(friendId);
+                bg.setStyle("-fx-border-color:#7b4e6b; -fx-border-width:2;"); // 선택 표시
             }
-            avatar.setFitWidth(48);
-            avatar.setFitHeight(48);
-            avatar.setPreserveRatio(true);
+            btnDelete.setDisable(selected.isEmpty());
+        });
 
-            Label name = new Label(friend.name());
-            name.getStyleClass().add("friend-name");
+        return root;
+    }
 
-            HBox content = new HBox(14, avatar, name);
-            content.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-            content.setPadding(new Insets(12));
+    /* ================== Select / Delete ========================= */
+    @FXML
+    private void onSelect() {
+        selectMode = !selectMode;
+        selected.clear();
+        btnDelete.setDisable(true);
+        btnSelect.setText(selectMode ? "Cancel" : "Select");
+        // 선택 표시 초기화
+        grid.getChildren().forEach(n -> n.setStyle(""));
+    }
 
-            getChildren().addAll(bg, content);
-            getStyleClass().add("friend-card");
+    @FXML
+    private void onDelete() {
+        if (selected.isEmpty()) return;
+        var me = UserSession.get(); if (me == null) return;
 
-            setMinHeight(88);
-            setCursor(Cursor.HAND);
+        var confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "선택한 친구를 삭제할까요? (" + selected.size() + "명)", ButtonType.OK, ButtonType.CANCEL);
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
 
-            setOnMouseClicked(ev -> {
-                if (ev.getButton() == MouseButton.PRIMARY) {
-                    toggleSelected();
-                }
-            });
+        try (var con = DBConnection.getConnection()) {
+            con.setAutoCommit(false);
+            for (long fid : selected) {
+                dao.delete(con, me.getUserId(), fid);  // 양방향 삭제
+            }
+            con.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        void toggleSelected() { setSelected(!selectedState); }
-        boolean isSelected()  { return selectedState; }
-        void setSelected(boolean value) {
-            this.selectedState = value;
-            pseudoClassStateChanged(PSEUDO_SELECTED, value);
-            if (value) selected.add(this); else selected.remove(this);
+        onSelect();     // 선택모드 해제
+        loadFriends();  // 갱신
+    }
+
+    /* ======================== Helpers ========================== */
+    private Image loadChar(String type) {
+        String key = (type == null ? "" : type.trim().toUpperCase());
+        String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png");
+        try (InputStream in = getClass().getResourceAsStream("/character/" + file)) {
+            return in != null ? new Image(in) : null;
+        } catch (Exception e) { return null; }
+    }
+
+    private record UserMini(long userId, String login, String nickname, String character) {
+        String displayName() {
+            return (nickname != null && !nickname.isBlank()) ? nickname : login;
         }
+    }
+
+    private UserMini fetchUser(long userId) {
+        String sql = "SELECT user_id, login_id, nickname, character_type FROM users WHERE user_id=?";
+        try (var con = DBConnection.getConnection();
+             var ps = con.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next())
+                    return new UserMini(
+                            rs.getLong("user_id"),
+                            rs.getString("login_id"),
+                            rs.getString("nickname"),
+                            rs.getString("character_type")
+                    );
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
     }
 }

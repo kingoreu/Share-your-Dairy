@@ -5,22 +5,20 @@ import com.share.dairy.controller.OverlayChildController;
 import com.share.dairy.util.DBConnection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import java.util.Map;
-import java.util.ResourceBundle;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Map;
+import java.util.ResourceBundle;
 
-public class MyInfoPanelController extends OverlayChildController{
+public class MyInfoPanelController extends OverlayChildController {
 
     // ===== FXML 바인딩 =====
     @FXML private StackPane card;
@@ -38,25 +36,23 @@ public class MyInfoPanelController extends OverlayChildController{
     private boolean editing = false;
 
     private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
-    Map.entry("RACCOON", "raccoon.png"),
-    Map.entry("DOG",     "dog.png"),
-    Map.entry("CAT",     "cat.png"),
-    Map.entry("BEAR",    "bear.png"),
-    Map.entry("DEER",    "deer.png"),
-    Map.entry("DUCK",    "duck.png"),
-    Map.entry("HAMSTER", "hamster.png"),
-    Map.entry("RABBIT",  "rabbit.png"),
-    Map.entry("WOLF",    "wolf.png"),
-    Map.entry("RICHARD", "richard.png"),
-    Map.entry("TAKO",    "tako.png"),
-    Map.entry("ZZUNI",   "zzuni.png")
+        Map.entry("RACCOON", "raccoon.png"),
+        Map.entry("DOG",     "dog.png"),
+        Map.entry("CAT",     "cat.png"),
+        Map.entry("BEAR",    "bear.png"),
+        Map.entry("DEER",    "deer.png"),
+        Map.entry("DUCK",    "duck.png"),
+        Map.entry("HAMSTER", "hamster.png"),
+        Map.entry("RABBIT",  "rabbit.png"),
+        Map.entry("WOLF",    "wolf.png"),
+        Map.entry("RICHARD", "richard.png"),
+        Map.entry("TAKO",    "tako.png"),
+        Map.entry("ZZUNI",   "zzuni.png")
     );
 
     // ===== 초기화 =====
-    @FXML
-     public void initialize(URL url, ResourceBundle rb) {
-
-        
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
         // 이미지가 카드 폭에 맞게 줄어들도록
         if (card != null && imgCharacter != null) {
             imgCharacter.fitWidthProperty().bind(card.widthProperty().subtract(36));
@@ -78,22 +74,9 @@ public class MyInfoPanelController extends OverlayChildController{
         setEditing(false);
     }
 
-    // ===== 화면 전환 (좌측 네비) =====
-    @FXML private void goHome(ActionEvent e)      { /* Router.navigate("home"); */ }
-    @FXML private void goAddFriends(ActionEvent e){ switchTo("/fxml/FriendList/AddFriendsPanel.fxml", (Node)e.getSource()); }
-    @FXML private void goBuddyList(ActionEvent e) { switchTo("/fxml/FriendList/FriendListPanel.fxml", (Node)e.getSource()); }
-
-    private void switchTo(String fxmlPath, Node trigger){
-        try{
-            URL url = getClass().getResource(fxmlPath);
-            if (url == null) { hint("화면 파일을 찾을 수 없어요: " + fxmlPath); return; }
-            Parent root = FXMLLoader.load(url);
-            trigger.getScene().setRoot(root);
-        }catch(Exception ex){
-            ex.printStackTrace();
-            hint("화면 전환 실패: " + ex.getMessage());
-        }
-    }
+    // ===== 네비게이션 =====
+    @FXML private void goAddFriends(){ open("/fxml/FriendList/AddFriendsPanel.fxml"); }
+    @FXML private void goBuddyList() { open("/fxml/FriendList/FriendListPanel.fxml"); }
 
     // ===== Edit/Save 토글 =====
     @FXML
@@ -105,8 +88,7 @@ public class MyInfoPanelController extends OverlayChildController{
         } else {
             if (!validateInputs()) return;
 
-            // TODO: 서버 API 호출로 바꾸면 더 좋음 (/api/users/{id} PUT)
-            boolean ok = updateMyInfoLocalStub();
+            boolean ok = updateMyInfoToDb();
 
             if (ok) {
                 setEditing(false);
@@ -121,6 +103,45 @@ public class MyInfoPanelController extends OverlayChildController{
             } else {
                 lblHint.setText("저장 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
             }
+        }
+    }
+
+    private boolean updateMyInfoToDb() {
+        var s = UserSession.get();
+        if (s == null) {
+            hint("로그인 세션이 없습니다. 다시 로그인해 주세요.");
+            return false;
+        }
+
+        String email     = tfEmail.getText() == null ? "" : tfEmail.getText().trim();
+        String nickname  = tfNickname.getText() == null ? "" : tfNickname.getText().trim();
+        String character = normalize(cbCharacter.getSelectionModel().getSelectedItem());
+
+        String sql = "UPDATE users SET user_email=?, nickname=?, character_type=?, user_updated_at=NOW() WHERE user_id=?";
+
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setString(2, nickname);
+            ps.setString(3, character);
+            ps.setLong(4, s.getUserId());
+
+            int updated = ps.executeUpdate();
+            if (updated == 1) {
+                // 세션에도 반영
+                s.setEmail(email);
+                s.setNickname(nickname);
+                s.setCharacterType(character);
+                return true;
+            } else {
+                hint("업데이트된 행이 없습니다. user_id를 확인하세요.");
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            hint("DB 업데이트 실패: " + e.getMessage());
+            return false;
         }
     }
 
@@ -218,12 +239,6 @@ public class MyInfoPanelController extends OverlayChildController{
         return null;
     }
 
-    // ===== 저장 (지금은 스텁: 필요 시 서버 PUT으로 교체) =====
-    private boolean updateMyInfoLocalStub() {
-        // 서버 API로 바꾸려면 /api/users/{UserSession.get().userId} 로 PUT 보내세요.
-        return true;
-    }
-
     private boolean validateInputs() {
         if (tfEmail.getText() == null || !tfEmail.getText().contains("@")) {
             hint("이메일 형식이 올바르지 않아요.");
@@ -240,7 +255,7 @@ public class MyInfoPanelController extends OverlayChildController{
     private void setCharacterPreviewByType(String type) {
         String key = normalize(type);
         String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png"); // 기본값
-        String path = "/character/" + file; // ⚠ 폴더명은 단수(character)
+        String path = "/character/" + file; // ⚠ 리소스 경로 확인
         try (InputStream in = getClass().getResourceAsStream(path)) {
             imgCharacter.setImage(in != null ? new Image(in) : null);
         } catch (Exception ignored) {}

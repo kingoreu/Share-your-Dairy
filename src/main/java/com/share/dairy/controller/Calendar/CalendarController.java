@@ -33,8 +33,6 @@ public class CalendarController extends OverlayChildController {
     private DiaryImageRepository repo;
     private Image PLACEHOLDER;
 
-    // TODO: 로그인 사용자 id 연동
-    private long userId = 1L;
 
     @FXML
     @Override
@@ -59,12 +57,29 @@ public class CalendarController extends OverlayChildController {
         refresh();
     }
 
+        // CalendarController 필드
+        private static final String MEDIA_BASE_URL = "http://localhost:8080"; // 서버 주소에 맞춰 수정
+
+        private String toLoadableUrl(String pathOrUrl) {
+            if (pathOrUrl == null || pathOrUrl.isBlank()) return null;
+            String p = pathOrUrl.trim();
+
+            // 이미 절대 URL이면 그대로 사용
+            if (p.startsWith("http://") || p.startsWith("https://") || p.startsWith("file:")) return p;
+
+            // /media/.. 형태면 서버 베이스 붙이기
+            if (p.startsWith("/")) return MEDIA_BASE_URL + p;
+
+            // 로컬 파일 경로라면 file:///로 변환
+            return java.nio.file.Paths.get(p).toUri().toString(); // => file:///C:/... 또는 file:///home/...
+        }
+
+
     /** 월 이동 공통 처리 */
     private void moveMonth(int deltaMonth) {
         currentYm = currentYm.plusMonths(deltaMonth);
         refresh();
     }
-
     
     /** 열/행 제약을 매번 보강해서 레이아웃이 0으로 접히는 걸 방지 */
     private void ensureGridLayout() {
@@ -84,7 +99,6 @@ public class CalendarController extends OverlayChildController {
             }
         }
     }
-
 
     /** 달력 다시 그리기 */
     private void refresh() {
@@ -117,7 +131,8 @@ public class CalendarController extends OverlayChildController {
         // 3) DB에서 날짜→이미지 URL 맵 조회 (없어도 렌더 계속)
         Map<LocalDate, String> imageByDate = Collections.emptyMap();
         try {
-            imageByDate = repo.findKeywordImages(userId, first, last);
+            Long uid = com.share.dairy.auth.UserSession.currentId();
+            imageByDate = repo.findKeywordImages(uid, first, last);
             if (imageByDate == null) imageByDate = Collections.emptyMap();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -150,35 +165,33 @@ public class CalendarController extends OverlayChildController {
 
     /** 날짜 셀 생성 */
     private VBox buildDayCell(int day, String imageUrl, LocalDate date) {
-        Label dayLabel = new Label(String.valueOf(day));
-        dayLabel.setStyle("-fx-font-weight: bold;");
+    Label dayLabel = new Label(String.valueOf(day));
+    dayLabel.setStyle("-fx-font-weight: bold;");
 
-        ImageView iv = new ImageView();
-        iv.setFitWidth(48);
-        iv.setFitHeight(48);
-        iv.setPreserveRatio(true);
+    ImageView iv = new ImageView();
+    iv.setFitWidth(48);
+    iv.setFitHeight(48);
+    iv.setPreserveRatio(true);
+    iv.setSmooth(true);
 
-        if (imageUrl != null && !imageUrl.isBlank()) {
-            // 백그라운드 로딩 + 실패 시 placeholder로 대체
-            Image img = new Image(imageUrl, 48, 48, true, true, true);
-            iv.setImage(img);
-            img.errorProperty().addListener((obs, wasErr, isErr) -> {
-                if (isErr) iv.setImage(PLACEHOLDER);
-            });
-        } else {
-            iv.setImage(PLACEHOLDER);
-        }
-
-        VBox box = new VBox(dayLabel, iv);
-        box.setAlignment(Pos.TOP_CENTER);
-        box.setPadding(new Insets(6));
-        box.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-background-radius: 8; -fx-border-radius: 8;");
-
-        // 오늘 날짜 강조(선택)
-        if (date.equals(LocalDate.now())) {
-            box.setStyle("-fx-background-color: white; -fx-border-color: #f48cab; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;");
-        }
-
-        return box;
+    String loadable = toLoadableUrl(imageUrl);
+    if (loadable != null) {
+        Image img = new Image(loadable, 48, 48, true, true, true); // backgroundLoading=true
+        iv.setImage(img);
+        img.errorProperty().addListener((obs, wasErr, isErr) -> {
+            if (isErr) iv.setImage(PLACEHOLDER);
+        });
+    } else {
+        iv.setImage(PLACEHOLDER);
     }
+
+    VBox box = new VBox(dayLabel, iv);
+    box.setAlignment(Pos.TOP_CENTER);
+    box.setPadding(new Insets(6));
+    box.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-background-radius: 8; -fx-border-radius: 8;");
+    if (date.equals(LocalDate.now())) {
+        box.setStyle("-fx-background-color: white; -fx-border-color: #f48cab; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;");
+    }
+    return box;
+}
 }
