@@ -22,8 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 
-import java.util.Map;
-import java.util.ResourceBundle;
+
 
 public class MyInfoPanelController extends OverlayChildController {
 

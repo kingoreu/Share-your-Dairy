@@ -16,15 +16,17 @@ public class CharacterKeywordImageDao {
 
     public long insert(CharacterKeywordImage e) throws SQLException {
         String sql = """
-            INSERT INTO character_keyword_images (analysis_id, user_id, created_at)
-            VALUES (?, ?, COALESCE(?, NOW()))
+            INSERT INTO character_keyword_images (analysis_id, user_id, path_or_url, created_at)
+            VALUES (?, ?, ?, ?)
         """;
         try (var con = DBConnection.getConnection();
              var ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, e.getAnalysisId());
             ps.setLong(2, e.getUserId());
-            if (e.getCreatedAt() != null) ps.setTimestamp(3, Timestamp.valueOf(e.getCreatedAt()));
-            else ps.setNull(3, Types.TIMESTAMP);
+            ps.setString(3, e.getPathOrUrl());
+            if (e.getCreatedAt() != null) ps.setTimestamp(4, Timestamp.valueOf(e.getCreatedAt()));
+            else ps.setNull(4, Types.TIMESTAMP);
+
             ps.executeUpdate();
             try (var keys = ps.getGeneratedKeys()) {
                 return keys.next() ? keys.getLong(1) : 0L;
@@ -43,21 +45,21 @@ public class CharacterKeywordImageDao {
         }
     }
 
-    public List<CharacterKeywordImage> findByUserId(long userId) throws SQLException {
+    public Optional<CharacterKeywordImage> findLatestByUserId(long userId) throws SQLException {
         String sql = """
             SELECT * FROM character_keyword_images
             WHERE user_id = ?
-            ORDER BY created_at DESC, keyword_image DESC
+            ORDER BY created_at DESC
+            LIMIT 1
         """;
         try (var con = DBConnection.getConnection();
              var ps = con.prepareStatement(sql)) {
             ps.setLong(1, userId);
             try (var rs = ps.executeQuery()) {
-                List<CharacterKeywordImage> out = new ArrayList<>();
-                while (rs.next()) out.add(mapper.map(rs));
-                return out;
+                if (rs.next()) return Optional.of(mapper.map(rs));
             }
         }
+        return Optional.empty();
     }
 
     public int deleteById(long id) throws SQLException {
