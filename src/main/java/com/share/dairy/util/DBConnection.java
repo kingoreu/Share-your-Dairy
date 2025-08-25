@@ -19,40 +19,38 @@ public final class DBConnection {
     private static String pass;
 
     static {
-        try { Class.forName("com.mysql.cj.jdbc.Driver"); }
-        catch (ClassNotFoundException e) { throw new RuntimeException("MySQL 드라이버 없음", e); }
-
-        // 1) properties 시도
-        boolean loadedFromProps = false;
-        try (var in = DBConnection.class.getResourceAsStream("/application.properties")) {
-            if (in != null) {
-                Properties p = new Properties();
-                p.load(in);
-                String host   = p.getProperty("db.host", DEF_HOST);
-                int    port   = Integer.parseInt(p.getProperty("db.port", String.valueOf(DEF_PORT)));
-                String schema = p.getProperty("db.schema", DEF_SCHEMA);
-                user = p.getProperty("db.user", DEF_USER);
-                pass = p.getProperty("db.password", DEF_PASS);
-                url  = "jdbc:mysql://" + host + ":" + port + "/" + schema
-                        + "?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul";
-                loadedFromProps = true;
+        try {
+            var props = new java.util.Properties();
+            try (var input = DBConnection.class.getResourceAsStream(PROPERTIES_FILE)) {
+                if (input == null) {
+                    throw new RuntimeException("application.properties 파일을 찾을 수 없습니다.");
+                }
+                props.load(input);
             }
-        } catch (Exception ignore) { /* 프로퍼티 로드 실패 시 하드코딩으로 진행 */ }
 
-        // 2) 실패하면 하드코딩
-        if (!loadedFromProps) {
-            url  = "jdbc:mysql://" + DEF_HOST + ":" + DEF_PORT + "/" + DEF_SCHEMA
-                    + "?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul";
-            user = DEF_USER;
-            pass = DEF_PASS;
+            String driver = props.getProperty("driver");
+            Class.forName(driver);
+
+            url = props.getProperty("url");
+            user = props.getProperty("user");
+            password = props.getProperty("password");
+
+        } catch (Exception e) {
+            throw new RuntimeException("DB 설정 로드 실패: " + e.getMessage(), e);
         }
-
-        System.out.println("[DB] URL=" + url + " USER=" + user + " (props=" + loadedFromProps + ")");
     }
+
+    private static String url;
+    private static String user;
+    private static String password;
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, user, pass);
+        return DriverManager.getConnection(url, user, password);
     }
 
-    private DBConnection() {}
+    public static void close(Connection conn, Statement stmt, ResultSet rs) {
+        try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+        try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
+        try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+    }
 }

@@ -43,28 +43,26 @@
       "name": "Run HelloApplication (JavaFX)",
       "request": "launch",
       "mainClass": "com.share.dairy.app.HelloApplication",
-      "envFile": "${workspaceFolder}/.env",
-      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml,javafx.web",
-      "console": "integratedTerminal"
+      "projectName": "dairy",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
+      "envFile": "${workspaceFolder}/.env"
     },
     {
       "type": "java",
-      "name": "Launcher (JavaFX)",
+      "name": "Launcher",
       "request": "launch",
       "mainClass": "com.share.dairy.app.Launcher",
       "projectName": "dairy",
-      "envFile": "${workspaceFolder}/.env",
-      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml,javafx.web",
-      "console": "integratedTerminal"
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
+      "envFile": "${workspaceFolder}/.env"
     },
     {
       "type": "java",
-      "name": "Current File (JavaFX)",
+      "name": "Current File",
       "request": "launch",
       "mainClass": "${file}",
-      "envFile": "${workspaceFolder}/.env",
-      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml,javafx.web",
-      "console": "integratedTerminal"
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
+      "envFile": "${workspaceFolder}/.env"
     }
   ],
   "compounds": [

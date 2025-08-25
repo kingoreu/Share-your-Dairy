@@ -56,7 +56,7 @@ public class MainController {
         contentPane.setVisible(false);
         contentPane.setManaged(false);
         // contentPane.setPickOnBounds(true);
-        contentPane.setPickOnBounds(false);
+        contentPane.setPickOnBounds(true);
         contentPane.setStyle("-fx-background-color: transparent;");
         contentPane.toBack();
 
@@ -67,8 +67,14 @@ public class MainController {
         radioHotspot.toFront();
         characterPane.toFront();
         windowHotspot.toFront();
+        // characterPane.toFront();
         // characterImg.toFront();
         setOverlayVisible(true);
+
+        // 캐릭터 Pane에도 OverlayHost 주입
+        if (characterPaneController != null) {
+            characterPaneController.setOverlayHost(overlayHost);
+        }
 
         // ESC로 닫기 (scene 준비 후 1회 등록)
         contentPane.sceneProperty().addListener((obs, oldScene, scene) -> {
@@ -78,11 +84,19 @@ public class MainController {
                 });
             }
         });
+
+        System.out.println("windowHotspot bounds=" + windowHotspot.getBoundsInParent());
+        System.out.println("characterPane bounds=" + characterPane.getBoundsInParent());
+
     }
 
     /* ===================== Hotspot Click Handlers ===================== */
     @FXML private void onWardrobeClicked(MouseEvent e)   { /* TODO: 옷장 화면 */ }
-    @FXML private void onWindowClicked(MouseEvent e)     { loadView("/fxml/moodGraph/mood-graph-view.fxml"); }
+    @FXML private void onWindowClicked(MouseEvent e) {
+        System.out.println("[MainController] Window clicked!");
+        loadView("/fxml/moodGraph/mood-graph-view.fxml");
+    }
+    // @FXML private void onWindowClicked(MouseEvent e)     { loadView("/fxml/moodGraph/mood-graph-view.fxml"); }
     @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/diary_hub/diary-hub-shell.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO: 책장 화면 */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/calendar/calendar.fxml"); }
@@ -173,6 +187,19 @@ public class MainController {
         ft.setFromValue(0);
         ft.setToValue(1);
         ft.play();
+    }
+
+    // 로그아웃 만듬
+    @FXML
+    private void onLogout(ActionEvent e) {
+        UserSession.clear();
+        try {
+            Parent loginRoot = FXMLLoader.load(getClass().getResource("/fxml/login/Login.fxml"));
+            javafx.stage.Stage stage = (javafx.stage.Stage) ((Node) e.getSource()).getScene().getWindow();
+            stage.getScene().setRoot(loginRoot);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     // 로그아웃 만듬
