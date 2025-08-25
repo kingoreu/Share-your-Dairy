@@ -1,5 +1,7 @@
 package com.share.dairy.service.diary_analysis;
 
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -11,6 +13,7 @@ import java.sql.*;
 import java.time.Instant;
 import java.util.Objects;
 
+@Service 
 public class DiaryAnalysisService {
 
     // ====== ENV 전용 유틸 ======
@@ -48,25 +51,29 @@ public class DiaryAnalysisService {
         return s.substring(0, 8) + "…" + s.substring(s.length() - 4);
     }
 
-    // ====== OpenAI 설정 (ENV만 사용) ======
-    // 필수: OPENAI_API_KEY
-    private static final String OPENAI_API_KEY = requireEnv("OPENAI_API_KEY");
-    // 선택: OPENAI_API_URL / OPENAI_API_MODEL
-    private static final String OPENAI_URL   = Objects.requireNonNullElse(env("OPENAI_API_URL"),
+    // ====== OpenAI 설정 (ENV 우선, 없으면 스킵) ======
+    private static String getApiKey() {
+        String v = envFirst("OPENAI_API_KEY");
+        if (isBlank(v)) v = System.getProperty("OPENAI_API_KEY");
+        return sanitize(v);
+    }
+    private static final String OPENAI_URL   = Objects.requireNonNullElse(
+            env("OPENAI_API_URL"),
             "https://api.openai.com/v1/chat/completions");
-    private static final String OPENAI_MODEL = Objects.requireNonNullElse(env("OPENAI_API_MODEL"),
+    private static final String OPENAI_MODEL = Objects.requireNonNullElse(
+            env("OPENAI_API_MODEL"),
             "gpt-3.5-turbo"); // 필요시 gpt-4o-mini 등으로 교체
 
     // ====== DB 설정 (ENV만 사용, Spring 호환 키도 지원) ======
     private static final String JDBC_URL  = Objects.requireNonNullElse(
             envFirst("JDBC_URL", "SPRING_DATASOURCE_URL"),
-            "jdbc:mysql://localhost:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul");
+            "jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul");
     private static final String JDBC_USER = Objects.requireNonNullElse(
             envFirst("JDBC_USER", "SPRING_DATASOURCE_USERNAME"),
             "root");
     private static final String JDBC_PASS = Objects.requireNonNullElse(
             envFirst("JDBC_PASS", "SPRING_DATASOURCE_PASSWORD"),
-            "1234");
+            "sohyun");
 
     private static final OkHttpClient HTTP = new OkHttpClient();
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -74,7 +81,7 @@ public class DiaryAnalysisService {
     // ---------- 실행 진입점 (테스트 편의) ----------
     public static void main(String[] args) throws Exception {
         // 디버깅용 마스킹 로그(키 전체는 절대 출력 금지)
-        System.out.println("[OpenAI] key=" + mask(OPENAI_API_KEY));
+        System.out.println("[OpenAI] key=" + mask(getApiKey()));
         System.out.println("[OpenAI] url=" + OPENAI_URL + ", model=" + OPENAI_MODEL);
         System.out.println("[JDBC] url=" + JDBC_URL + ", user=" + JDBC_USER);
 
@@ -85,12 +92,20 @@ public class DiaryAnalysisService {
 
     /** diary_entries.entry_id를 분석해서 diary_analysis에 upsert */
     public void process(long entryId) throws Exception {
+        System.out.println("[DiaryAnalysisService] Using JDBC_URL=" + JDBC_URL + ", USER=" + JDBC_USER);
+
         String content = getDiaryContent(entryId);
         if (isBlank(content)) {
             throw new IllegalArgumentException("일기 내용이 없습니다: entry_id=" + entryId);
         }
 
-        AnalysisResult result = callChatGPT(content);
+        String apiKey = getApiKey();
+        if (isBlank(apiKey)) {
+            System.out.println("[DiaryAnalysis] OPENAI_API_KEY 없음 → 분석 스킵 (entry_id=" + entryId + ")");
+            return; // 키 없으면 조용히 건너뜀
+        }
+
+        AnalysisResult result = callChatGPT(content, apiKey);
         saveAnalysis(entryId, result);
     }
 
@@ -128,7 +143,7 @@ public class DiaryAnalysisService {
     }
 
     // ---------- OpenAI ----------
-    private AnalysisResult callChatGPT(String diaryContent) throws IOException {
+    private AnalysisResult callChatGPT(String diaryContent, String apiKey) throws IOException {
         String systemPrompt =
                 "너는 일기 분석기다. 다음 JSON 형식으로만 응답해.\n" +
                 "{ \"analysis_keywords\": string, \"happiness_score\": number, \"summary\": string }\n" +
@@ -148,7 +163,7 @@ public class DiaryAnalysisService {
 
         Request request = new Request.Builder()
                 .url(OPENAI_URL)
-                .addHeader("Authorization", "Bearer " + OPENAI_API_KEY)
+                .addHeader("Authorization", "Bearer " + apiKey)
                 .addHeader("Content-Type", "application/json")
                 .post(RequestBody.create(root.toString(), MediaType.get("application/json")))
                 .build();

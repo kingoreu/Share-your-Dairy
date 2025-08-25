@@ -101,38 +101,51 @@ public class LoginController {
     }
 
     private void goMain(ActionEvent event) {
-        try {
-            // var loader = new FXMLLoader(getClass().getResource("/fxml/mainFrame/Main.fxml"));
-            URL url = getClass().getResource("/fxml/mainFrame/Main.fxml");
-            System.out.println("Main.fxml resource url = " + url);
-
-            FXMLLoader loader = new FXMLLoader(url);
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            alert("화면 전환 실패: " + e.getMessage());
+    try {
+        URL url = getClass().getResource("/fxml/mainFrame/Main.fxml"); // classpath 절대경로
+        if (url == null) {
+            alert("화면 전환 실패: FXML을 찾지 못했습니다.\n경로: /fxml/mainFrame/Main.fxml");
+            return;
         }
+
+        FXMLLoader loader = new FXMLLoader(url);
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.getScene().setRoot(root);
+    } catch (Exception e) {
+        alert("화면 전환 실패: " + e.getMessage());
     }
+}
 
     // ───────── helpers ─────────
     private static String trim(String s){ return s==null? "" : s.trim(); }
     private static String esc(String s){ return s.replace("\\","\\\\").replace("\"","\\\""); }
     private void alert(String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("로그인 오류");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setTitle("로그인 오류");
+    alert.setHeaderText(null);
+    alert.setContentText(msg);
+    alert.setGraphic(null);
 
-        alert.setGraphic(null);
+    DialogPane dialogPane = alert.getDialogPane();
 
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets().add(
-                getClass().getResource("/css/login/alert.css").toExternalForm()
-        );
+    // css 경로가 없으면 조용히 패스 → NPE 방지
+    URL css = getClass().getResource("/css/login/alert.css"); // classpath 절대경로
+    if (css != null) {
+        dialogPane.getStylesheets().add(css.toExternalForm());
         dialogPane.getStyleClass().add("custom-alert");
+    }
 
-        alert.showAndWait();
+    // (선택) 아이콘도 null-safe로 붙이고, 없으면 스킵
+    try {
+        URL icon = getClass().getResource("/img/app-icon.png");
+        if (icon != null) {
+            ((Stage) dialogPane.getScene().getWindow())
+                    .getIcons().add(new javafx.scene.image.Image(icon.toExternalForm()));
+        }
+    } catch (Exception ignore) {}
+
+    alert.showAndWait();
     }
 
     // 이거 쓰는거임?
