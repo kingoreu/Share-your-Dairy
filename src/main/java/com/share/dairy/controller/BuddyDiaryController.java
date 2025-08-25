@@ -129,8 +129,8 @@ public class BuddyDiaryController {
     private Node loadAvatar(String id) {
         try {
             Image img = new Image(Objects.requireNonNullElse(
-                getClass().getResourceAsStream("/images/buddy/" + id + ".png"),
-                getClass().getResourceAsStream("/images/buddy/_fallback.png")
+                    getClass().getResourceAsStream("/images/buddy/" + id + ".png"),
+                    getClass().getResourceAsStream("/images/buddy/_fallback.png")
             ));
             ImageView iv = new ImageView(img);
             iv.setFitWidth(36); iv.setFitHeight(36);
@@ -184,10 +184,10 @@ public class BuddyDiaryController {
         StackPane card = new StackPane();
         card.setPrefHeight(170);
         card.setStyle(
-            "-fx-background-color:white;" +
-            "-fx-background-radius:16;" +
-            "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.12), 10, 0.2, 0, 2);" +
-            "-fx-padding:12;"
+                "-fx-background-color:white;" +
+                        "-fx-background-radius:16;" +
+                        "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.12), 10, 0.2, 0, 2);" +
+                        "-fx-padding:12;"
         );
         card.setCursor(Cursor.HAND);
 
@@ -241,10 +241,10 @@ public class BuddyDiaryController {
                     if (i < list.size()) {
                         DiaryEntry d = list.get(i);
                         four.add(new PreviewEntry(
-                            d.getEntryId(),
-                            d.getEntryDate(),
-                            nvl(d.getTitle()),
-                            nvl(d.getDiaryContent())
+                                d.getEntryId(),
+                                d.getEntryDate(),
+                                nvl(d.getTitle()),
+                                nvl(d.getDiaryContent())
                         ));
                     } else {
                         four.add(new PreviewEntry(null, null, "", "")); // 빈 칸
@@ -339,14 +339,18 @@ public class BuddyDiaryController {
 
     // ───────────────────────── 데모 버디 목록 ─────────────────────────
     private List<Buddy> fakeBuddies() {
+
+
         // 중요: id 자리에 **실제 user_id(문자열)** 를 넣어야 DB 조회가 됩니다.
         // 지금은 예시로 17, 23, 42, 58, 61을 넣어둡니다.
+        // *************************
+        // 백엔드랑 연결
         return List.of(
-            new Buddy("17", "K.K"), // ← 친구 A의 user_id
-            new Buddy("23", "NaKi"), // ← 친구 B의 user_id
-            new Buddy("42", "Guide"), // ← 친구 C의 user_id
-            new Buddy("58", "K.K"),
-            new Buddy("61", "K.K")
+                new Buddy("17", "K.K"), // ← 친구 A의 user_id
+                new Buddy("23", "NaKi"), // ← 친구 B의 user_id
+                new Buddy("42", "Guide"), // ← 친구 C의 user_id
+                new Buddy("58", "K.K"),
+                new Buddy("61", "K.K")
         );
     }
 

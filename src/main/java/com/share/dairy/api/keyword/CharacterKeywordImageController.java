@@ -32,15 +32,18 @@ public class CharacterKeywordImageController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping
-    public ResponseEntity<List<CharacterKeywordImage>> listByUser(@RequestParam long userId) throws SQLException {
-        return ResponseEntity.ok(service.findByUserId(userId));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable long id) throws SQLException {
         return service.deleteById(id) > 0 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/latest")
+    public ResponseEntity<CharacterKeywordImage> getLatestByUser(@RequestParam long userId) throws SQLException {
+        return service.findLatestByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 
 }

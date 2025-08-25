@@ -60,13 +60,13 @@ public class DiaryAnalysisService {
     // ====== DB 설정 (ENV만 사용, Spring 호환 키도 지원) ======
     private static final String JDBC_URL  = Objects.requireNonNullElse(
             envFirst("JDBC_URL", "SPRING_DATASOURCE_URL"),
-            "jdbc:mysql://localhost:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul");
+            "jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul");
     private static final String JDBC_USER = Objects.requireNonNullElse(
             envFirst("JDBC_USER", "SPRING_DATASOURCE_USERNAME"),
             "root");
     private static final String JDBC_PASS = Objects.requireNonNullElse(
             envFirst("JDBC_PASS", "SPRING_DATASOURCE_PASSWORD"),
-            "1234");
+            "sohyun");
 
     private static final OkHttpClient HTTP = new OkHttpClient();
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -85,6 +85,7 @@ public class DiaryAnalysisService {
 
     /** diary_entries.entry_id를 분석해서 diary_analysis에 upsert */
     public void process(long entryId) throws Exception {
+        System.out.println("[DiaryAnalysisService] Using JDBC_URL=" + JDBC_URL + ", USER=" + JDBC_USER);
         String content = getDiaryContent(entryId);
         if (isBlank(content)) {
             throw new IllegalArgumentException("일기 내용이 없습니다: entry_id=" + entryId);
@@ -131,10 +132,10 @@ public class DiaryAnalysisService {
     private AnalysisResult callChatGPT(String diaryContent) throws IOException {
         String systemPrompt =
                 "너는 일기 분석기다. 다음 JSON 형식으로만 응답해.\n" +
-                "{ \"analysis_keywords\": string, \"happiness_score\": number, \"summary\": string }\n" +
-                "analysis_keywords: 일기의 전체 의미를 대표하는 하나의 짧은 문구(1개 문장).\n" +
-                "happiness_score: 1~10 정수 (10 행복, 1 우울).\n" +
-                "summary: 3~5줄 요약.";
+                        "{ \"analysis_keywords\": string, \"happiness_score\": number, \"summary\": string }\n" +
+                        "analysis_keywords: 일기의 전체 의미를 대표하는 하나의 짧은 문구(1개 문장).\n" +
+                        "happiness_score: 1~10 정수 (10 행복, 1 우울).\n" +
+                        "summary: 3~5줄 요약.";
 
         String userPrompt = "일기 내용:\n" + diaryContent + "\n\nJSON만 반환해.";
 

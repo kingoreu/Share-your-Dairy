@@ -18,8 +18,9 @@ public class Router {
     private static final Deque<Parent> history = new ArrayDeque<>();
 
     private static final Map<String, String> ROUTES = Map.of(
-        "Home",     "/fxml/mainFrame/Main.fxml", // ← 기존 네 코드 그대로
-        "DiaryHub", "/fxml/diary/diary_hub/diary-hub-view.fxml"
+            "Home",     "/fxml/mainFrame/Main.fxml", // ← 기존 네 코드 그대로
+
+            "DiaryHub", "/fxml/diary/diary_hub/diary-hub-view.fxml"
     );
 
     public static void init(Stage s) {

@@ -1,19 +1,20 @@
 package com.share.dairy.controller.login;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.share.dairy.auth.UserSession;
+import com.share.dairy.model.enums.CharacterType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -58,27 +59,54 @@ public class LoginController {
                     if (err != null) { alert("서버 연결 실패: " + err.getMessage()); return; }
 
                     if (res.statusCode() == 200) {
-                        // ✅ 로그인 성공 → 응답 JSON에서 사용자 정보 추출해 세션에 저장
-                        String body = res.body();
+                        try {
+                            // 서버 응답(JSON)에서 사용자 정보 파싱
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonNode userNode = objectMapper.readTree(res.body());
 
-                        long   userId        = parseLong(jget(body, "userId", "id"), -1);
-                        String loginId       = firstNonEmpty(jget(body, "loginId", "username"), id);
-                        String nickname      = firstNonEmpty(jget(body, "nickname", "nick"), "");
-                        String email         = firstNonEmpty(jget(body, "userEmail", "email"), "");
-                        String characterType = firstNonEmpty(jget(body, "characterType", "character_type"), "RACCOON");
+                            CharacterType type = CharacterType.fromString(userNode.get("characterType").asText());
+                            // UserSession 객체에 사용자 정보 저장
+                            UserSession.set(new UserSession(
+                                    userNode.path("userId").asLong(),
+                                    userNode.path("loginId").asText(),
+                                    userNode.path("nickname").asText(),
+                                    userNode.path("userEmail").asText(),
+                                    type
+                            ));
 
-                        UserSession.set(new UserSession(userId, loginId, nickname, email, characterType));
-
-                        goMain(event);
+                            System.out.println("login res=" + res.body());
+                            goMain(event); // 메인 화면으로 전환
+                        } catch (IOException e) {
+                            alert("서버 응답 파싱 실패: " + e.getMessage());
+                        }
                     } else {
-                        alert("로그인 실패 (" + res.statusCode() + "): " + res.body());
+                        alert("로그인 실패: " + res.body());
                     }
+                    // ✅ 로그인 성공 → 응답 JSON에서 사용자 정보 추출해 세션에 저장
+//                        String body = res.body();
+//
+//                        long   userId        = parseLong(jget(body, "userId", "id"), -1);
+//                        String loginId       = firstNonEmpty(jget(body, "loginId", "username"), id);
+//                        String nickname      = firstNonEmpty(jget(body, "nickname", "nick"), "");
+//                        String email         = firstNonEmpty(jget(body, "userEmail", "email"), "");
+//                        CharacterType characterType = firstNonEmpty(jget(body, "characterType", "character_type"), "RACCOON");
+//
+//                        UserSession.set(new UserSession(userId, loginId, nickname, email, characterType));
+//
+//                        goMain(event);
+//                    } else {
+//                        alert("로그인 실패 (" + res.statusCode() + "): " + res.body());
+//                    }
                 }));
     }
 
     private void goMain(ActionEvent event) {
         try {
-            var loader = new FXMLLoader(getClass().getResource("/fxml/mainFrame/Main.fxml"));
+            // var loader = new FXMLLoader(getClass().getResource("/fxml/mainFrame/Main.fxml"));
+            URL url = getClass().getResource("/fxml/mainFrame/Main.fxml");
+            System.out.println("Main.fxml resource url = " + url);
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
@@ -90,8 +118,24 @@ public class LoginController {
     // ───────── helpers ─────────
     private static String trim(String s){ return s==null? "" : s.trim(); }
     private static String esc(String s){ return s.replace("\\","\\\\").replace("\"","\\\""); }
-    private static void alert(String msg){ new Alert(Alert.AlertType.ERROR, msg).showAndWait(); }
+    private void alert(String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("로그인 오류");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
 
+        alert.setGraphic(null);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(
+                getClass().getResource("/css/login/alert.css").toExternalForm()
+        );
+        dialogPane.getStyleClass().add("custom-alert");
+
+        alert.showAndWait();
+    }
+
+    // 이거 쓰는거임?
     private static String firstNonEmpty(String a, String b){
         return (a != null && !a.isBlank()) ? a : b;
     }

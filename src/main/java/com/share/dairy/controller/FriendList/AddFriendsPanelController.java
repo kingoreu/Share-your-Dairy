@@ -3,6 +3,7 @@ package com.share.dairy.controller.FriendList;
 import com.share.dairy.auth.UserSession;
 import com.share.dairy.controller.OverlayChildController;
 import com.share.dairy.dao.friend.FriendshipDao;
+import com.share.dairy.model.enums.CharacterType;
 import com.share.dairy.model.enums.FriendshipStatus;
 import com.share.dairy.model.friend.Friendship;
 import com.share.dairy.util.DBConnection;
@@ -34,16 +35,8 @@ public class AddFriendsPanelController extends OverlayChildController {
     private final FriendshipDao friendshipDao = new FriendshipDao();
     private Long   foundUserId   = null;
     private String foundNickname = null;
-    private String foundCharacter= null;
+    private CharacterType foundCharacter= null;
 
-    private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
-        Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
-        Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
-        Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
-        Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
-        Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
-        Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
-    );
 
     /* =========================
      *           INIT
@@ -53,7 +46,7 @@ public class AddFriendsPanelController extends OverlayChildController {
         tfSearchId.setOnAction(e -> onSearch());
         btnAdd.setDisable(true);
         lblResult.setText("");
-        setCharacterPreview("RACCOON");
+        setCharacterPreview(foundCharacter);
         imgCharacter.setPreserveRatio(true);
         imgCharacter.setSmooth(true);
         imgCharacter.setCache(true);
@@ -99,7 +92,7 @@ public class AddFriendsPanelController extends OverlayChildController {
             foundUserId = null; foundNickname = null; foundCharacter = null;
             btnAdd.setDisable(true);
             lblResult.setText("검색 결과가 없습니다.");
-            setCharacterPreview("RACCOON");
+            setCharacterPreview(CharacterType.ZZUNI);
             return;
         }
         if (u.userId == me.getUserId()) {
@@ -112,7 +105,7 @@ public class AddFriendsPanelController extends OverlayChildController {
 
         foundUserId   = u.userId;
         foundNickname = (u.nickname != null && !u.nickname.isBlank()) ? u.nickname : u.loginId;
-        foundCharacter= normalize(u.character);
+        foundCharacter= (u.character);
         setCharacterPreview(foundCharacter);
 
         // 현재 관계 상태 한 번에 확인
@@ -133,6 +126,7 @@ public class AddFriendsPanelController extends OverlayChildController {
         try (Connection con = DBConnection.getConnection()) {
             // 1) 선제 상태 확인 (양방향 1회)
             var either = friendshipDao.findEither(con, me.getUserId(), foundUserId);
+
             if (either.isPresent()) {
                 Friendship f = either.get();
                 if (f.getFriendshipStatus() == FriendshipStatus.ACCEPTED) {
@@ -186,7 +180,7 @@ public class AddFriendsPanelController extends OverlayChildController {
                 long requester = f.getUserId();
                 var ui = fetchUser(requester);
                 if (ui == null) continue;
-                list.add(new PendingRow(requester, ui.loginId, ui.nickname, normalize(ui.character)));
+                list.add(new PendingRow(requester, ui.loginId, ui.nickname, ui.character));
             }
             lvPending.getItems().setAll(list);
         } catch (Exception e) {
@@ -218,9 +212,10 @@ public class AddFriendsPanelController extends OverlayChildController {
     /* =========================
      *           UTIL
      * ========================= */
-    private void setCharacterPreview(String type) {
-        String file = CHARACTER_FILE.getOrDefault(normalize(type), "raccoon.png");
-        try (InputStream in = getClass().getResourceAsStream("/character/" + file)) {
+    private void setCharacterPreview(CharacterType type) {
+        if (type == null) type = CharacterType.ZZUNI;
+        // String file = CHARACTER_FILE.getOrDefault(normalize(type), "raccoon.png");
+        try (InputStream in = getClass().getResourceAsStream(type.getImagePath())) {
             imgCharacter.setImage(in != null ? new Image(in) : null);
         } catch (Exception ignored) {}
     }
@@ -244,8 +239,8 @@ public class AddFriendsPanelController extends OverlayChildController {
 
     /* ===== 사용자 조회 도우미 ===== */
     private static class UserMini {
-        long userId; String loginId; String nickname; String character;
-        UserMini(long id, String lid, String nn, String ch) { userId=id; loginId=lid; nickname=nn; character=ch; }
+        long userId; String loginId; String nickname; CharacterType character;
+        UserMini(long id, String lid, String nn, CharacterType ch) { userId=id; loginId=lid; nickname=nn; character=ch; }
     }
     private UserMini fetchUser(long userId) {
         String sql = "SELECT user_id, login_id, nickname, character_type FROM users WHERE user_id=?";
@@ -253,8 +248,8 @@ public class AddFriendsPanelController extends OverlayChildController {
             ps.setLong(1, userId);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) return new UserMini(
-                    rs.getLong("user_id"), rs.getString("login_id"),
-                    rs.getString("nickname"), rs.getString("character_type")
+                        rs.getLong("user_id"), rs.getString("login_id"),
+                        rs.getString("nickname"), CharacterType.fromString(rs.getString("character_type"))
                 );
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -271,8 +266,8 @@ public class AddFriendsPanelController extends OverlayChildController {
             ps.setString(1, q); ps.setString(2, q);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) return new UserMini(
-                    rs.getLong("user_id"), rs.getString("login_id"),
-                    rs.getString("nickname"), rs.getString("character_type")
+                        rs.getLong("user_id"), rs.getString("login_id"),
+                        rs.getString("nickname"), CharacterType.fromString(rs.getString("character_type"))
                 );
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -298,8 +293,8 @@ public class AddFriendsPanelController extends OverlayChildController {
         @Override protected void updateItem(PendingRow it, boolean empty) {
             super.updateItem(it, empty);
             if (empty || it == null) { setGraphic(null); return; }
-            String file = CHARACTER_FILE.getOrDefault(it.character, "raccoon.png");
-            try (InputStream in = getClass().getResourceAsStream("/character/" + file)) {
+            // String file = CHARACTER_FILE.getOrDefault(it.character, "raccoon.png");
+            try (InputStream in = getClass().getResourceAsStream(it.character.getImagePath())) {
                 icon.setImage(in != null ? new Image(in) : null);
             } catch (Exception ignored) {}
             name.setText(it.nickname + " (" + it.loginId + ")");
@@ -308,5 +303,6 @@ public class AddFriendsPanelController extends OverlayChildController {
             setGraphic(root);
         }
     }
-    private record PendingRow(long userId, String loginId, String nickname, String character) {}
+    private record PendingRow(long userId, String loginId, String nickname, CharacterType character) {}
+
 }

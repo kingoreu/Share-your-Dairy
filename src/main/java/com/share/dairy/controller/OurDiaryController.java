@@ -62,32 +62,32 @@ public class OurDiaryController {
     /* ================== 라이프사이클 ================== */
 
     @FXML
-public void initialize() {
-    // 1) ESC → 허브 복귀
-    cardsFlow.sceneProperty().addListener((obs, oldScene, scene) -> {
-        if (scene != null) {
-            scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-                if (e.getCode() == KeyCode.ESCAPE) 
-                {
-                    goHub();
-                    e.consume();
-                }
-            });
-        }
-    });
+    public void initialize() {
+        // 1) ESC → 허브 복귀
+        cardsFlow.sceneProperty().addListener((obs, oldScene, scene) -> {
+            if (scene != null) {
+                scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+                    if (e.getCode() == KeyCode.ESCAPE)
+                    {
+                        goHub();
+                        e.consume();
+                    }
+                });
+            }
+        });
 
-    // 2) Our Diary 카드 영역 레이아웃/배경
-    cardsFlow.setHgap(36);                // 가로 간격
-    cardsFlow.setVgap(36);                // 세로 간격
-    cardsFlow.setPadding(new Insets(26)); // 패딩
-    cardsFlow.setStyle(
-        "-fx-background-color: rgba(255,255,255,0.40); -fx-background-radius: 14;"
-    );
+        // 2) Our Diary 카드 영역 레이아웃/배경
+        cardsFlow.setHgap(36);                // 가로 간격
+        cardsFlow.setVgap(36);                // 세로 간격
+        cardsFlow.setPadding(new Insets(26)); // 패딩
+        cardsFlow.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.40); -fx-background-radius: 14;"
+        );
 
-    // 3) 초기 렌더링
-    List<DiaryCardData> data = FAKE_DATA ? fakeCards() : fetchFromDB();
-    renderCards(data);
-}
+        // 3) 초기 렌더링
+        List<DiaryCardData> data = FAKE_DATA ? fakeCards() : fetchFromDB();
+        renderCards(data);
+    }
 
 
 
@@ -111,62 +111,62 @@ public void initialize() {
      * - DB 붙으면 생성 서비스 호출 후 목록을 다시 로드(fetchFromDB)하면 됨
      */
     @FXML
-public void onNew() {
-    try {
-        // 0) 경로 확인
-        String fxml = "/fxml/diary/our_diary/create-share-diary-dialog.fxml";
-        var url = OurDiaryController.class.getResource(fxml);
-        System.out.println("[DEBUG] dialog fxml url = " + url);
-        if (url == null) {
-            new Alert(Alert.AlertType.ERROR, "FXML 파일을 못 찾았습니다: " + fxml).showAndWait();
-            return; // 경로 문제 확정
-        }
-
-        // 1) 로드
-        FXMLLoader loader = new FXMLLoader(url);
-        Parent root = loader.load();
-
-        // 2) 컨트롤러
-        CreateShareDiaryDialogController ctrl = loader.getController();
-
-        // 이하 동일…
-        List<CreateShareDiaryDialogController.BuddyLite> buddies = List.of(
-            new CreateShareDiaryDialogController.BuddyLite("kk","K.K"),
-            new CreateShareDiaryDialogController.BuddyLite("naki","NaKi"),
-            new CreateShareDiaryDialogController.BuddyLite("gd","Guide")
-        );
-        ctrl.setBuddies(buddies);
-
-        Stage owner = (Stage) cardsFlow.getScene().getWindow();
-        Stage dialog = new Stage();
-        dialog.initOwner(owner);
-        dialog.initModality(Modality.WINDOW_MODAL);
-        dialog.setTitle("새 공유 일기장");
-        dialog.setScene(new Scene(root));
-
-        owner.getScene().getRoot().setOpacity(0.6);
+    public void onNew() {
         try {
-            dialog.showAndWait();
-        } finally {
-            owner.getScene().getRoot().setOpacity(1.0);
+            // 0) 경로 확인
+            String fxml = "/fxml/diary/our_diary/create-share-diary-dialog.fxml";
+            var url = OurDiaryController.class.getResource(fxml);
+            System.out.println("[DEBUG] dialog fxml url = " + url);
+            if (url == null) {
+                new Alert(Alert.AlertType.ERROR, "FXML 파일을 못 찾았습니다: " + fxml).showAndWait();
+                return; // 경로 문제 확정
+            }
+
+            // 1) 로드
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+
+            // 2) 컨트롤러
+            CreateShareDiaryDialogController ctrl = loader.getController();
+
+            // 이하 동일… *********************
+            List<CreateShareDiaryDialogController.BuddyLite> buddies = List.of(
+                    new CreateShareDiaryDialogController.BuddyLite("kk","K.K"),
+                    new CreateShareDiaryDialogController.BuddyLite("naki","NaKi"),
+                    new CreateShareDiaryDialogController.BuddyLite("gd","Guide")
+            );
+            ctrl.setBuddies(buddies);
+
+            Stage owner = (Stage) cardsFlow.getScene().getWindow();
+            Stage dialog = new Stage();
+            dialog.initOwner(owner);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.setTitle("새 공유 일기장");
+            dialog.setScene(new Scene(root));
+
+            owner.getScene().getRoot().setOpacity(0.6);
+            try {
+                dialog.showAndWait();
+            } finally {
+                owner.getScene().getRoot().setOpacity(1.0);
+            }
+
+            ctrl.getResult().ifPresent(res -> {
+                var idToName = buddies.stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                CreateShareDiaryDialogController.BuddyLite::id,
+                                CreateShareDiaryDialogController.BuddyLite::name));
+                var names = res.buddyIds().stream().map(id -> idToName.getOrDefault(id, id)).toList();
+                var list = new java.util.ArrayList<>(FAKE_DATA ? fakeCards() : fetchFromDB());
+                list.add(new DiaryCardData(res.title(), names, java.time.LocalDate.now()));
+                renderCards(list);
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace(); // 콘솔에 실제 예외 출력
+            new Alert(Alert.AlertType.ERROR, "모달 오픈 실패: " + e.getClass().getSimpleName() + " - " + e.getMessage()).showAndWait();
         }
-
-        ctrl.getResult().ifPresent(res -> {
-            var idToName = buddies.stream()
-                .collect(java.util.stream.Collectors.toMap(
-                    CreateShareDiaryDialogController.BuddyLite::id,
-                    CreateShareDiaryDialogController.BuddyLite::name));
-            var names = res.buddyIds().stream().map(id -> idToName.getOrDefault(id, id)).toList();
-            var list = new java.util.ArrayList<>(FAKE_DATA ? fakeCards() : fetchFromDB());
-            list.add(new DiaryCardData(res.title(), names, java.time.LocalDate.now()));
-            renderCards(list);
-        });
-
-    } catch (Exception e) {
-        e.printStackTrace(); // 콘솔에 실제 예외 출력
-        new Alert(Alert.AlertType.ERROR, "모달 오픈 실패: " + e.getClass().getSimpleName() + " - " + e.getMessage()).showAndWait();
     }
-}
 
 
     /* ================== 카드 렌더링 ================== */
@@ -179,44 +179,45 @@ public void onNew() {
         }
     }
 
-// 개별 카드 UI 구성 (설계도 느낌)
-private Node buildCard(DiaryCardData d) {
-    VBox card = new VBox(8);
-    card.setPadding(new Insets(16));
-    card.setPrefWidth(240); // 카드 폭 고정
-    // 흰 카드 + 둥근 모서리 + 부드러운 그림자
-    card.setStyle(
-        "-fx-background-color: white;" +
-        "-fx-background-radius:18;" +
-        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);"
-    );
+    // 개별 카드 UI 구성 (설계도 느낌)
+    private Node buildCard(DiaryCardData d) {
+        VBox card = new VBox(8);
+        card.setPadding(new Insets(16));
+        card.setPrefWidth(240); // 카드 폭 고정
+        // 흰 카드 + 둥근 모서리 + 부드러운 그림자
+        card.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius:18;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);"
+        );
 
-    // 제목
-    Label title = new Label(d.title);
-    title.setStyle("-fx-font-size:16; -fx-font-weight:800; -fx-text-fill:#2d2150;");
+        // 제목
+        Label title = new Label(d.title);
+        title.setStyle("-fx-font-size:16; -fx-font-weight:800; -fx-text-fill:#2d2150;");
 
-    // 멤버 목록
-    VBox membersBox = new VBox(6);
-    for (String m : d.members) {
-        Label row = new Label("👤 " + m);
-        row.setStyle("-fx-font-size:13; -fx-text-fill:#2d2150;");
-        membersBox.getChildren().add(row);
+        // 멤버 목록
+        VBox membersBox = new VBox(6);
+        for (String m : d.members) {
+            Label row = new Label("👤 " + m);
+            row.setStyle("-fx-font-size:13; -fx-text-fill:#2d2150;");
+            membersBox.getChildren().add(row);
+        }
+
+        // 시작 날짜
+        Label start = new Label("start " + d.startDate);
+        start.setStyle("-fx-font-size:12; -fx-text-fill:#6b6b6b;");
+
+        // 클릭 안내 (유지)
+        card.setOnMouseClicked(e ->
+                new Alert(Alert.AlertType.INFORMATION, d.title + " 열기(상세는 추후 연결)").show()
+        );
+
+        card.getChildren().addAll(title, membersBox, start);
+        return card;
     }
 
-    // 시작 날짜
-    Label start = new Label("start " + d.startDate);
-    start.setStyle("-fx-font-size:12; -fx-text-fill:#6b6b6b;");
-
-    // 클릭 안내 (유지)
-    card.setOnMouseClicked(e ->
-        new Alert(Alert.AlertType.INFORMATION, d.title + " 열기(상세는 추후 연결)").show()
-    );
-
-    card.getChildren().addAll(title, membersBox, start);
-    return card;
-}
-
     /** 디자인 확인용 더미 카드 */
+    // 이것도 ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
     private List<DiaryCardData> fakeCards() {
         List<DiaryCardData> list = new ArrayList<>();
         list.add(new DiaryCardData("TITLE 1",
@@ -252,4 +253,3 @@ private Node buildCard(DiaryCardData d) {
         }
     }
 }
-

@@ -24,6 +24,7 @@ public class CharacterKeywordImageService {
         var m = new CharacterKeywordImage();
         m.setAnalysisId(req.getAnalysisId());
         m.setUserId(req.getUserId());
+        m.setPathOrUrl(req.getPathOrUrl());
         m.setCreatedAt(LocalDateTime.now());
         return dao.insert(m);
     }
@@ -32,8 +33,9 @@ public class CharacterKeywordImageService {
         return dao.findById(id);
     }
 
-    public List<CharacterKeywordImage> findByUserId(long userId) throws SQLException {
-        return dao.findByUserId(userId);
+    // 최신 이미지 찾기
+    public Optional<CharacterKeywordImage> findLatestByUserId(long userId) throws SQLException {
+        return dao.findLatestByUserId(userId);
     }
 
     public int deleteById(long id) throws SQLException {

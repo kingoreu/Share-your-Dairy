@@ -10,11 +10,12 @@
    ========================= */
 
 /* 1. 전역 폰트 & 글자색 */
-.root {
-    -fx-font-family: "Segoe UI", "Malgun Gothic", sans-serif;
-    -fx-font-size: 14px;
+* {
+    -fx-font-family: "DungGeunmo";
+    -fx-font-size: 18px;
     -fx-text-fill: #333;
 }
+/* 이 부분 바꿔야할듯? */
 
 /* 2. (옵션) 루트 컨테이너가 투명해야 할 때 */
 .root-pane {
@@ -144,10 +145,10 @@
 .chip-lg { -fx-pref-width: 160; -fx-pref-height: 90; -fx-font-size: 15px; }
 
 /* 8. Mood Graph(라인차트) 톤 맞추기 */
- .chart-plot-background {
-   -fx-background-color: transparent;   /* 또는 #fdeaf4 */
-   -fx-background-radius: 18;
-   -fx-background-insets: 0;
+.chart-plot-background {
+    -fx-background-color: transparent;   /* 또는 #fdeaf4 */
+    -fx-background-radius: 18;
+    -fx-background-insets: 0;
 }
 .chart-content { -fx-padding: 18; }
 .chart-vertical-grid-lines, .chart-horizontal-grid-lines { -fx-stroke: #e9f1fb; } /* 연한 보조선 */
@@ -172,20 +173,20 @@
 
 /* 플로팅 버튼 */
 .fab {
-  -fx-background-color: #2b1c6b;
-  -fx-background-radius: 999;
-  -fx-min-width: 56;
-  -fx-min-height: 56;
-  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10,0,0,3);
+    -fx-background-color: #2b1c6b;
+    -fx-background-radius: 999;
+    -fx-min-width: 56;
+    -fx-min-height: 56;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10,0,0,3);
 }
 .fab:hover { -fx-background-color: #3c2a8f; }
 
 /* 카드 스타일 */
 .diary-card {
-  -fx-background-color: white;
-  -fx-background-radius: 12;
-  -fx-padding: 16;
-  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10,0,0,3);
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10,0,0,3);
 }
 .diary-card .label { -fx-text-fill: #333; -fx-font-size: 14px; }
 
@@ -204,16 +205,16 @@
 
 /* 상단 구분선 */
 .top-sep .line {
-  -fx-background-color: #e8cfdc;
-  -fx-background-insets: 0;
-  -fx-padding: 0.75;
+    -fx-background-color: #e8cfdc;
+    -fx-background-insets: 0;
+    -fx-padding: 0.75;
 }
 
 /* 좌측 사이드바: 연분홍 배경 + 오른쪽 1px 경계 */
 .sidebar {
-  -fx-background-color: #f8e3ec;
-  -fx-border-color: transparent #e6c9d7 transparent transparent; /* top right bottom left */
-  -fx-border-width: 0 1 0 0;
+    -fx-background-color: #f8e3ec;
+    -fx-border-color: transparent #e6c9d7 transparent transparent; /* top right bottom left */
+    -fx-border-width: 0 1 0 0;
 }
 
 
@@ -296,74 +297,74 @@
 /* 2) 버튼 간격 띄우기 (사이드바 컨테이너가 VBox일 때 적용) */
 .sidebar {
     -fx-alignment: BOTTOM_CENTER; /* VBox 자식들을 아래로 정렬 */
-    -fx-spacing: 32;              /* 버튼 사이 간격은 유지/조금 넓게 */
-    -fx-padding: 12 12 8 12;            /* 버튼 사이 간격 */
+    -fx-spacing: 32; /* 버튼 사이 간격은 유지/조금 넓게 */
+    -fx-padding: 12 12 8 12; /* 버튼 사이 간격 */
 
-/* ===== 왼쪽 3개 버튼을 화면에서 더 아래로 내리기 (레이아웃 영향 없이 시각적 이동) ===== */
-.sidebar .button,
-.sidebar .toggle-button {
-    -fx-translate-y: 120;   /* 필요하면 100~160 사이로 한 번에 조절 가능 */
-}
+    /* ===== 왼쪽 3개 버튼을 화면에서 더 아래로 내리기 (레이아웃 영향 없이 시각적 이동) ===== */
+    .sidebar .button,
+    .sidebar .toggle-button {
+        -fx-translate-y: 120;   /* 필요하면 100~160 사이로 한 번에 조절 가능 */
+    }
 
-/* 제목 라벨만 강제로 가운데 정렬 (다른 건 영향 없음) */
-#titleLabel {
-    -fx-max-width: Infinity;         /* 라벨이 가로 폭을 다 먹도록 */
-    -fx-alignment: center;           /* 라벨 내부 정렬 */
-    -fx-text-alignment: center;      /* 여러 줄일 때도 가운데 */
-}
-/* ===== Sidebar 아이콘 배지(버튼용) ===== */
-.sidebar .button { 
-    -fx-content-display: TOP;      /* 아이콘 위, 텍스트 아래 */
-    -fx-graphic-text-gap: 8;
-    -fx-alignment: center;
-}
+    /* 제목 라벨만 강제로 가운데 정렬 (다른 건 영향 없음) */
+    #titleLabel {
+        -fx-max-width: Infinity;         /* 라벨이 가로 폭을 다 먹도록 */
+        -fx-alignment: center;           /* 라벨 내부 정렬 */
+        -fx-text-alignment: center;      /* 여러 줄일 때도 가운데 */
+    }
+    /* ===== Sidebar 아이콘 배지(버튼용) ===== */
+    .sidebar .button {
+        -fx-content-display: TOP;      /* 아이콘 위, 텍스트 아래 */
+        -fx-graphic-text-gap: 8;
+        -fx-alignment: center;
+    }
 
-/* 아이콘 배경(둥근 네모 배지) */
-.icon-badge {
-    -fx-min-width: 44;  -fx-min-height: 44;
-    -fx-max-width: 44;  -fx-max-height: 44;
-    -fx-background-color: white;
-    -fx-background-radius: 14;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 2);
-    -fx-alignment: center;
-}
+    /* 아이콘 배경(둥근 네모 배지) */
+    .icon-badge {
+        -fx-min-width: 44;  -fx-min-height: 44;
+        -fx-max-width: 44;  -fx-max-height: 44;
+        -fx-background-color: white;
+        -fx-background-radius: 14;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 2);
+        -fx-alignment: center;
+    }
 
-/* 이모지 크기/색 */
-.icon-emoji {
-    -fx-font-size: 22px;
-    -fx-text-fill: #2b1c6b;
-}
-.hub-root #titleLabel {
-  -fx-font-family: "Pixel", "Malgun Gothic", "Segoe UI", sans-serif;
-  -fx-font-size: 28px;
-  -fx-text-fill: black;
-  -fx-padding: 12 0 10 0;
-  -fx-alignment: center;
-}
+    /* 이모지 크기/색 */
+    .icon-emoji {
+        -fx-font-size: 22px;
+        -fx-text-fill: #2b1c6b;
+    }
+    .hub-root #titleLabel {
+        -fx-font-family: "Pixel", "Malgun Gothic", "Segoe UI", sans-serif;
+        -fx-font-size: 28px;
+        -fx-text-fill: black;
+        -fx-padding: 12 0 10 0;
+        -fx-alignment: center;
+    }
 }
 /* === Calendar === */
 
 /* GridPane 자체 배경/간격(필요시) */
 #calendarGrid {
-  -fx-background-color: transparent; /* 또는 white */
+    -fx-background-color: transparent; /* 또는 white */
 }
 
 /* 요일 헤더(Label) */
 .day-header {
-  -fx-font-weight: bold;
-  -fx-text-fill: #333333;
-  -fx-alignment: center;
-  -fx-padding: 6 0;
-  -fx-background-color: #ffdbe7;
-  -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-alignment: center;
+    -fx-padding: 6 0;
+    -fx-background-color: #ffdbe7;
+    -fx-background-radius: 8;
 }
 .day-number { -fx-font-weight: bold; -fx-padding: 4 0 6 0; }
 .grid-cell {
-  -fx-background-color: white;
-  -fx-border-color: #ddd;
-  -fx-background-radius: 8;
-  -fx-border-radius: 8;
-  -fx-padding: 6;
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 6;
 }
 .grid-cell:hover { -fx-background-color: #ffeef5; -fx-cursor: hand; }
 .grid-cell.today { -fx-border-color: #f48cab; -fx-border-width: 2; }

@@ -178,14 +178,14 @@ public class CharacterSelectController {
             iv.setPreserveRatio(true);
 
             // 선택형으로 쓰려면 ToggleButton 사용 (주석 해제)
-             ToggleButton btn = new ToggleButton();
-             btn.setGraphic(iv);
-             btn.setToggleGroup(group);
-             btn.setUserData(imagePaths.get(i));
-             btn.getStyleClass().add("character-button");
-             btn.setFocusTraversable(true);
+            ToggleButton btn = new ToggleButton();
+            btn.setGraphic(iv);
+            btn.setToggleGroup(group);
+            btn.setUserData(imagePaths.get(i));
+            btn.getStyleClass().add("character-button");
+            btn.setFocusTraversable(true);
 
-             characterBox.getChildren().add(btn);
+            characterBox.getChildren().add(btn);
         }
 
         pageInfoLabel.setText((pageIndex + 1) + "/" + pageCount);
