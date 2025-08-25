@@ -1,0 +1,34 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+app:
+  media:
+    root-dir: ./generated-images
+    url-prefix: /media/
+  characters:
+    root-dir: ./base-characters
+
+openai:
+  api-key: ${OPENAI_API_KEY:}        # 비어있으면 분석 스킵(코드에서 가드 권장)
+  api-url: https://api.openai.com/v1/chat/completions
+  model: gpt-4o-mini
+
+spring:
+  datasource:
+    url: ${JDBC_URL}                  # ← .env 사용
+    username: ${JDBC_USER}            # ← .env 사용
+    password: ${JDBC_PASS}            # ← .env 사용
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+  level:
+    com.share.dairy.service.diary_analysis: DEBUG

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:controller="com.share.dairy.controller.FriendList.MyInfoPanelController"
+            xmlns:fx="http://javafx.com/fxml"
+            prefWidth="1024" prefHeight="640"
+            styleClass="root"
+            stylesheets="@/css/friendlist.css">
+
+    <!-- ========== 상단 헤더 ========== -->
+    <top>
+        <VBox spacing="10">
+            <StackPane styleClass="title-row">
+                <padding><Insets top="16" right="24" bottom="8" left="24"/></padding>
+
+                <Button fx:id="btnHomeTop" styleClass="home-btn" onAction="#goHome"
+                        StackPane.alignment="CENTER_LEFT">
+                    <graphic>
+                        <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
+                            <image><Image url="@/common_images/home-icon.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+                <Label text="MY Info" styleClass="title" StackPane.alignment="CENTER"/>
+            </StackPane>
+            <Separator styleClass="title-sep"/>
+        </VBox>
+    </top>
+
+    <!-- ========== 좌측 사이드바 ========== -->
+    <left>
+        <VBox spacing="18" alignment="TOP_CENTER"
+              prefWidth="170" minWidth="170" maxWidth="170"
+              styleClass="sidebar">
+
+            <!-- 현재 화면: MY Info -->
+            <Button fx:id="btnMyInfo" disable="true"
+                    prefWidth="130" prefHeight="120" styleClass="side-btn active">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image><Image url="@/common_images/myinfo-icon.png"/></image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="MY"   styleClass="side-label-top"/>
+                        <Label text="Info" styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
+
+            <!-- Add Friends -->
+            <Button fx:id="btnAddFriends" onAction="#goAddFriends"
+                    prefWidth="130" prefHeight="120" styleClass="side-btn">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image><Image url="@/common_images/addfriends-icon.png"/></image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="ADD"     styleClass="side-label-top"/>
+                        <Label text="Friends" styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
+
+            <!-- Buddy List -->
+            <Button fx:id="btnBuddyList" onAction="#goBuddyList"
+                    prefWidth="130" prefHeight="120" styleClass="side-btn">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image><Image url="@/common_images/buddylist-icon.png"/></image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="BUDDY" styleClass="side-label-top"/>
+                        <Label text="List"  styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- ========== 중앙 컨텐츠 ========== -->
+    <center>
+        <StackPane alignment="TOP_CENTER">
+            <StackPane styleClass="content-wrap"
+                       maxWidth="880" prefWidth="880"
+                       maxHeight="540" prefHeight="540">
+                <AnchorPane>
+                    <StackPane AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+                               AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"
+                               styleClass="panel">
+
+                        <GridPane hgap="24" vgap="0" styleClass="grid">
+                            <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="48" hgrow="ALWAYS"/>
+                                <ColumnConstraints percentWidth="52" hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <!-- 좌: 캐릭터 프리뷰 카드 -->
+                            <StackPane GridPane.columnIndex="0" alignment="CENTER">
+                                <StackPane fx:id="card" styleClass="character-card"
+                                minWidth="260" prefWidth="380" maxWidth="420"
+                                minHeight="260" prefHeight="380" maxHeight="420">
+                                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                                    <!-- 컨트롤러가 동적으로 이미지 세팅 -->
+                                    <ImageView fx:id="imgCharacter" preserveRatio="true"/>
+                                </StackPane>
+                            </StackPane>
+
+                            <!-- 우: 폼 -->
+                            <VBox GridPane.columnIndex="1" spacing="16" alignment="TOP_LEFT">
+                                <GridPane fx:id="formGrid" hgap="16" vgap="14">
+                                    <columnConstraints>
+                                        <ColumnConstraints minWidth="90" prefWidth="110"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                    </columnConstraints>
+
+                                    <Label text="ID"        GridPane.rowIndex="0" styleClass="field-label"/>
+                                    <TextField fx:id="tfId" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                               editable="false" styleClass="input"
+                                               maxWidth="Infinity"/>
+
+                                    <Label text="password"         GridPane.rowIndex="1" styleClass="field-label"/>
+                                    <PasswordField fx:id="pfPassword" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                                   editable="false" styleClass="input"
+                                                   promptText="••••" maxWidth="Infinity"/>
+
+                                    <Label text="E-mail"        GridPane.rowIndex="2" styleClass="field-label"/>
+                                    <TextField fx:id="tfEmail"  GridPane.rowIndex="2" GridPane.columnIndex="1"
+                                               editable="false" styleClass="input"
+                                               promptText="value@domain.com" maxWidth="Infinity"/>
+
+                                    <Label text="Nickname"         GridPane.rowIndex="3" styleClass="field-label"/>
+                                    <TextField fx:id="tfNickname"  GridPane.rowIndex="3" GridPane.columnIndex="1"
+                                               editable="false" styleClass="input"
+                                               maxWidth="Infinity"/>
+
+                                    <Label text="Character"        GridPane.rowIndex="4" styleClass="field-label"/>
+                                    <ComboBox fx:id="cbCharacter"  GridPane.rowIndex="4" GridPane.columnIndex="1"
+                                              disable="true" maxWidth="Infinity"/>
+                                </GridPane>
+
+                                <Label fx:id="lblHint" text="" styleClass="hint-text" wrapText="true"/>
+
+                                <HBox alignment="CENTER_RIGHT">
+                                    <!-- ⛳ 여기: <String> 요소 대신 한 줄 속성으로 -->
+                                    <Button fx:id="btnEdit" text="Edit" onAction="#onEditToggle"
+                                            styleClass="action-btn accent wide"/>
+                                </HBox>
+                            </VBox>
+                        </GridPane>
+                    </StackPane>
+                </AnchorPane>
+            </StackPane>
+        </StackPane>
+    </center>
+</BorderPane>

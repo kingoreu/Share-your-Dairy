@@ -1,0 +1,188 @@
+/* ===== 루트 ===== */
+.root {
+    -fx-background-color: #f9e9f1;
+    -fx-font-family: "Pretendard","Malgun Gothic","Arial";
+}
+
+/* ===== 헤더 ===== */
+.title-row { /* 필요시 배경 추가 가능 */ }
+.title {
+    -fx-font-size: 36px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #2b1b2b;
+}
+.title-sep { -fx-opacity: 0.6; }
+
+/* 홈 버튼: 배경/테두리 제거 (아이콘만) */
+.home-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 2 4 2 4;
+    -fx-cursor: hand;
+}
+.home-btn:hover { -fx-opacity: 0.8; }
+
+/* ===== 좌측 사이드바 ===== */
+/* 사이드바 배경 */
+.sidebar {
+    -fx-padding: 24 12 24 12;
+    -fx-background-color: #f6ddec;          /* 연핑크 */
+    -fx-border-color: #e9cfe0;
+    -fx-border-width: 0 2 0 0;
+}
+
+/* 사이드 버튼(캡슐) */
+.side-btn {
+    -fx-background-color: linear-gradient(#f3cde5, #e8b9d9);
+    -fx-background-radius: 28;
+    -fx-padding: 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 10, 0.25, 0, 2);
+}
+.side-btn:hover  { -fx-background-color: linear-gradient(#f7d6ea, #edc2df); }
+.side-btn:pressed{ -fx-translate-y: 1; }
+
+/* 현재 위치(active) 강조 */
+.side-btn.active {
+    -fx-background-color: linear-gradient(#eec7ff, #dab6ff);
+    -fx-effect: dropshadow(gaussian, rgba(120,70,255,0.35), 14, 0.3, 0, 2);
+}
+
+/* 버튼 내부 라벨(2줄) */
+.side-label-top {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #222;
+}
+.side-label-bottom {
+    -fx-font-size: 14px;
+    -fx-text-fill: #222;
+}
+
+/* 아이콘 아래 얇은 구분선 */
+.side-divider {
+    -fx-background-color: #ffffffaa;
+    -fx-min-height: 2; -fx-max-height: 2;
+    -fx-background-radius: 2;
+}
+
+
+/* ===== 컨텐츠 래퍼 ===== */
+.content-wrap {
+    -fx-background-color: white;
+    -fx-background-radius: 24;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 18, 0.15, 0, 2);
+}
+.panel { -fx-background-color: transparent; }
+.grid  { -fx-background-color: transparent; }
+
+/* ===== 친구 카드 ===== */
+.friend-card { -fx-padding: 0; }
+.friend-card-bg {
+    -fx-background-color: rgba(196,141,170,0.60);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: transparent;
+    -fx-min-height: 88;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0.2, 0, 1);
+}
+.friend-card:hover .friend-card-bg { -fx-background-color: rgba(196,141,170,0.70); }
+
+.friend-card:selected .friend-card-bg,
+.friend-card:focused  .friend-card-bg {
+    -fx-background-color: rgba(196,141,170,0.82);
+    -fx-border-color: #7b4e6b;
+    -fx-border-width: 2;
+}
+
+.friend-name {
+    -fx-font-size: 24px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #2b1b2b;
+}
+
+/* ===== 액션 버튼: Modena 초기화 + 우리 스타일 적용 ===== */
+.button.action-btn {
+    /* Modena의 다중 레이어/그라디언트 제거 */
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-padding: 10 26 10 26;
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+/* Select */
+.button.action-btn.primary {
+    -fx-background-color: #9fb6ee;   /* 시안의 연블루 */
+    -fx-border-color: #6e86c9;
+    -fx-border-width: 2;
+}
+.button.action-btn.primary:hover { -fx-background-color: #93abeb; }
+
+/* Delete */
+.button.action-btn.danger {
+    -fx-background-color: #9f83e7;   /* 시안 보라 */
+    -fx-border-color: #6e55c6;
+    -fx-border-width: 2;
+}
+.button.action-btn.danger:hover { -fx-background-color: #8f74de; }
+
+/* ===== Add Friends 전용 ===== */
+/* 좌측 캐릭터 카드(검은 테두리 + 라운드) */
+/* 변경 */
+.character-card {
+    -fx-background-color: white;
+    -fx-background-radius: 24;
+    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-radius: 24;
+    -fx-alignment: center;
+    -fx-min-height: 160;   /* ✅ 낮춤 */
+    -fx-pref-height: 260;  /* 보기 좋은 높이 */
+}
+
+/* 우측 폼 라벨/입력/힌트 스타일 */
+.field-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #2b1b2b;
+}
+.id-input {
+    -fx-background-radius: 10;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 16px;
+}
+.hint-text {
+    -fx-text-fill: #7b7b7b;
+    -fx-font-size: 13px;
+}
+
+/* 버튼 공통 확장 */
+.action-btn.wide { -fx-min-width: 160; }
+
+/* 보라톤 액센트 버튼 (ADD) */
+.button.action-btn.accent {
+    -fx-background-color: #9D88E8;
+    -fx-border-color: #6e55c6;
+    -fx-border-width: 2;
+}
+.button.action-btn.accent:hover { -fx-background-color: #927fe3; }
+
+/* ===== My Info 전용(공용 폼 스타일) ===== */
+.input {
+    -fx-background-radius: 10;
+    -fx-padding: 10 12 10 12;
+    -fx-font-size: 16px;
+}
+.input:disabled, .input:focused:disabled {
+    -fx-opacity: 1;                 /* 비활성이어도 회색문자 흐림 방지 */
+    -fx-background-color: #f5f5f8;
+    -fx-text-fill: #333;
+    -fx-border-color: #ddd;
+}
+

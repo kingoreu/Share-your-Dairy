@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.FriendList.AddFriendsPanelController"
+            prefWidth="1024" prefHeight="640"
+            styleClass="root"
+            stylesheets="@/css/friendlist.css">
+
+    <!-- 상단 헤더 -->
+    <top>
+        <VBox spacing="10">
+            <StackPane styleClass="title-row">
+                <padding><Insets top="16" right="24" bottom="8" left="24"/></padding>
+
+                <Button styleClass="home-btn" onAction="#goHome" StackPane.alignment="CENTER_LEFT">
+                    <graphic>
+                        <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
+                            <image><Image url="@/common_images/home-icon.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+                <Label text="친구 추가" styleClass="title" StackPane.alignment="CENTER"/>
+            </StackPane>
+            <Separator styleClass="title-sep"/>
+        </VBox>
+    </top>
+
+    <!-- 좌측 사이드바 -->
+    <left>
+        <VBox spacing="18" alignment="TOP_CENTER"
+              prefWidth="170" minWidth="170" maxWidth="170"
+              styleClass="sidebar">
+
+            <Button onAction="#goMyInfo" prefWidth="130" prefHeight="120" styleClass="side-btn">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image><Image url="@/common_images/myinfo-icon.png"/></image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="MY"   styleClass="side-label-top"/>
+                        <Label text="Info" styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
+
+            <Button disable="true" prefWidth="130" prefHeight="120" styleClass="side-btn active">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image><Image url="@/common_images/addfriends-icon.png"/></image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="ADD"     styleClass="side-label-top"/>
+                        <Label text="Friends" styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
+
+            <Button onAction="#goBuddyList" prefWidth="130" prefHeight="120" styleClass="side-btn">
+                <graphic>
+                    <VBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="36" fitHeight="36" preserveRatio="true">
+                            <image><Image url="@/common_images/buddylist-icon.png"/></image>
+                        </ImageView>
+                        <Region styleClass="side-divider" maxWidth="64" prefHeight="2"/>
+                        <Label text="BUDDY" styleClass="side-label-top"/>
+                        <Label text="List"  styleClass="side-label-bottom"/>
+                    </VBox>
+                </graphic>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- 중앙 컨텐츠 -->
+    <center>
+        <StackPane alignment="TOP_CENTER">
+            <StackPane styleClass="content-wrap" maxWidth="880" prefWidth="880"
+                       maxHeight="540" prefHeight="540">
+                <AnchorPane>
+                    <StackPane AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+                               AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"
+                               styleClass="panel">
+
+                        <GridPane hgap="24" vgap="12" styleClass="grid">
+                            <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="48" hgrow="ALWAYS"/>
+                                <ColumnConstraints percentWidth="52" hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <!-- 좌: 캐릭터 미리보기 -->
+                            <StackPane GridPane.columnIndex="0" alignment="CENTER">
+                                    <StackPane fx:id="card" styleClass="character-card"
+                                        minWidth="260" prefWidth="380" maxWidth="420"
+                                        minHeight="260" prefHeight="380" maxHeight="420">
+                                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                                    <ImageView fx:id="imgCharacter" preserveRatio="true"/>
+                                </StackPane>
+                            </StackPane>
+
+                            <!-- 우 상단: 검색 -->
+                            <VBox GridPane.columnIndex="1" spacing="16" alignment="TOP_LEFT">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <TextField fx:id="tfSearchId"
+                                               promptText="ID 또는 닉네임 입력"
+                                               styleClass="input id-input"
+                                               maxWidth="Infinity"/>
+                                    <Button text="검색" onAction="#onSearch"
+                                            styleClass="action-btn primary"/>
+                                </HBox>
+
+                                <Label fx:id="lblResult" text="" styleClass="hint-text" wrapText="true"/>
+
+                                <HBox alignment="CENTER_RIGHT">
+                                    <Button fx:id="btnAdd" text="친구 요청 보내기"
+                                            onAction="#onAdd" disable="true"
+                                            styleClass="action-btn accent wide"/>
+                                </HBox>
+
+                                <!-- 하단: 요청받은 친구 목록 -->
+                                <Separator/>
+                                <Label text="요청받은 친구" style="-fx-font-size:16px;-fx-font-weight:800;"/>
+                                <ListView fx:id="lvPending" prefHeight="200"/>
+                            </VBox>
+                        </GridPane>
+                    </StackPane>
+                </AnchorPane>
+            </StackPane>
+        </StackPane>
+    </center>
+</BorderPane>
