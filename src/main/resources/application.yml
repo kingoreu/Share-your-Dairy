@@ -1,17 +1,10 @@
 server:
   port: 8080
 
+  # env 파일 못읽어서 추가
 spring:
-  # .env 로드
   config:
     import: optional:file:.env[.properties]
-
-  datasource:
-    # .env 값 쓰되, 없으면 기본값으로 동작하도록 fallback도 넣어두면 편해요
-    url: ${JDBC_URL:jdbc:mysql://127.0.0.1:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul}
-    username: ${JDBC_USER:root}
-    password: ${JDBC_PASS:1234}
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
 app:
   media:
@@ -21,9 +14,16 @@ app:
     root-dir: ./base-characters
 
 openai:
-  api-key: ${OPENAI_API_KEY:}        # 비어있으면 코드에서 가드
+  api-key: ${OPENAI_API_KEY:}        # 비어있으면 분석 스킵(코드에서 가드 권장)
   api-url: https://api.openai.com/v1/chat/completions
   model: gpt-4o-mini
+
+spring:
+  datasource:
+    url: ${JDBC_URL}                  # ← .env 사용
+    username: ${JDBC_USER}            # ← .env 사용
+    password: ${JDBC_PASS}            # ← .env 사용
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 logging:
   level:

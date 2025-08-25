@@ -122,31 +122,20 @@ public class LoginController {
     private static String trim(String s){ return s==null? "" : s.trim(); }
     private static String esc(String s){ return s.replace("\\","\\\\").replace("\"","\\\""); }
     private void alert(String msg) {
-    Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle("로그인 오류");
-    alert.setHeaderText(null);
-    alert.setContentText(msg);
-    alert.setGraphic(null);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("로그인 오류");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
 
-    DialogPane dialogPane = alert.getDialogPane();
+        alert.setGraphic(null);
 
-    // css 경로가 없으면 조용히 패스 → NPE 방지
-    URL css = getClass().getResource("/css/login/alert.css"); // classpath 절대경로
-    if (css != null) {
-        dialogPane.getStylesheets().add(css.toExternalForm());
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(
+                getClass().getResource("/css/login/alert.css").toExternalForm()
+        );
         dialogPane.getStyleClass().add("custom-alert");
-    }
 
-    // (선택) 아이콘도 null-safe로 붙이고, 없으면 스킵
-    try {
-        URL icon = getClass().getResource("/img/app-icon.png");
-        if (icon != null) {
-            ((Stage) dialogPane.getScene().getWindow())
-                    .getIcons().add(new javafx.scene.image.Image(icon.toExternalForm()));
-        }
-    } catch (Exception ignore) {}
-
-    alert.showAndWait();
+        alert.showAndWait();
     }
 
     // 이거 쓰는거임?
