@@ -62,6 +62,7 @@ public class MyDiaryController {
     private boolean isMuted         = false;
 
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
+    // ✅ 수정: 하드코딩 제거(=FK 오류 원인). 외부에서 로그인 유저 ID 주입받도록 함.
     private final Long currentUserId = 1L; // 로그인 붙기 전 임시
 
     /* 새 일기 모달 모드 & 저장 콜백(필요 시) */
@@ -190,13 +191,19 @@ public class MyDiaryController {
     /* ===== 목록 렌더 ===== */
     private void refreshList() {
         if (listContainer == null) return;
+
         listContainer.getChildren().clear();
+        if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
+            listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
+            return;
+        }
+
 
         List<DiaryEntry> rows;
         try {
-            rows = diaryWriteService.loadMyDiaryList(currentUserId);
+            rows = diaryWriteService.loadMyDiaryList(uid); // ✅ 내 것만
         } catch (RuntimeException ex) {
-            listContainer.getChildren().add(new Label("목록 조회 실패: " + deepestMessage(ex)));
+            listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
             return;
         }
 

@@ -38,18 +38,20 @@ public class DiaryEntryDao {
         return d;
     }
 
+    /* 단건 조회 */
     public Optional<DiaryEntry> findById(long entryId) throws SQLException {
         try (Connection con = DBConnection.getConnection()) {
             return findById(con, entryId);
         }
     }
-
+    // 같은 Connection으로 조회 수행 (트랜잭션 안에서 호출)
+    // - entryId가 존재하지 않으면 Optional.empty() 반환
     public Optional<DiaryEntry> findById(Connection con, long entryId) throws SQLException {
         final String sql = """
-            SELECT entry_id, user_id, entry_date, title, diary_content, visibility,
-                   diary_created_at, diary_updated_at, shared_diary_id
-            FROM diary_entries
-            WHERE entry_id=?
+              SELECT entry_id, user_id, entry_date, title, diary_content, visibility,
+                     diary_created_at, diary_updated_at, shared_diary_id
+                FROM diary_entries
+               WHERE entry_id=?
         """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setLong(1, entryId);
@@ -59,56 +61,71 @@ public class DiaryEntryDao {
         }
     }
 
+    /* ✅ 내 글 목록(현재 user_id 전용) */
     public List<DiaryEntry> findAllByUser(long userId) throws SQLException {
-        final String sql = """
-            SELECT entry_id, user_id, entry_date, title, diary_content, visibility,
-                   diary_created_at, diary_updated_at, shared_diary_id
+        String sql = """
+            SELECT entry_id, user_id, shared_diary_id, entry_date, title,
+                diary_content, visibility, diary_created_at, diary_updated_at
             FROM diary_entries
-            WHERE user_id=?
+            WHERE user_id = ?                 -- ✅ 꼭 있어야 함
             ORDER BY entry_date DESC, entry_id DESC
         """;
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (var con = DBConnection.getConnection();
+             var ps  = con.prepareStatement(sql)) {
             ps.setLong(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                List<DiaryEntry> list = new ArrayList<>();
-                while (rs.next()) list.add(mapRow(rs));
+            try (var rs = ps.executeQuery()) {
+                List<DiaryEntry> list = new java.util.ArrayList<>();
+                while (rs.next()) list.add(mapper.map(rs));
                 return list;
             }
         }
     }
 
-    /** INSERT도 title 포함 */
-    public long insert(DiaryEntry d) throws SQLException {
-    String sql = """
-      INSERT INTO diary_entries (user_id, entry_date, title, diary_content, visibility, shared_diary_id)
-      VALUES (?,?,?,?,?,?)
+    // 공유 일기장 글 목록 조회
+    public List<DiaryEntry> findAllBySharedDiaryId(long sharedDiaryId) throws SQLException {
+        String sql = """
+        SELECT entry_id, user_id, shared_diary_id, entry_date, title,
+               diary_content, visibility, diary_created_at, diary_updated_at
+          FROM diary_entries
+         WHERE shared_diary_id = ?
+         ORDER BY entry_date DESC, entry_id DESC
     """;
-    try (var con = DBConnection.getConnection();
-         var ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-        String title = d.getTitle();
-        String content = d.getDiaryContent();
-        if (title == null || title.isBlank()) {
-            String c = (content == null) ? "" : content.replace("\r"," ").replace("\n"," ").trim();
-            title = c.isEmpty() ? "" : (c.length() > 30 ? c.substring(0,30) + "…" : c);
-        }
-
-        ps.setLong(1, d.getUserId());
-        ps.setObject(2, d.getEntryDate());
-        ps.setString(3, title);
-        ps.setString(4, d.getDiaryContent());
-        ps.setString(5, d.getVisibility() == null ? "PRIVATE" : d.getVisibility().name());
-        if (d.getSharedDiaryId() == null) ps.setNull(6, java.sql.Types.BIGINT); else ps.setLong(6, d.getSharedDiaryId());
-
-        ps.executeUpdate();
-        try (var keys = ps.getGeneratedKeys()) {
-            return keys.next() ? keys.getLong(1) : 0L;
+        try (var con = DBConnection.getConnection();
+             var ps  = con.prepareStatement(sql)) {
+            ps.setLong(1, sharedDiaryId);
+            try (var rs = ps.executeQuery()) {
+                List<DiaryEntry> list = new java.util.ArrayList<>();
+                while (rs.next()) list.add(mapper.map(rs));
+                return list;
+            }
         }
     }
-}
 
-    /** 본문만 수정 */
+    /* 저장 */
+    public long save(DiaryEntry entry) throws SQLException {
+        String sql = """
+            INSERT INTO diary_entries
+                (user_id, entry_date, title, diary_content, visibility, diary_created_at)
+            VALUES (?, ?, ?, ?, ?, NOW())
+        """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setLong(1, entry.getUserId());
+            ps.setDate(2, java.sql.Date.valueOf(entry.getEntryDate()));
+            ps.setString(3, entry.getTitle());
+            ps.setString(4, entry.getDiaryContent());
+            ps.setString(5, entry.getVisibility().name()); // ENUM → 문자열
+
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) return keys.getLong(1);
+            }
+            throw new SQLException("일기 저장 실패 (entry_id 생성 안 됨)");
+        }
+    }
+
+    /* 내용 수정 */
     public int updateContent(Connection con, long entryId, String content) throws SQLException {
         final String sql = "UPDATE diary_entries SET diary_content=? WHERE entry_id=?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -118,6 +135,7 @@ public class DiaryEntryDao {
         }
     }
 
+    /* 삭제 */
     public int deleteById(long entryId) throws SQLException {
         final String sql = "DELETE FROM diary_entries WHERE entry_id=?";
         try (Connection con = DBConnection.getConnection();
@@ -127,6 +145,7 @@ public class DiaryEntryDao {
         }
     }
 
+    /* 공유일기 연결/해제 */
     public int updateSharedDiaryId(Connection con, long entryId, Long sharedDiaryId) throws SQLException {
         final String sql = "UPDATE diary_entries SET shared_diary_id=? WHERE entry_id=?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
