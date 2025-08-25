@@ -1,4 +1,3 @@
-// src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java
 package com.share.dairy.repo.imageGen;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,10 +12,10 @@ import java.util.Optional;
  *  - diary_entries(entry_id, user_id, ...)
  *  - diary_analysis(analysis_id PK, entry_id UNIQUE, analysis_keywords, ...)
  *  - users(user_id, character_type, ...)
- *  - keyword_images(keyword_image PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
- *  - character_keyword_images(keyword_image PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
+ *  - keyword_images(keyword_image_id PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
+ *  - character_keyword_images(keyword_image_id PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
  *
- * ✅ 중요
+ * ✅ 정책
  *  - 더 이상 diary_attachments에는 쓰지 않는다.
  *  - 두 이미지 경로는 각각의 *_images 테이블에만 저장한다.
  */
@@ -32,6 +31,7 @@ public class JdbcImageDbRepository implements ImageDbRepository {
     @Override
     public Optional<EntryContext> findContext(long entryId) {
         // 분석/사용자/키워드/캐릭터타입을 한 번에 조회
+        // 분석이 없을 수 있으므로 LEFT JOIN 유지. (없으면 Optional.empty 반환)
         final String sql = """
             SELECT
                 da.analysis_id,        -- 1
@@ -48,20 +48,21 @@ public class JdbcImageDbRepository implements ImageDbRepository {
 
         return jdbc.query(sql, rs -> {
             if (!rs.next()) return Optional.empty();
-            long analysisId      = rs.getLong(1);
-            long userId          = rs.getLong(2);
-            String keywords      = rs.getString(3);
-            String characterType = rs.getString(4);
-            if (rs.wasNull() || analysisId == 0) return Optional.empty();
-            return Optional.of(new EntryContext(analysisId, userId, keywords, characterType));
+
+            // ⬇️ Long wrapper로 null-safe 하게 읽는다(==> wasNull 문제 회피)
+            Long analysisId   = rs.getObject(1, Long.class);
+            Long userId       = rs.getObject(2, Long.class);
+            String keywords   = rs.getString(3);
+            String charType   = rs.getString(4);
+
+            if (analysisId == null) return Optional.empty(); // 아직 분석 전인 경우
+            return Optional.of(new EntryContext(analysisId, userId, keywords, charType));
         }, entryId);
     }
 
-    // ⛔ diary_attachments 사용 종료 — 구현도 제거(필요 시 주석만 남김)
-
     @Override
     public void insertKeywordImageIfAbsent(long analysisId, long userId, String pathOrUrl) {
-        // ✅ 유니크 제약(analysis_id, user_id)을 활용한 UPSERT
+        // ✅ UNIQUE(analysis_id, user_id) 제약을 활용한 UPSERT
         jdbc.update("""
             INSERT INTO keyword_images (analysis_id, user_id, path_or_url, created_at)
             VALUES (?, ?, ?, NOW())
@@ -69,12 +70,11 @@ public class JdbcImageDbRepository implements ImageDbRepository {
               path_or_url = VALUES(path_or_url),
               created_at  = NOW()
         """, analysisId, userId, pathOrUrl);
-
     }
 
     @Override
     public void insertCharacterImageIfAbsent(long analysisId, long userId, String pathOrUrl) {
-        // ✅ 유니크 제약(analysis_id, user_id)을 활용한 UPSERT
+        // ✅ UNIQUE(analysis_id, user_id) 제약을 활용한 UPSERT
         jdbc.update("""
             INSERT INTO character_keyword_images (analysis_id, user_id, path_or_url, created_at)
             VALUES (?, ?, ?, NOW())
