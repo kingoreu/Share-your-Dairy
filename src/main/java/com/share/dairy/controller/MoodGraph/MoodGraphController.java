@@ -13,8 +13,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.ResourceBundle;
 
+import com.share.dairy.auth.UserSession;
 import com.share.dairy.repo.MoodRepository;
 import com.share.dairy.controller.OverlayChildController;
 import com.share.dairy.model.mood.MoodPoint;
@@ -30,13 +30,20 @@ public class MoodGraphController extends OverlayChildController{
     @FXML private LineChart<String, Number> moodChart;
 
     private final MoodRepository repo = new MoodRepository();
-    private long userId = 1L;                       // 로그인 값으로 교체
+    private long userId = 1L;
+                           // 로그인 값으로 교체
 
     private enum Range { WEEK(7), DAYS15(15), MONTH(30); final int days; Range(int d){ this.days=d; } }
     private static final DateTimeFormatter LABEL_FMT = DateTimeFormatter.ofPattern("MM-dd");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        var session = UserSession.get();
+        if (session != null) {
+            this.userId = session.getUserId();
+        }
+
         // 차트 기본 스타일
         moodChart.setCreateSymbols(false);   // 기본은 선-only
         moodChart.setAnimated(false);
