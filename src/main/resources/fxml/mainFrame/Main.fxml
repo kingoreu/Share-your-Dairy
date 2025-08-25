@@ -8,12 +8,11 @@
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.MainController"
-            stylesheets="/login/"
             prefWidth="800" prefHeight="600">
 
   <children>
      <!-- 1) 배경 -->
-    <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
+    <ImageView fitWidth="800" fitHeight="600" preserveRatio="false" >
       <image>
         <!-- 절대 경로: 클래스패스 루트(/) 기준 -->
         <Image url="@/MainFrame_images/room_background.jpg"/>
@@ -63,11 +62,15 @@
        mouseTransparent="true"/>
 
     <!-- 4) 캐릭터 -->
-    <ImageView fx:id="characterImg"
-               pickOnBounds="true"
-               layoutX="320" layoutY="300"
-               fitWidth="160" fitHeight="200"
-               onMouseClicked="#onCharacterClicked" />
+<!--    <ImageView fx:id="characterImg"-->
+<!--               pickOnBounds="true"-->
+<!--               layoutX="320" layoutY="300"-->
+<!--               fitHeight="200"-->
+<!--               preserveRatio="true"-->
+<!--               smooth="true"-->
+<!--               onMouseClicked="#onCharacterClicked" />-->
+    <fx:include fx:id="characterPane"
+                source="/fxml/mainFrame/CharacterPane.fxml" />
 
     <Button fx:id="btnLogout" text="로그아웃"
             onAction="#onLogout"

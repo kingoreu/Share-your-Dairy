@@ -14,7 +14,7 @@ public class HubListController {
     @FXML private VBox listContainer;
 
     private final DiaryWriteService service = new DiaryWriteService();
-    private final Long currentUserId = 1L; // 로그인 붙기 전 임시
+    private final Long currentUserId = 1L; // 로그인 붙기 전 임시 **************************
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     @FXML

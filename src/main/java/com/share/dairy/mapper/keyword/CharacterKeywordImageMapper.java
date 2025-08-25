@@ -14,6 +14,7 @@ public class CharacterKeywordImageMapper implements RowMapper<CharacterKeywordIm
         k.setUserId(rs.getLong("user_id"));
         var ts = rs.getTimestamp("created_at");
         k.setCreatedAt(ts == null ? null : ts.toLocalDateTime());
+        k.setPathOrUrl(rs.getString("path_or_url"));
         return k;
     }
 }

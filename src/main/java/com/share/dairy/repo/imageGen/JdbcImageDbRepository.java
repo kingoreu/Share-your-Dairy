@@ -7,10 +7,18 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * JdbcTemplate 기반 구현 (스키마에 keywords 컬럼 없음)
+ * JdbcTemplate 기반 구현.
  *
- * - NOT EXISTS로 “한 번만” 삽입 (스키마 변경 없이 동작)
- * - 동시성까지 완벽히 막으려면 아래 UPSERT 대안 + 유니크 제약 참고
+ * ✅ 스키마 요약(현재 DB)
+ *  - diary_entries(entry_id, user_id, ...)
+ *  - diary_analysis(analysis_id PK, entry_id UNIQUE, analysis_keywords, ...)
+ *  - users(user_id, character_type, ...)
+ *  - keyword_images(keyword_image PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
+ *  - character_keyword_images(keyword_image PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
+ *
+ * ✅ 중요
+ *  - 더 이상 diary_attachments에는 쓰지 않는다.
+ *  - 두 이미지 경로는 각각의 *_images 테이블에만 저장한다.
  */
 @Repository
 public class JdbcImageDbRepository implements ImageDbRepository {
@@ -23,19 +31,20 @@ public class JdbcImageDbRepository implements ImageDbRepository {
 
     @Override
     public Optional<EntryContext> findContext(long entryId) {
+        // 분석/사용자/키워드/캐릭터타입을 한 번에 조회
         final String sql = """
             SELECT
-                da.analysis_id,             -- 1: 분석 PK
-                de.user_id,                 -- 2: 작성자
-                da.analysis_keywords,       -- 3: 프롬프트용 키워드(테이블에 저장하진 않음)
-                u.character_type            -- 4: 캐릭터 타입
+                da.analysis_id,        -- 1
+                de.user_id,            -- 2
+                da.analysis_keywords,  -- 3 (프롬프트용)
+                u.character_type       -- 4
             FROM diary_entries de
             JOIN users u
               ON u.user_id = de.user_id
             LEFT JOIN diary_analysis da
               ON da.entry_id = de.entry_id
             WHERE de.entry_id = ?
-            """;
+        """;
 
         return jdbc.query(sql, rs -> {
             if (!rs.next()) return Optional.empty();
@@ -48,62 +57,30 @@ public class JdbcImageDbRepository implements ImageDbRepository {
         }, entryId);
     }
 
+    // ⛔ diary_attachments 사용 종료 — 구현도 제거(필요 시 주석만 남김)
+
     @Override
-    public void upsertAttachment(long entryId, String url, int displayOrder) {
-        // (entry_id, url) 동일 건 하나만 유지
-        jdbc.update("DELETE FROM diary_attachments WHERE entry_id = ? AND path_or_url = ?", entryId, url);
+    public void insertKeywordImageIfAbsent(long analysisId, long userId, String pathOrUrl) {
+        // ✅ 유니크 제약(analysis_id, user_id)을 활용한 UPSERT
         jdbc.update("""
-            INSERT INTO diary_attachments
-              (entry_id, attachment_type, path_or_url, display_order, attachment_created_at)
-            VALUES (?, 'IMAGE', ?, ?, NOW())
-            """, entryId, url, displayOrder);
+            INSERT INTO keyword_images (analysis_id, user_id, path_or_url, created_at)
+            VALUES (?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE
+              path_or_url = VALUES(path_or_url),
+              created_at  = NOW()
+        """, analysisId, userId, pathOrUrl);
+
     }
 
     @Override
-    public void insertKeywordImageIfAbsent(long analysisId, long userId) {
-        // 스키마 변경 없이 동작: NOT EXISTS
+    public void insertCharacterImageIfAbsent(long analysisId, long userId, String pathOrUrl) {
+        // ✅ 유니크 제약(analysis_id, user_id)을 활용한 UPSERT
         jdbc.update("""
-            INSERT INTO keyword_images (analysis_id, user_id, created_at)
-            SELECT ?, ?, NOW()
-            WHERE NOT EXISTS (
-              SELECT 1 FROM keyword_images WHERE analysis_id = ? AND user_id = ?
-            )
-            """, analysisId, userId, analysisId, userId);
-
-        /*
-        // (권장 대안) 유니크 제약 + UPSERT로 동시성까지 안전
-        // 1) 1회 실행:
-        // ALTER TABLE keyword_images
-        //   ADD CONSTRAINT uq_keyword_images_analysis_user UNIQUE (analysis_id, user_id);
-        // 2) 쿼리:
-        // jdbc.update("""
-        //     INSERT INTO keyword_images (analysis_id, user_id, created_at)
-        //     VALUES (?, ?, NOW())
-        //     ON DUPLICATE KEY UPDATE created_at = NOW()
-        // """, analysisId, userId);
-        */
-    }
-
-    @Override
-    public void insertCharacterImageIfAbsent(long analysisId, long userId) {
-        // 스키마 변경 없이 동작: NOT EXISTS
-        jdbc.update("""
-            INSERT INTO character_keyword_images (analysis_id, user_id, created_at)
-            SELECT ?, ?, NOW()
-            WHERE NOT EXISTS (
-              SELECT 1 FROM character_keyword_images WHERE analysis_id = ? AND user_id = ?
-            )
-            """, analysisId, userId, analysisId, userId);
-
-        /*
-        // (권장 대안) 유니크 제약 + UPSERT
-        // ALTER TABLE character_keyword_images
-        //   ADD CONSTRAINT uq_character_keyword_images_analysis_user UNIQUE (analysis_id, user_id);
-        // jdbc.update("""
-        //     INSERT INTO character_keyword_images (analysis_id, user_id, created_at)
-        //     VALUES (?, ?, NOW())
-        //     ON DUPLICATE KEY UPDATE created_at = NOW()
-        // """, analysisId, userId);
-        */
+            INSERT INTO character_keyword_images (analysis_id, user_id, path_or_url, created_at)
+            VALUES (?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE
+              path_or_url = VALUES(path_or_url),
+              created_at  = NOW()
+        """, analysisId, userId, pathOrUrl);
     }
 }

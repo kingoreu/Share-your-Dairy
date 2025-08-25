@@ -143,6 +143,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <!-- 여기서 Launcher 말고 ServerApplication을 지정 -->
+                    <mainClass>com.share.dairy.ServerApplication</mainClass>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -160,7 +165,8 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.share.dairy.app.HelloApplication</mainClass>
+<!--                    <mainClass>com.share.dairy.app.HelloApplication</mainClass>-->
+                    <mainClass>com.share.dairy.app.Launcher</mainClass>
                 </configuration>
                 <executions>
                     <execution>

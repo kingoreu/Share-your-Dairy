@@ -1,6 +1,7 @@
 package com.share.dairy.controller;
 
 import com.share.dairy.auth.UserSession;
+import com.share.dairy.controller.character.CharacterPaneController;
 import com.share.dairy.model.enums.CharacterType;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
@@ -39,7 +40,10 @@ public class MainController {
     @FXML private Rectangle bookshelfHotspot;
     @FXML private Rectangle radioHotspot;
 
-    @FXML private ImageView characterImg;
+    @FXML private Pane characterPane;
+    @FXML private CharacterPaneController characterPaneController;
+
+    // @FXML private ImageView characterImg;
     // @FXML private ImageView characterImageView;
 
     /* ===================== Overlay Host Impl ===================== */
@@ -52,22 +56,22 @@ public class MainController {
     @FXML
     public void initialize() {
 
-        UserSession currentUser = UserSession.get();
-
-        if (currentUser != null) {
-            CharacterType type = currentUser.getCharacterType();
-            String path = type.getImagePath();
-
-            try (InputStream is = getClass().getResourceAsStream(path)) {
-                if (is != null) {
-                    characterImg.setImage(new Image(is));
-                } else {
-                    System.out.println("캐릭터 파일을 찾을 수 없습니다. ");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        UserSession currentUser = UserSession.get();
+//
+//        if (currentUser != null) {
+//            CharacterType type = currentUser.getCharacterType();
+//            String path = type.getImagePath();
+//
+//            try (InputStream is = getClass().getResourceAsStream(path)) {
+//                if (is != null) {
+//                    characterImg.setImage(new Image(is));
+//                } else {
+//                    System.out.println("캐릭터 파일을 찾을 수 없습니다. ");
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         // Overlay 레이어 초기 상태
         contentPane.setVisible(false);
@@ -82,7 +86,8 @@ public class MainController {
         laptopHotspot.toFront();
         bookshelfHotspot.toFront();
         radioHotspot.toFront();
-        characterImg.toFront();
+        characterPane.toFront();
+        // characterImg.toFront();
         setOverlayVisible(true);
 
         // ESC로 닫기 (scene 준비 후 1회 등록)
@@ -153,7 +158,9 @@ public class MainController {
         laptopHotspot.setVisible(v);
         bookshelfHotspot.setVisible(v);
         radioHotspot.setVisible(v);
-        characterImg.setVisible(v);
+        // characterImg.setVisible(v);
+        characterPane.setVisible(v);
+
         if (v) {
             // 오버레이가 보일 땐 항상 앞에 오도록
             wardrobeHotspot.toFront();
@@ -161,7 +168,8 @@ public class MainController {
             laptopHotspot.toFront();
             bookshelfHotspot.toFront();
             radioHotspot.toFront();
-            characterImg.toFront();
+            // characterImg.toFront();
+            characterPane.toFront();
         }
     }
 

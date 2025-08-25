@@ -25,8 +25,8 @@ public class HelloApplication extends Application {
                     .properties(Map.of(
                             "server.port", "8080",
                             "spring.datasource.url", "jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8",
-                            "spring.datasource.username", "dairyuser",
-                            "spring.datasource.password", "dairypass"
+                            "spring.datasource.username", "root",
+                            "spring.datasource.password", "sohyun"
                     ))
                     .run();
         });

@@ -35,22 +35,42 @@ public class DiaryEntryDao {
         }
     }
 
+    /*  내 글 목록(현재 user_id 전용) */
     public List<DiaryEntry> findAllByUser(long userId) throws SQLException {
-        try (var con = DBConnection.getConnection()) {
-            String sql = """
-              SELECT entry_id, user_id, entry_date, title, diary_content, visibility,
-                     diary_created_at, diary_updated_at, shared_diary_id
-              FROM diary_entries
-              WHERE user_id=?
-              ORDER BY entry_date DESC, entry_id DESC
-            """;
-            try (var ps = con.prepareStatement(sql)) {
-                ps.setLong(1, userId);
-                try (var rs = ps.executeQuery()) {
-                    var list = new ArrayList<DiaryEntry>();
-                    while (rs.next()) list.add(mapper.map(rs));
-                    return list;
-                }
+        String sql = """
+            SELECT entry_id, user_id, shared_diary_id, entry_date, title,
+                diary_content, visibility, diary_created_at, diary_updated_at
+            FROM diary_entries
+            WHERE user_id = ?                 --  꼭 있어야 함
+            ORDER BY entry_date DESC, entry_id DESC
+        """;
+        try (var con = DBConnection.getConnection();
+             var ps  = con.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (var rs = ps.executeQuery()) {
+                List<DiaryEntry> list = new java.util.ArrayList<>();
+                while (rs.next()) list.add(mapper.map(rs));
+                return list;
+            }
+        }
+    }
+
+    // 공유 일기장 글 목록 조회
+    public List<DiaryEntry> findAllBySharedDiaryId(long sharedDiaryId) throws SQLException {
+        String sql = """
+        SELECT entry_id, user_id, shared_diary_id, entry_date, title,
+               diary_content, visibility, diary_created_at, diary_updated_at
+          FROM diary_entries
+         WHERE shared_diary_id = ?
+         ORDER BY entry_date DESC, entry_id DESC
+    """;
+        try (var con = DBConnection.getConnection();
+             var ps  = con.prepareStatement(sql)) {
+            ps.setLong(1, sharedDiaryId);
+            try (var rs = ps.executeQuery()) {
+                List<DiaryEntry> list = new java.util.ArrayList<>();
+                while (rs.next()) list.add(mapper.map(rs));
+                return list;
             }
         }
     }
@@ -111,26 +131,5 @@ public class DiaryEntryDao {
             return ps.executeUpdate();
         }
     }
-
-    // 공유 일기장에 속한 글 목록
-    // 페이징 있을 경우 LIMIT,?,? 와 page, size 같은 파라미터 별도로 추가 필요
-    public List<DiaryEntry> findAllBySharedDiaryId(long sharedDiaryId) throws SQLException {
-        try (var con = DBConnection.getConnection();
-             var ps = con.prepareStatement("""
-                SELECT entry_id, user_id, entry_date, title, diary_content, visibility,
-                       diary_created_at, diary_updated_at, shared_diary_id
-                FROM diary_entries
-                WHERE shared_diary_id=?
-                ORDER BY entry_date DESC
-             """)) {
-            ps.setLong(1, sharedDiaryId);
-            try (var rs = ps.executeQuery()) {
-                var list = new ArrayList<DiaryEntry>();
-                while (rs.next()) list.add(mapper.map(rs));
-                return list;
-            }
-        }
-    }
-
 
 }

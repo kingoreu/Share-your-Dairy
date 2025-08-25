@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -102,7 +103,11 @@ public class LoginController {
 
     private void goMain(ActionEvent event) {
         try {
-            var loader = new FXMLLoader(getClass().getResource("/fxml/MainFrame/Main.fxml"));
+            // var loader = new FXMLLoader(getClass().getResource("/fxml/mainFrame/Main.fxml"));
+            URL url = getClass().getResource("/fxml/mainFrame/Main.fxml");
+            System.out.println("Main.fxml resource url = " + url);
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
