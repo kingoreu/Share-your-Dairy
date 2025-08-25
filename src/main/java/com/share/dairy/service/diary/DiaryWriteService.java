@@ -7,7 +7,6 @@ import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.util.Tx;
 
 import java.sql.*;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -39,13 +38,18 @@ public class DiaryWriteService {
     }
 
     // 목록 조회: 컨트롤러가 쓰기 쉽게 DAO 호출을 한 줄로 감쌉니다.
+    
     public List<DiaryEntry> loadMyDiaryList(Long userId) {
+        if (userId == null || userId <= 0)  // ✅ 로그인 없으면 막기
+            throw new IllegalStateException("로그인이 필요합니다.");
         try {
-            return diaryEntryDao.findAllByUser(userId); // 이미 필드로 있는 diaryEntryDao 사용
-        } catch (SQLException e) {
-            throw new RuntimeException("일기 목록 조회 실패", e);
+            Long uid = com.share.dairy.auth.UserSession.currentId();
+            return new DiaryEntryDao().findAllByUser(uid); // ✅ 전체조회 금지
+        } catch (Exception e) {
+            throw new RuntimeException("내 일기 조회 실패", e);
         }
     }
+
 
     /**
      * 첨부 없이 본문만 저장 (트랜잭션 포함)

@@ -12,9 +12,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;            // ESC 단축키
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.layout.BorderPane;       // FXML 루트
 import javafx.scene.layout.StackPane;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -24,6 +21,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
+
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class MyInfoPanelController extends OverlayChildController {
 
@@ -41,21 +41,6 @@ public class MyInfoPanelController extends OverlayChildController {
     @FXML private Label  lblHint;
 
     private boolean editing = false;
-
-//    private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
-//        Map.entry("RACCOON", "raccoon.png"),
-//        Map.entry("DOG",     "dog.png"),
-//        Map.entry("CAT",     "cat.png"),
-//        Map.entry("BEAR",    "bear.png"),
-//        Map.entry("DEER",    "deer.png"),
-//        Map.entry("DUCK",    "duck.png"),
-//        Map.entry("HAMSTER", "hamster.png"),
-//        Map.entry("RABBIT",  "rabbit.png"),
-//        Map.entry("WOLF",    "wolf.png"),
-//        Map.entry("RICHARD", "richard.png"),
-//        Map.entry("TAKO",    "tako.png"),
-//        Map.entry("ZZUNI",   "zzuni.png")
-//    );
 
     // ===== 초기화 =====
     @Override
@@ -78,7 +63,8 @@ public class MyInfoPanelController extends OverlayChildController {
                 (obs, o, n) -> setCharacterPreviewByType(n)
         );
 
-        // 사용자 정보 로드(세션 → 필요 시 DB 보완)
+
+        // 로그인한 사용자 정보 로딩(세션 → 필요 시 DB 보완)
         loadMyInfoFromSessionOrDb();
 
         setEditing(false);
@@ -98,18 +84,16 @@ public class MyInfoPanelController extends OverlayChildController {
         } else {
             if (!validateInputs()) return;
 
-            // TODO: 서버 API 호출로 바꾸면 더 좋음 (/api/users/{id} PUT)
             boolean ok = updateMyInfoToDb();
 
-        if (ok) {
-            setEditing(false);
-            btnEdit.setText("Edit");
-            lblHint.setText("저장 완료!");
+            if (ok) {
+                setEditing(false);
+                btnEdit.setText("Edit");
+                lblHint.setText("저장 완료!");
 
                 // 세션 갱신
                 var s = UserSession.get();
                 var sel = cbCharacter.getSelectionModel().getSelectedItem();
-                // if (s != null && sel != null) s.setCharacterType(normalize(sel));
                 // 수정
                 // enum 타입으로 변경 **
                 if (s != null && sel != null) {
@@ -132,7 +116,6 @@ public class MyInfoPanelController extends OverlayChildController {
 
         String email     = tfEmail.getText() == null ? "" : tfEmail.getText().trim();
         String nickname  = tfNickname.getText() == null ? "" : tfNickname.getText().trim();
-        //String character = normalize(cbCharacter.getSelectionModel().getSelectedItem());
         CharacterType type = cbCharacter.getSelectionModel().getSelectedItem();
 
         String sql = "UPDATE users SET user_email=?, nickname=?, character_type=?, user_updated_at=NOW() WHERE user_id=?";
@@ -180,8 +163,8 @@ public class MyInfoPanelController extends OverlayChildController {
 
         var s = UserSession.get();
         if (s != null) {
-            loginId  = s.getLoginId();
-            email    = s.getEmail();
+            loginId = s.getLoginId();
+            email = s.getEmail();
             nickname = s.getNickname();
             character = s.getCharacterType();
             // enum 타입으로 변경 **
@@ -193,19 +176,19 @@ public class MyInfoPanelController extends OverlayChildController {
             if (email == null || nickname == null || character == null) {
                 var info = fetchUserInfoById(s.getUserId());
                 if (info != null) {
-                    if (email == null)    email    = info.email;
+                    if (email == null) email = info.email;
                     if (nickname == null) nickname = info.nickname;
-                    if (character == null)character= info.character;
+                    if (character == null) character = info.character;
                 }
             }
         } else {
             // 개발 편의: 첫 사용자 조회(운영에선 제거)
             var info = fetchFirstUser();
             if (info != null) {
-                loginId  = info.loginId;
-                email    = info.email;
+                loginId = info.loginId;
+                email = info.email;
                 nickname = info.nickname;
-                character= info.character;
+                character = info.character;
             }
         }
 
@@ -213,6 +196,7 @@ public class MyInfoPanelController extends OverlayChildController {
         tfId.setText(loginId != null ? loginId : "");
         tfEmail.setText(email != null ? email : "");
         tfNickname.setText(nickname != null ? nickname : "");
+
 
         // 정규화하는 부분 같은데 필요 없음
 //        String norm = (character != null) ? normalize(character) : "RACCOON";
@@ -287,18 +271,17 @@ public class MyInfoPanelController extends OverlayChildController {
 
     // ===== 캐릭터 미리보기 =====
     private void setCharacterPreviewByType(CharacterType type) {
-        // String key  = normalize(type);
-        // String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png"); // 기본값
         if (type == null) type = CharacterType.ZZUNI;
-        String path = type.getImagePath(); // ⚠ 리소스 경로 확인
+        String path = type.getImagePath(); //  리소스 경로 확인
+
         try (InputStream in = getClass().getResourceAsStream(path)) {
             imgCharacter.setImage(in != null ? new Image(in) : null);
         } catch (Exception ignored) {}
     }
 
-    private String normalize(String raw) {
-        return raw == null ? "" : raw.trim().toUpperCase();
-    }
+//    private String normalize(String raw) {
+//        return raw == null ? "" : raw.trim().toUpperCase();
+//    }
 
     private void hint(String s){ if (lblHint != null) lblHint.setText(s); }
 }

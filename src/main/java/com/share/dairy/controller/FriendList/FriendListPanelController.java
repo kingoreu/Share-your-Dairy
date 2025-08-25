@@ -25,6 +25,7 @@ import javafx.scene.layout.*;
 import javafx.scene.control.Label;
 
 import javafx.event.ActionEvent;
+import javafx.scene.layout.*;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -42,7 +43,6 @@ public class FriendListPanelController extends OverlayChildController {
     private final Set<Long> selected = new HashSet<>();
     private boolean selectMode = false;
 
-    /* ===== 캐릭터 파일 매핑 ===== */
 //    private static final Map<String,String> CHARACTER_FILE = Map.ofEntries(
 //            Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
 //            Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),

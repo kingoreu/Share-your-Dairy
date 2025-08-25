@@ -11,7 +11,6 @@
 
 /* 1. 전역 폰트 & 글자색 */
 * {
-    /*-fx-font-family: "Segoe UI", "Malgun Gothic", sans-serif; */
     -fx-font-family: "DungGeunmo";
     -fx-font-size: 18px;
     -fx-text-fill: #333;
@@ -298,8 +297,8 @@
 /* 2) 버튼 간격 띄우기 (사이드바 컨테이너가 VBox일 때 적용) */
 .sidebar {
     -fx-alignment: BOTTOM_CENTER; /* VBox 자식들을 아래로 정렬 */
-    -fx-spacing: 32;              /* 버튼 사이 간격은 유지/조금 넓게 */
-    -fx-padding: 12 12 8 12;            /* 버튼 사이 간격 */
+    -fx-spacing: 32; /* 버튼 사이 간격은 유지/조금 넓게 */
+    -fx-padding: 12 12 8 12; /* 버튼 사이 간격 */
 
 /* ===== 왼쪽 3개 버튼을 화면에서 더 아래로 내리기 (레이아웃 영향 없이 시각적 이동) ===== */
 .sidebar .button,

@@ -16,7 +16,7 @@ public class UserCreateRequest {
 
     @NotBlank
     @Size(min = 2, max = 50)
-    @Pattern(regexp = "^[a-z0-9_]{2,20}$", message = "loginId는 소문자/숫자/밑줄 2~20자")
+    @Pattern(regexp = "^[a-z0-9_]{4,20}$", message = "loginId는 소문자/숫자/밑줄 4~20자")
     private String loginId;
 
     @NotBlank

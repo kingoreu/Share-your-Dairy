@@ -37,14 +37,6 @@ public class AddFriendsPanelController extends OverlayChildController {
     private String foundNickname = null;
     private CharacterType foundCharacter= null;
 
-//    private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
-//        Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
-//        Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
-//        Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
-//        Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
-//        Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
-//        Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
-//    );
 
     /* =========================
      *           INIT
@@ -312,4 +304,5 @@ public class AddFriendsPanelController extends OverlayChildController {
         }
     }
     private record PendingRow(long userId, String loginId, String nickname, CharacterType character) {}
+
 }

@@ -82,18 +82,17 @@ public class LoginController {
                     } else {
                         alert("로그인 실패: " + res.body());
                     }
-
-                        //  로그인 성공 → 응답 JSON에서 사용자 정보 추출해 세션에 저장
+                        // ✅ 로그인 성공 → 응답 JSON에서 사용자 정보 추출해 세션에 저장
 //                        String body = res.body();
 //
 //                        long   userId        = parseLong(jget(body, "userId", "id"), -1);
 //                        String loginId       = firstNonEmpty(jget(body, "loginId", "username"), id);
 //                        String nickname      = firstNonEmpty(jget(body, "nickname", "nick"), "");
 //                        String email         = firstNonEmpty(jget(body, "userEmail", "email"), "");
-//                        String characterType = firstNonEmpty(jget(body, "characterType", "character_type"), "RACCOON");
+//                        CharacterType characterType = firstNonEmpty(jget(body, "characterType", "character_type"), "RACCOON");
 //
 //                        UserSession.set(new UserSession(userId, loginId, nickname, email, characterType));
-
+//
 //                        goMain(event);
 //                    } else {
 //                        alert("로그인 실패 (" + res.statusCode() + "): " + res.body());
@@ -136,6 +135,7 @@ public class LoginController {
         alert.showAndWait();
     }
 
+    // 이거 쓰는거임?
     private static String firstNonEmpty(String a, String b){
         return (a != null && !a.isBlank()) ? a : b;
     }

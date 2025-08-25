@@ -3,22 +3,20 @@ package com.share.dairy.controller;
 import com.share.dairy.auth.UserSession;
 import com.share.dairy.controller.character.CharacterPaneController;
 import com.share.dairy.model.enums.CharacterType;
+
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Node;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
-import java.io.InputStream;
-
 
 public class MainController {
 
@@ -43,8 +41,6 @@ public class MainController {
     @FXML private Pane characterPane;
     @FXML private CharacterPaneController characterPaneController;
 
-    // @FXML private ImageView characterImg;
-    // @FXML private ImageView characterImageView;
 
     /* ===================== Overlay Host Impl ===================== */
     private final OverlayHost overlayHost = new OverlayHost() {
@@ -56,37 +52,21 @@ public class MainController {
     @FXML
     public void initialize() {
 
-//        UserSession currentUser = UserSession.get();
-//
-//        if (currentUser != null) {
-//            CharacterType type = currentUser.getCharacterType();
-//            String path = type.getImagePath();
-//
-//            try (InputStream is = getClass().getResourceAsStream(path)) {
-//                if (is != null) {
-//                    characterImg.setImage(new Image(is));
-//                } else {
-//                    System.out.println("캐릭터 파일을 찾을 수 없습니다. ");
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-
         // Overlay 레이어 초기 상태
         contentPane.setVisible(false);
         contentPane.setManaged(false);
-        contentPane.setPickOnBounds(true);                   // 뒤 클릭 차단
+        // contentPane.setPickOnBounds(true);
+        contentPane.setPickOnBounds(false);
         contentPane.setStyle("-fx-background-color: transparent;");
         contentPane.toBack();
 
         // Z-Order 정리
         wardrobeHotspot.toFront();
-        windowHotspot.toFront();
         laptopHotspot.toFront();
         bookshelfHotspot.toFront();
         radioHotspot.toFront();
         characterPane.toFront();
+        windowHotspot.toFront();
         // characterImg.toFront();
         setOverlayVisible(true);
 
@@ -106,7 +86,7 @@ public class MainController {
     @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/diary_hub/diary-hub-shell.fxml"); }
     @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO: 책장 화면 */ }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/calendar/calendar.fxml"); }
-    @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/FriendList/MyInfoPanel.fxml"); }
+    // @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/FriendList/MyInfoPanel.fxml"); }
 
     /* ===================== Overlay Loader ===================== */
     private void loadView(String fxmlPath) {
@@ -114,9 +94,12 @@ public class MainController {
             var url = getClass().getResource(fxmlPath);
             if (url == null) throw new IllegalStateException("FXML not found: " + fxmlPath);
 
+            System.out.println("[MainController] loading view = " + fxmlPath);
+
             // 컨트롤러 인스턴스를 얻기 위해 loader 사용
             FXMLLoader loader = new FXMLLoader(url);
             Parent view = loader.load();
+            System.out.println("[MainController] loaded controller = " + loader.getController());
 
             // 자식 컨트롤러가 OverlayHost를 필요로 하면 주입
             Object controller = loader.getController();
@@ -140,6 +123,7 @@ public class MainController {
                 r.prefHeightProperty().bind(contentPane.heightProperty());
             }
 
+
             // 기본(핫스팟/캐릭터) 오버레이 숨김
             setOverlayVisible(false);
 
@@ -147,6 +131,7 @@ public class MainController {
             animateFadeIn(view);
 
         } catch (Exception ex) {
+            System.err.println("[MainController] FXML load failed: " + fxmlPath);
             ex.printStackTrace();
         }
     }
@@ -158,7 +143,6 @@ public class MainController {
         laptopHotspot.setVisible(v);
         bookshelfHotspot.setVisible(v);
         radioHotspot.setVisible(v);
-        // characterImg.setVisible(v);
         characterPane.setVisible(v);
 
         if (v) {
@@ -168,7 +152,6 @@ public class MainController {
             laptopHotspot.toFront();
             bookshelfHotspot.toFront();
             radioHotspot.toFront();
-            // characterImg.toFront();
             characterPane.toFront();
         }
     }

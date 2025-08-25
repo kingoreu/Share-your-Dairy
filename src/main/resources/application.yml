@@ -1,7 +1,7 @@
 server:
   port: 8080
 
- # env 파일 못읽어서 추가
+  # env 파일 못읽어서 추가
 spring:
   config:
     import: optional:file:.env[.properties]

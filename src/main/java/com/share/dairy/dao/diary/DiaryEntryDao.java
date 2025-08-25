@@ -10,22 +10,23 @@ import java.sql.*;
 import java.util.*;
 
 @Repository
-// 기본 CRUD 만 구현. 나머지 추가 기능은 알아서 추가
 public class DiaryEntryDao {
     private final RowMapper<DiaryEntry> mapper = new DiaryEntryMapper();
 
+    /* 단건 조회 */
     public Optional<DiaryEntry> findById(long entryId) throws SQLException {
         try (var con = DBConnection.getConnection()) {
             return findById(con, entryId);
         }
     }
-
+    // 같은 Connection으로 조회 수행 (트랜잭션 안에서 호출)
+    // - entryId가 존재하지 않으면 Optional.empty() 반환
     public Optional<DiaryEntry> findById(Connection con, long entryId) throws SQLException {
         String sql = """
-          SELECT entry_id, user_id, entry_date, title, diary_content, visibility,
-                 diary_created_at, diary_updated_at, shared_diary_id
-          FROM diary_entries
-          WHERE entry_id=?
+            SELECT entry_id, user_id, entry_date, title, diary_content, visibility,
+                   diary_created_at, diary_updated_at, shared_diary_id
+              FROM diary_entries
+             WHERE entry_id=?
         """;
         try (var ps = con.prepareStatement(sql)) {
             ps.setLong(1, entryId);
@@ -75,33 +76,32 @@ public class DiaryEntryDao {
         }
     }
 
-    /** 사용 중일 수도 있으니 INSERT도 title 포함으로 맞춰둡니다. */
+
+    /* 저장 */
     public long save(DiaryEntry entry) throws SQLException {
-    String sql = """
-        INSERT INTO diary_entries (user_id, entry_date, title, diary_content, visibility, diary_created_at)
-        VALUES (?, ?, ?, ?, ?, NOW())
-    """;
-    try (Connection conn = DBConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        String sql = """
+            INSERT INTO diary_entries
+                (user_id, entry_date, title, diary_content, visibility, diary_created_at)
+            VALUES (?, ?, ?, ?, ?, NOW())
+        """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-        ps.setLong(1, entry.getUserId());
-        ps.setDate(2, java.sql.Date.valueOf(entry.getEntryDate())); // ✅ java.sql.Date로 명시
-        ps.setString(3, entry.getTitle());
-        ps.setString(4, entry.getDiaryContent());
-        ps.setString(5, entry.getVisibility().name());             // ✅ enum → 문자열
+            ps.setLong(1, entry.getUserId());
+            ps.setDate(2, java.sql.Date.valueOf(entry.getEntryDate()));
+            ps.setString(3, entry.getTitle());
+            ps.setString(4, entry.getDiaryContent());
+            ps.setString(5, entry.getVisibility().name()); // ENUM → 문자열
 
-        ps.executeUpdate();
-
-        try (ResultSet keys = ps.getGeneratedKeys()) {
-            if (keys.next()) return keys.getLong(1);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) return keys.getLong(1);
+            }
             throw new SQLException("일기 저장 실패 (entry_id 생성 안 됨)");
         }
     }
-}
 
-
-
-
+    /* 내용 수정 */
     public int updateContent(Connection con, long entryId, String content) throws SQLException {
         String sql = "UPDATE diary_entries SET diary_content=? WHERE entry_id=?";
         try (var ps = con.prepareStatement(sql)) {
@@ -111,17 +111,16 @@ public class DiaryEntryDao {
         }
     }
 
+    /* 삭제 */
     public int deleteById(long entryId) throws SQLException {
-        try (var con = DBConnection.getConnection()) {
-            String sql = "DELETE FROM diary_entries WHERE entry_id=?";
-            try (var ps = con.prepareStatement(sql)) {
-                ps.setLong(1, entryId);
-                return ps.executeUpdate();
-            }
+        try (var con = DBConnection.getConnection();
+             var ps  = con.prepareStatement("DELETE FROM diary_entries WHERE entry_id=?")) {
+            ps.setLong(1, entryId);
+            return ps.executeUpdate();
         }
     }
 
-     // 공유일기면 shared_diary_id 추가하여 삽입
+    /* 공유일기 연결/해제 */
     public int updateSharedDiaryId(Connection con, long entryId, Long sharedDiaryId) throws SQLException {
         String sql = "UPDATE diary_entries SET shared_diary_id=? WHERE entry_id=?";
         try (var ps = con.prepareStatement(sql)) {
@@ -131,5 +130,4 @@ public class DiaryEntryDao {
             return ps.executeUpdate();
         }
     }
-
 }

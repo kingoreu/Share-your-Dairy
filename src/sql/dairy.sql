@@ -61,21 +61,21 @@ CREATE TABLE shared_diary_members
 ) ENGINE = InnoDB;
 
 -- 4) 친구 관계
-CREATE TABLE `friendship` (
-    `user_id` BIGINT NOT NULL,
-    `friend_id` BIGINT NOT NULL,
-    `friendship_status` ENUM('PENDING','ACCEPTED','REJECTED') NOT NULL COLLATE 'utf8mb4_general_ci',
-    `requested_at` DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `responded_at` DATETIME NULL DEFAULT NULL,
-    PRIMARY KEY (`user_id`, `friend_id`) USING BTREE,
-    UNIQUE INDEX `uq_friend_pair` ((least(`user_id`,`friend_id`)), (greatest(`user_id`,`friend_id`))) USING BTREE,
-    INDEX `fk_friend_friend` (`friend_id`) USING BTREE,
-    CONSTRAINT `fk_friend_friend` FOREIGN KEY (`friend_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT `fk_friend_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE ON DELETE CASCADE
-)
-    COLLATE='utf8mb4_general_ci'
-    ENGINE=InnoDB
-;
+CREATE TABLE friendship
+(
+    user_id           BIGINT                                 NOT NULL,
+    friend_id         BIGINT                                 NOT NULL,
+    friendship_status ENUM ('PENDING','ACCEPTED','REJECTED') NOT NULL,
+    requested_at      DATETIME                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    responded_at      DATETIME                               NULL,
+    PRIMARY KEY (user_id, friend_id),
+    CONSTRAINT fk_friend_user
+        FOREIGN KEY (user_id) REFERENCES users (user_id)
+            ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_friend_friend
+        FOREIGN KEY (friend_id) REFERENCES users (user_id)
+            ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
 
 -- 5) 일기 본문
 CREATE TABLE diary_entries

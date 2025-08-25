@@ -38,7 +38,6 @@ public final class UserSession {
     public String getNickname() { return nickname; }
     public String getEmail() { return email; }
     public CharacterType getCharacterType() { return characterType; }
-
     public void setNickname(String nickname) { this.nickname = nickname; }
     public void setEmail(String email) { this.email = email; }
     public void setCharacterType(CharacterType characterType) { this.characterType = characterType; }
