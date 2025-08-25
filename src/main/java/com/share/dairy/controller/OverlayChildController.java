@@ -28,4 +28,5 @@ public abstract class OverlayChildController
     protected final void open(String fxmlPath) { if (host != null) host.openOverlay(fxmlPath); }
     protected final void close()               { if (host != null) host.closeOverlay(); }
     protected final MainController.OverlayHost host() { return host; }
+
 }

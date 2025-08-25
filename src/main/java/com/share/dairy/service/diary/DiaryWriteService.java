@@ -38,7 +38,7 @@ public class DiaryWriteService {
     }
 
     // 목록 조회: 컨트롤러가 쓰기 쉽게 DAO 호출을 한 줄로 감쌉니다.
-
+    
     public List<DiaryEntry> loadMyDiaryList(Long userId) {
         if (userId == null || userId <= 0)  // ✅ 로그인 없으면 막기
             throw new IllegalStateException("로그인이 필요합니다.");
@@ -63,33 +63,33 @@ public class DiaryWriteService {
      * - visibility, sharedDiaryId 는 null 허용
      * - entryDate 가 null이면 오늘 날짜로 저장
      */
-    // 같은 Connection으로 INSERT 수행 (트랜잭션 안에서 호출)
+   // 같은 Connection으로 INSERT 수행 (트랜잭션 안에서 호출)
     private long insertEntry(Connection con, DiaryEntry d) throws SQLException {
-        String sql = """
+    String sql = """
         INSERT INTO diary_entries
           (user_id, entry_date, title, diary_content, visibility, shared_diary_id)
         VALUES (?,?,?,?,?,?)
     """;
 
-        try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            if (d.getUserId() == null) {
-                throw new SQLException("user_id is null (DiaryEntry.userId 필수)");
-            }
-            var date = (d.getEntryDate() != null) ? d.getEntryDate() : java.time.LocalDate.now();
-
-            ps.setLong(1, d.getUserId());
-            ps.setObject(2, date);
-            ps.setString(3, (d.getTitle() == null) ? "" : d.getTitle());         // ★ title
-            ps.setString(4, d.getDiaryContent());
-            ps.setString(5, d.getVisibility() == null ? "PRIVATE" : d.getVisibility().name());
-            if (d.getSharedDiaryId() == null) ps.setNull(6,  java.sql.Types.BIGINT);
-            else ps.setLong(6, d.getSharedDiaryId());
-
-            ps.executeUpdate();
-            try (var keys = ps.getGeneratedKeys()) {
-                return keys.next() ? keys.getLong(1) : 0L;
-            }
+    try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        if (d.getUserId() == null) {
+            throw new SQLException("user_id is null (DiaryEntry.userId 필수)");
         }
+        var date = (d.getEntryDate() != null) ? d.getEntryDate() : java.time.LocalDate.now();
+
+        ps.setLong(1, d.getUserId());
+        ps.setObject(2, date);
+        ps.setString(3, (d.getTitle() == null) ? "" : d.getTitle());         // ★ title
+        ps.setString(4, d.getDiaryContent());
+        ps.setString(5, d.getVisibility() == null ? "PRIVATE" : d.getVisibility().name());
+        if (d.getSharedDiaryId() == null) ps.setNull(6,  java.sql.Types.BIGINT);
+        else ps.setLong(6, d.getSharedDiaryId());
+
+        ps.executeUpdate();
+        try (var keys = ps.getGeneratedKeys()) {
+            return keys.next() ? keys.getLong(1) : 0L;
+        }
+    }
     }
 
 
@@ -123,9 +123,9 @@ public class DiaryWriteService {
     }
     // 본문만 업데이트 (트랜잭션)
     public void updateContent(long entryId, String content) throws SQLException {
-        Tx.inTx(con -> {
-            diaryEntryDao.updateContent(con, entryId, content);
-            return null; // commit
-        });
-    }
+    Tx.inTx(con -> {
+        diaryEntryDao.updateContent(con, entryId, content);
+        return null; // commit
+    });
+}
 }

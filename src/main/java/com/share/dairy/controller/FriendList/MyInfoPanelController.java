@@ -18,7 +18,6 @@ import java.sql.ResultSet;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-
 public class MyInfoPanelController extends OverlayChildController {
 
     // ===== FXML 바인딩 =====
@@ -37,18 +36,18 @@ public class MyInfoPanelController extends OverlayChildController {
     private boolean editing = false;
 
     private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
-            Map.entry("RACCOON", "raccoon.png"),
-            Map.entry("DOG",     "dog.png"),
-            Map.entry("CAT",     "cat.png"),
-            Map.entry("BEAR",    "bear.png"),
-            Map.entry("DEER",    "deer.png"),
-            Map.entry("DUCK",    "duck.png"),
-            Map.entry("HAMSTER", "hamster.png"),
-            Map.entry("RABBIT",  "rabbit.png"),
-            Map.entry("WOLF",    "wolf.png"),
-            Map.entry("RICHARD", "richard.png"),
-            Map.entry("TAKO",    "tako.png"),
-            Map.entry("ZZUNI",   "zzuni.png")
+        Map.entry("RACCOON", "raccoon.png"),
+        Map.entry("DOG",     "dog.png"),
+        Map.entry("CAT",     "cat.png"),
+        Map.entry("BEAR",    "bear.png"),
+        Map.entry("DEER",    "deer.png"),
+        Map.entry("DUCK",    "duck.png"),
+        Map.entry("HAMSTER", "hamster.png"),
+        Map.entry("RABBIT",  "rabbit.png"),
+        Map.entry("WOLF",    "wolf.png"),
+        Map.entry("RICHARD", "richard.png"),
+        Map.entry("TAKO",    "tako.png"),
+        Map.entry("ZZUNI",   "zzuni.png")
     );
 
     // ===== 초기화 =====
@@ -66,7 +65,7 @@ public class MyInfoPanelController extends OverlayChildController {
         // 캐릭터 옵션
         cbCharacter.getItems().setAll(CHARACTER_FILE.keySet());
         cbCharacter.getSelectionModel().selectedItemProperty().addListener(
-                (obs, o, n) -> setCharacterPreviewByType(n)
+            (obs, o, n) -> setCharacterPreviewByType(n)
         );
 
         // 로그인한 사용자 정보 로딩(세션 → 필요 시 DB 보완)
@@ -206,10 +205,10 @@ public class MyInfoPanelController extends OverlayChildController {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new UserInfo(
-                            rs.getString("login_id"),
-                            rs.getString("user_email"),
-                            rs.getString("nickname"),
-                            rs.getString("character_type")
+                        rs.getString("login_id"),
+                        rs.getString("user_email"),
+                        rs.getString("nickname"),
+                        rs.getString("character_type")
                     );
                 }
             }
@@ -227,10 +226,10 @@ public class MyInfoPanelController extends OverlayChildController {
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return new UserInfo(
-                        rs.getString("login_id"),
-                        rs.getString("user_email"),
-                        rs.getString("nickname"),
-                        rs.getString("character_type")
+                    rs.getString("login_id"),
+                    rs.getString("user_email"),
+                    rs.getString("nickname"),
+                    rs.getString("character_type")
                 );
             }
         } catch (Exception e) {

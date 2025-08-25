@@ -60,6 +60,8 @@ public class MyDiaryController {
     @FXML private VBox listContainer;
 
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
+    // ✅ 수정: 하드코딩 제거(=FK 오류 원인). 외부에서 로그인 유저 ID 주입받도록 함.
+   
 
     // ===== 서버 URL/HTTP 클라이언트 =====
     private static final String BASE_URL = "http://localhost:8080";
@@ -191,25 +193,26 @@ public class MyDiaryController {
 
     /** 목록 렌더 */
     private void refreshList() {
-        if (listContainer == null) return;
+    if (listContainer == null) return;
 
-        Long uid = com.share.dairy.auth.UserSession.currentId();
-        if (uid == null || uid <= 0) {
-            listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
-            return;
-        }
-
-        List<DiaryEntry> rows;
-        try {
-            rows = diaryWriteService.loadMyDiaryList(uid);
-        } catch (RuntimeException ex) {
-            listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
-            return;
-        }
-
-        listContainer.getChildren().clear();
-        for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
+    Long uid = com.share.dairy.auth.UserSession.currentId();
+    if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
+        listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
+        return;
     }
+
+    List<DiaryEntry> rows;
+    try {
+        rows = diaryWriteService.loadMyDiaryList(uid); // ✅ 내 것만
+    } catch (RuntimeException ex) {
+        listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
+        return;
+    }
+
+    listContainer.getChildren().clear();
+    for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
+}
+
 
     /** 카드: 단순 표시(클릭 동작 없음 — 안정 상태) */
     private VBox makeCard(DiaryEntry d) {

@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
-
 public class FriendListPanelController extends OverlayChildController {
 
     /* ===== FXML ===== */

@@ -37,12 +37,12 @@ public class AddFriendsPanelController extends OverlayChildController {
     private String foundCharacter= null;
 
     private static final Map<String, String> CHARACTER_FILE = Map.ofEntries(
-            Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
-            Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
-            Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
-            Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
-            Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
-            Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
+        Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
+        Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
+        Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
+        Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
+        Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
+        Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
     );
 
     /* =========================
@@ -253,8 +253,8 @@ public class AddFriendsPanelController extends OverlayChildController {
             ps.setLong(1, userId);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) return new UserMini(
-                        rs.getLong("user_id"), rs.getString("login_id"),
-                        rs.getString("nickname"), rs.getString("character_type")
+                    rs.getLong("user_id"), rs.getString("login_id"),
+                    rs.getString("nickname"), rs.getString("character_type")
                 );
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -271,8 +271,8 @@ public class AddFriendsPanelController extends OverlayChildController {
             ps.setString(1, q); ps.setString(2, q);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) return new UserMini(
-                        rs.getLong("user_id"), rs.getString("login_id"),
-                        rs.getString("nickname"), rs.getString("character_type")
+                    rs.getLong("user_id"), rs.getString("login_id"),
+                    rs.getString("nickname"), rs.getString("character_type")
                 );
             }
         } catch (Exception e) { e.printStackTrace(); }
