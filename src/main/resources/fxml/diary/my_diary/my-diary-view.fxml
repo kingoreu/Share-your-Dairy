@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.web.WebView?>
-<?import javafx.scene.control.Hyperlink?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.share.dairy.controller.MyDiaryController"
            prefWidth="960" prefHeight="640">
 
-    <!-- 본문 영역 -->
     <VBox spacing="12" style="-fx-padding: 16;">
         <!-- 상단: PLACE / MUSIC / EDIT / SAVE -->
         <HBox spacing="8">
@@ -22,39 +20,20 @@
             <Button text="SAVE" onAction="#onSave"/>
         </HBox>
 
-        <!-- 입력 영역 -->
+        <!-- NEW DIARY 입력 영역 -->
         <TextField fx:id="titleField" promptText="TITLE"/>
         <TextArea fx:id="contentArea" promptText="CONTENTS" prefRowCount="12"/>
-        <TextField fx:id="placeField" promptText="Place..." maxWidth="560"/>
+        <TextField fx:id="placeField" promptText="Place..." maxWidth="420"/>
 
-        <!-- 하단 음악 패널 (펼친 상태) -->
-        <HBox fx:id="musicBar" spacing="12" visible="false" managed="false"
-              style="-fx-padding:12; -fx-background-color:#ffeaf2; -fx-border-color:#e5c6d7; -fx-border-radius:10; -fx-background-radius:10;">
-            <WebView fx:id="musicWeb" prefWidth="320" prefHeight="180"/>
-            <VBox spacing="6" VBox.vgrow="NEVER">
-                <Label fx:id="musicTitle" style="-fx-font-weight:bold; -fx-text-overrun: word-ellipsis;"/>
-                <Label fx:id="musicChannel" style="-fx-text-fill:#7a7a7a; -fx-text-overrun: word-ellipsis;"/>
-                <HBox spacing="8">
-                    <Button text="정지" onAction="#onMusicStop"/>
-                    <Button text="숨기기" onAction="#onMusicHide"/>
-                    <Hyperlink fx:id="musicOpenLink" text="유튜브에서 열기" onAction="#onMusicOpenInYT" visible="false"/>
-                </HBox>
-            </VBox>
-        </HBox>
-
-        <!-- 미니 바 (접힌 상태) -->
-        <HBox fx:id="musicMini" spacing="10" visible="false" managed="false"
-              style="-fx-padding:10; -fx-background-color:#ffeaf2; -fx-border-color:#e5c6d7; -fx-border-radius:10; -fx-background-radius:10;">
-            <Button fx:id="musicMuteBtn" text="🔈" onAction="#onMusicMuteToggle" />
-            <Label text="♪  BGM 재생중" />
-            <Pane HBox.hgrow="ALWAYS"/>
-            <Button text="펼치기" onAction="#onMusicMiniToggle"/>
-        </HBox>
+        <!-- 필요하면 music/time 입력칸도 추가 가능 (컨트롤러에 null-guard 있음)
+        <TextField fx:id="musicField" promptText="Music..."/>
+        <TextField fx:id="timeField"  promptText="Time..."/>
+        -->
     </VBox>
 
-    <!-- 우하단 연필 FAB (메인 화면에서만 보이게; 모달은 컨트롤러에서 강제 숨김) -->
-    <Button fx:id="pencilFab" id="pencilFab"
-            onAction="#onClickFabPencil"
+    <!-- 우하단 FAB (원하면 삭제해도 됨) -->
+    <Button fx:id="pencilFab"
+            onAction="#onEdit"
             styleClass="fab"
             StackPane.alignment="BOTTOM_RIGHT">
         <StackPane.margin>
