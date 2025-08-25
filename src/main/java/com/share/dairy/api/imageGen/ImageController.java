@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  * 관리/디버그용(동기):
  *  - POST /api/diary/{entryId}/images/auto/sync?regenerate=false&size=1024
  */
-@RestController
+@RestController("diaryController") // ← 고유한 이름으로 변경
 @RequestMapping("/api/diary")
 @RequiredArgsConstructor
 public class ImageController {

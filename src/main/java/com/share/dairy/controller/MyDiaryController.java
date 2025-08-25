@@ -299,6 +299,8 @@ public class MyDiaryController {
                 .map(String::trim).filter(s -> !s.isEmpty())
                 .orElse("제목 없음");
 
+        Label date  = new Label(dateText);
+        Label title = new Label(titleText);
 
         TextArea body = new TextArea(Optional.ofNullable(d.getDiaryContent()).orElse(""));
         body.setEditable(false);
@@ -490,6 +492,8 @@ public class MyDiaryController {
     private void syncMuteButton() {
         if (musicMuteBtn != null) {
             musicMuteBtn.setText(isMuted ? "🔇" : "🔈");
+        }
+    }
 
     // =========================
     // 이미지 자동 생성(서버 트리거)
@@ -694,3 +698,4 @@ public class MyDiaryController {
         }
     }
 }
+    

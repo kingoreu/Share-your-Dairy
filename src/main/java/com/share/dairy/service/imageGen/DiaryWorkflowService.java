@@ -86,16 +86,21 @@ public class DiaryWorkflowService {
             var result = imageGen.generateTwoWithBase_NoMask(
                     entryId,
                     keyword,
-                    ctx.characterType(),
                     basePng,
                     useCache,
                     size
             );
 
             // 6) DB 반영
-            progress.update(entryId, 90, "DB 저장 중…");
-            imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), result.keywordUrl());
-            imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), result.characterUrl());
+            // 반환 객체에서 URL을 안전하게 꺼냄 (keywordUrl / getKeywordUrl 둘 다 지원)
+            String kwUrl = getStringProp(result, "keywordUrl", "getKeywordUrl");
+            String chUrl = getStringProp(result, "characterUrl", "getCharacterUrl");
+            if (kwUrl == null || chUrl == null) {
+            throw new IllegalStateException("image generator returned no URLs");
+            }
+
+            imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), kwUrl);
+            imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), chUrl);
 
             // 7) 완료
             progress.done(entryId, "완료");
@@ -132,16 +137,52 @@ public class DiaryWorkflowService {
         var res = imageGen.generateTwoWithBase_NoMask(
                 entryId,
                 ctx.analysisKeywords(),
-                ctx.characterType(),
                 basePng,
                 /*useCache*/ !regenerate,
                 (size == null || size.isBlank()) ? "1024" : size
         );
+        
+        String kwUrl = getStringProp(res, "keywordUrl", "getKeywordUrl");
+        String chUrl = getStringProp(res, "characterUrl", "getCharacterUrl");
+        if (kwUrl == null || chUrl == null) {
+        throw new IllegalStateException("image generator returned no URLs");
+        }
 
-        imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), res.keywordUrl());
-        imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), res.characterUrl());
+        imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), kwUrl);
+        imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), chUrl);
 
-        return new ImageGenerateDtos.GenerateResponse(res.keywordUrl(), res.characterUrl());
+        return new ImageGenerateDtos.GenerateResponse(kwUrl, chUrl);
+        }
+
+        // 반환 객체에서 "keywordUrl"/"getKeywordUrl" 같은 문자열 속성을 안전하게 꺼낸다.
+    private static String getStringProp(Object obj, String... methodNames) {
+        if (obj == null) return null;
+        try {
+        // 1) 메서드 우선 시도
+        for (String m : methodNames) {
+            try {
+                var md = obj.getClass().getMethod(m);
+                md.setAccessible(true);
+                Object v = md.invoke(obj);
+                if (v != null) return String.valueOf(v);
+            } catch (NoSuchMethodException ignore) { /* 다음 메서드 시도 */ }
+        }
+        // 2) 필드명도 시도 (예: keywordUrl, characterUrl)
+        for (String m : methodNames) {
+            String fieldName = m.startsWith("get") && m.length() > 3
+                    ? Character.toLowerCase(m.charAt(3)) + m.substring(4)
+                    : m;
+            try {
+                var f = obj.getClass().getDeclaredField(fieldName);
+                f.setAccessible(true);
+                Object v = f.get(obj);
+                if (v != null) return String.valueOf(v);
+            } catch (NoSuchFieldException ignore) { /* 다음 필드 시도 */ }
+        }
+    } catch (Exception e) {
+        // 무시하고 null 반환
+    }
+    return null;
     }
 
     private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }

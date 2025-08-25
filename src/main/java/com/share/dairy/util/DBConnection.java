@@ -8,11 +8,11 @@ import java.util.Properties;
 public final class DBConnection {
 
     // ← 현재 잘 되는 값(백업/기본값)
-    private static final String DEF_HOST   = "127.0.0.1";
+    private static final String DEF_HOST   = "113.198.238.119";
     private static final int    DEF_PORT   = 3306;
     private static final String DEF_SCHEMA = "dairy";
-    private static final String DEF_USER   = "root";
-    private static final String DEF_PASS   = "1234";
+    private static final String DEF_USER   = "dairyuser";
+    private static final String DEF_PASS   = "dairypass";
 
     private static String url;
     private static String user;
