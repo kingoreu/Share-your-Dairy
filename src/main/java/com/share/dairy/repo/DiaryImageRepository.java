@@ -12,8 +12,8 @@ public class DiaryImageRepository {
     /** created_at(일기 생성일) 기준으로 [from, to] 기간의 날짜별 캐릭터 키워드 이미지 URL */
     public Map<LocalDate, String> findKeywordImages(long userId, LocalDate from, LocalDate to) {
     String sql = """
-        SELECT DATE(diary_entries.diary_created_at) AS day,   -- ✅ 일기 생성 '날짜'
-               character_keyword_images.path_or_url           AS url
+        SELECT DATE(de.diary_created_at) AS day,   -- ✅ 일기 생성 '날짜'
+               cki.path_or_url           AS url
         FROM character_keyword_images cki
         JOIN diary_analysis  da ON da.analysis_id = cki.analysis_id
         JOIN diary_entries   de ON de.entry_id    = da.entry_id

@@ -118,7 +118,6 @@ public class MyDiaryController {
     private void onSave() {
         try {
             Long uid = com.share.dairy.auth.UserSession.currentId();
-            Long uid = com.share.dairy.auth.UserSession.currentId();
             String title   = (titleField  != null) ? titleField.getText().trim()  : "";
             String content = (contentArea != null) ? contentArea.getText().trim() : "";
 
