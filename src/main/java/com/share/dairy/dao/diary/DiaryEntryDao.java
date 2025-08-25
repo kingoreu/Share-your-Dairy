@@ -14,6 +14,7 @@ public class DiaryEntryDao {
     private final RowMapper<DiaryEntry> mapper = new DiaryEntryMapper();
 
     /* 단건 조회 */
+    /* 단건 조회 */
     public Optional<DiaryEntry> findById(long entryId) throws SQLException {
         try (var con = DBConnection.getConnection()) {
             return findById(con, entryId);
@@ -37,12 +38,13 @@ public class DiaryEntryDao {
     }
 
     /* ✅ 내 글 목록(현재 user_id 전용) */
+    /*  내 글 목록(현재 user_id 전용) */
     public List<DiaryEntry> findAllByUser(long userId) throws SQLException {
         String sql = """
             SELECT entry_id, user_id, shared_diary_id, entry_date, title,
                 diary_content, visibility, diary_created_at, diary_updated_at
             FROM diary_entries
-            WHERE user_id = ?                 -- ✅ 꼭 있어야 함
+            WHERE user_id = ?                 --  꼭 있어야 함
             ORDER BY entry_date DESC, entry_id DESC
         """;
         try (var con = DBConnection.getConnection();
@@ -58,23 +60,24 @@ public class DiaryEntryDao {
 
     // 공유 일기장 글 목록 조회
     public List<DiaryEntry> findAllBySharedDiaryId(long sharedDiaryId) throws SQLException {
-    String sql = """
+        String sql = """
         SELECT entry_id, user_id, shared_diary_id, entry_date, title,
                diary_content, visibility, diary_created_at, diary_updated_at
           FROM diary_entries
          WHERE shared_diary_id = ?
          ORDER BY entry_date DESC, entry_id DESC
     """;
-    try (var con = DBConnection.getConnection();
-         var ps  = con.prepareStatement(sql)) {
-        ps.setLong(1, sharedDiaryId);
-        try (var rs = ps.executeQuery()) {
-            List<DiaryEntry> list = new java.util.ArrayList<>();
-            while (rs.next()) list.add(mapper.map(rs));
-            return list;
+        try (var con = DBConnection.getConnection();
+             var ps  = con.prepareStatement(sql)) {
+            ps.setLong(1, sharedDiaryId);
+            try (var rs = ps.executeQuery()) {
+                List<DiaryEntry> list = new java.util.ArrayList<>();
+                while (rs.next()) list.add(mapper.map(rs));
+                return list;
+            }
         }
     }
-}
+
 
     /* 저장 */
     public long save(DiaryEntry entry) throws SQLException {

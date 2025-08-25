@@ -129,7 +129,7 @@ public void onNew() {
         // 2) 컨트롤러
         CreateShareDiaryDialogController ctrl = loader.getController();
 
-        // 이하 동일…
+        // 이하 동일… *********************
         List<CreateShareDiaryDialogController.BuddyLite> buddies = List.of(
             new CreateShareDiaryDialogController.BuddyLite("kk","K.K"),
             new CreateShareDiaryDialogController.BuddyLite("naki","NaKi"),
@@ -217,6 +217,7 @@ private Node buildCard(DiaryCardData d) {
 }
 
     /** 디자인 확인용 더미 카드 */
+    // 이것도 ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
     private List<DiaryCardData> fakeCards() {
         List<DiaryCardData> list = new ArrayList<>();
         list.add(new DiaryCardData("TITLE 1",

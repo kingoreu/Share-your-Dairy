@@ -3,6 +3,7 @@ package com.share.dairy.controller.FriendList;
 import com.share.dairy.auth.UserSession;
 import com.share.dairy.controller.OverlayChildController;
 import com.share.dairy.dao.friend.FriendshipDao;
+import com.share.dairy.model.enums.CharacterType;
 import com.share.dairy.model.friend.Friendship;
 import com.share.dairy.util.DBConnection;
 import javafx.fxml.FXML;
@@ -17,6 +18,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.*;
+import javafx.scene.control.Label;
+
+import javafx.event.ActionEvent;
 import javafx.scene.layout.*;
 
 import java.io.InputStream;
@@ -35,15 +43,14 @@ public class FriendListPanelController extends OverlayChildController {
     private final Set<Long> selected = new HashSet<>();
     private boolean selectMode = false;
 
-    /* ===== 캐릭터 파일 매핑 ===== */
-    private static final Map<String,String> CHARACTER_FILE = Map.ofEntries(
-            Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
-            Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
-            Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
-            Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
-            Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
-            Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
-    );
+//    private static final Map<String,String> CHARACTER_FILE = Map.ofEntries(
+//            Map.entry("RACCOON","raccoon.png"), Map.entry("DOG","dog.png"),
+//            Map.entry("CAT","cat.png"),         Map.entry("BEAR","bear.png"),
+//            Map.entry("DEER","deer.png"),       Map.entry("DUCK","duck.png"),
+//            Map.entry("HAMSTER","hamster.png"), Map.entry("RABBIT","rabbit.png"),
+//            Map.entry("WOLF","wolf.png"),       Map.entry("RICHARD","richard.png"),
+//            Map.entry("TAKO","tako.png"),       Map.entry("ZZUNI","zzuni.png")
+//    );
 
     /* =========================== init =========================== */
     @FXML
@@ -92,7 +99,7 @@ public class FriendListPanelController extends OverlayChildController {
         }
     }
 
-    private Node buildCard(long friendId, String name, String charType) {
+    private Node buildCard(long friendId, String name, CharacterType type) {
         StackPane root = new StackPane();
         root.getStyleClass().add("friend-card");
 
@@ -102,7 +109,7 @@ public class FriendListPanelController extends OverlayChildController {
         bg.setPrefHeight(88);
         bg.setMaxHeight(88);
 
-        ImageView avatar = new ImageView(loadChar(charType));
+        ImageView avatar = new ImageView(loadChar(type));
         avatar.setFitWidth(56);
         avatar.setFitHeight(56);
         avatar.setPreserveRatio(true);
@@ -169,15 +176,16 @@ public class FriendListPanelController extends OverlayChildController {
     }
 
     /* ======================== Helpers ========================== */
-    private Image loadChar(String type) {
-        String key = (type == null ? "" : type.trim().toUpperCase());
-        String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png");
-        try (InputStream in = getClass().getResourceAsStream("/character/" + file)) {
+    private Image loadChar(CharacterType type) {
+//        String key = (type == null ? "" : type.trim().toUpperCase());
+//        String file = CHARACTER_FILE.getOrDefault(key, "raccoon.png");
+        if (type == null) type = CharacterType.ZZUNI;
+        try (InputStream in = getClass().getResourceAsStream(type.getImagePath())) {
             return in != null ? new Image(in) : null;
         } catch (Exception e) { return null; }
     }
 
-    private record UserMini(long userId, String login, String nickname, String character) {
+    private record UserMini(long userId, String login, String nickname, CharacterType character) {
         String displayName() {
             return (nickname != null && !nickname.isBlank()) ? nickname : login;
         }
@@ -194,7 +202,7 @@ public class FriendListPanelController extends OverlayChildController {
                             rs.getLong("user_id"),
                             rs.getString("login_id"),
                             rs.getString("nickname"),
-                            rs.getString("character_type")
+                            CharacterType.fromString(rs.getString("character_type"))
                     );
             }
         } catch (Exception e) { e.printStackTrace(); }

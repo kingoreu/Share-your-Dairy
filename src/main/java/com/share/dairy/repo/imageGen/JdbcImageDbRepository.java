@@ -12,10 +12,17 @@ import java.util.Optional;
  *  - diary_entries(entry_id, user_id, ...)
  *  - diary_analysis(analysis_id PK, entry_id UNIQUE, analysis_keywords, ...)
  *  - users(user_id, character_type, ...)
+<<<<<<< HEAD
+ *  - keyword_images(keyword_image PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
+ *  - character_keyword_images(keyword_image PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
+ *
+ * ✅ 중요
+=======
  *  - keyword_images(keyword_image_id PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
  *  - character_keyword_images(keyword_image_id PK, analysis_id, user_id, path_or_url, created_at, UNIQUE(analysis_id,user_id))
  *
  * ✅ 정책
+>>>>>>> origin/이민우
  *  - 더 이상 diary_attachments에는 쓰지 않는다.
  *  - 두 이미지 경로는 각각의 *_images 테이블에만 저장한다.
  */
@@ -59,6 +66,8 @@ public class JdbcImageDbRepository implements ImageDbRepository {
             return Optional.of(new EntryContext(analysisId, userId, keywords, charType));
         }, entryId);
     }
+
+    // ⛔ diary_attachments 사용 종료 — 구현도 제거(필요 시 주석만 남김)
 
     @Override
     public void insertKeywordImageIfAbsent(long analysisId, long userId, String pathOrUrl) {

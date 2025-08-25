@@ -7,6 +7,7 @@ public class CharacterKeywordImage {
     private Long analysisId;
     private Long userId;
     private LocalDateTime createdAt;
+    private String pathOrUrl;
 
     public Long getKeywordImage() {
         return keywordImage;
@@ -39,4 +40,8 @@ public class CharacterKeywordImage {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getPathOrUrl() { return pathOrUrl; }
+
+    public void setPathOrUrl(String pathOrUrl) { this.pathOrUrl = pathOrUrl; }
 }

@@ -339,8 +339,12 @@ public class BuddyDiaryController {
 
     // ───────────────────────── 데모 버디 목록 ─────────────────────────
     private List<Buddy> fakeBuddies() {
+
+
         // 중요: id 자리에 **실제 user_id(문자열)** 를 넣어야 DB 조회가 됩니다.
         // 지금은 예시로 17, 23, 42, 58, 61을 넣어둡니다.
+        // *************************
+        // 백엔드랑 연결
         return List.of(
             new Buddy("17", "K.K"), // ← 친구 A의 user_id
             new Buddy("23", "NaKi"), // ← 친구 B의 user_id

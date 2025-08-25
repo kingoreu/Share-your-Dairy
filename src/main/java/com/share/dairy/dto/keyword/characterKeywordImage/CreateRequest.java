@@ -6,4 +6,5 @@ import lombok.Data;
 public class CreateRequest {
     private Long analysisId;
     private Long userId;
+    private String pathOrUrl;
 }

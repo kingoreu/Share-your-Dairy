@@ -53,9 +53,6 @@ public class HelloApplication extends Application {
                 getClass().getResourceAsStream("/fonts/NanumSquareRoundEB.ttf"),
                 14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
         );
-
-        Font.getFamilies().forEach(System.out::println);
-
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/login/Login.fxml"));
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("공유일기");

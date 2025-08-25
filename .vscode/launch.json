@@ -3,6 +3,24 @@
   "configurations": [
     {
       "type": "java",
+      "name": "ServerApplication",
+      "request": "launch",
+      "mainClass": "com.share.dairy.ServerApplication",
+      "projectName": "dairy",
+      "envFile": "${workspaceFolder}/.env"
+    },
+
+    {
+      "type": "java",
+      "name": "ServerApplication",
+      "request": "launch",
+      "mainClass": "com.share.dairy.ServerApplication",
+      "projectName": "dairy",
+      "envFile": "${workspaceFolder}/.env"
+    },
+
+    {
+      "type": "java",
       "name": "Run ServerApplication (Spring)",
       "request": "launch",
       "mainClass": "com.share.dairy.ServerApplication",
@@ -56,6 +74,18 @@
         "Run ServerApplication (Spring)",
         "Run DairyYtServer (8090)"
       ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run Server + HelloApp",
+      "configurations": ["ServerApplication", "HelloApplication"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run Server + HelloApp",
+      "configurations": ["ServerApplication", "HelloApplication"]
     }
   ]
 }

@@ -1,4 +1,4 @@
-package com.share.dairy.controller.MoodGraph;
+package com.share.dairy.controller.moodGraph;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;

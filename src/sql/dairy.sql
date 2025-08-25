@@ -217,3 +217,11 @@ CREATE TABLE character_keyword_images (
             ON DELETE CASCADE
             ON UPDATE CASCADE
 ) ENGINE = InnoDB;
+
+-- !! 캐릭터 이미지 테이블에 url 컬럼 추가 !! --
+ALTER TABLE character_keyword_images
+    ADD COLUMN path_or_url VARCHAR(255) NULL AFTER user_id;
+
+-- !! 키워드 이미지 테이블에 url 컬럼 추가 !! --
+ALTER TABLE keyword_images
+    ADD COLUMN path_or_url VARCHAR(255) NULL AFTER user_id;

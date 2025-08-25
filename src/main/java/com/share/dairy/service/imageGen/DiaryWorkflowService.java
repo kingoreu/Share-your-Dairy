@@ -12,6 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
+<<<<<<< HEAD
+ * 오케스트레이션 서비스:
+ *  1) entryId로 DB에서 (analysis_keywords, character_type, analysis_id, user_id) 조회
+ *  2) 캐릭터 PNG 경로 해석 (classpath 또는 file 시스템)
+ *  3) ImageGenService 호출 → 2장 생성
+ *  4) ✅ diary_attachments에는 더 이상 저장하지 않고
+ *       keyword_images / character_keyword_images 두 테이블에만 저장
+=======
  * DiaryWorkflowService
  * -------------------------------------------------------
  * 역할:
@@ -24,6 +32,7 @@ import java.nio.file.Path;
  *   - ProgressRegistry로 단계별 진행률/상태 기록(프론트 폴링용)
  *   - generateImagesAsync(...) 비동기 메서드: 프론트의 /auto가 호출
  *   - generateFromDb(...) 동기 메서드: 관리/디버그/배치에서 사용
+>>>>>>> origin/이민우
  */
 @Service
 public class DiaryWorkflowService {
@@ -86,21 +95,16 @@ public class DiaryWorkflowService {
             var result = imageGen.generateTwoWithBase_NoMask(
                     entryId,
                     keyword,
+                    ctx.characterType(),
                     basePng,
                     useCache,
                     size
             );
 
             // 6) DB 반영
-            // 반환 객체에서 URL을 안전하게 꺼냄 (keywordUrl / getKeywordUrl 둘 다 지원)
-            String kwUrl = getStringProp(result, "keywordUrl", "getKeywordUrl");
-            String chUrl = getStringProp(result, "characterUrl", "getCharacterUrl");
-            if (kwUrl == null || chUrl == null) {
-            throw new IllegalStateException("image generator returned no URLs");
-            }
-
-            imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), kwUrl);
-            imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), chUrl);
+            progress.update(entryId, 90, "DB 저장 중…");
+            imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), result.keywordUrl());
+            imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), result.characterUrl());
 
             // 7) 완료
             progress.done(entryId, "완료");
@@ -118,6 +122,7 @@ public class DiaryWorkflowService {
     public ImageGenerateDtos.GenerateResponse generateFromDb(long entryId,
                                                              boolean regenerate,
                                                              String size) {
+
         var ctxOpt = imageDbRepo.findContext(entryId);
         if (ctxOpt.isEmpty()) {
             throw new IllegalStateException("분석(키워드) 또는 일기/사용자 정보가 부족합니다. entry_id=" + entryId);
@@ -137,53 +142,18 @@ public class DiaryWorkflowService {
         var res = imageGen.generateTwoWithBase_NoMask(
                 entryId,
                 ctx.analysisKeywords(),
+                ctx.characterType(),
                 basePng,
                 /*useCache*/ !regenerate,
                 (size == null || size.isBlank()) ? "1024" : size
         );
-        
-        String kwUrl = getStringProp(res, "keywordUrl", "getKeywordUrl");
-        String chUrl = getStringProp(res, "characterUrl", "getCharacterUrl");
-        if (kwUrl == null || chUrl == null) {
-        throw new IllegalStateException("image generator returned no URLs");
-        }
 
-        imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), kwUrl);
-        imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), chUrl);
+        imageDbRepo.insertKeywordImageIfAbsent(ctx.analysisId(), ctx.userId(), res.keywordUrl());
+        imageDbRepo.insertCharacterImageIfAbsent(ctx.analysisId(), ctx.userId(), res.characterUrl());
 
-        return new ImageGenerateDtos.GenerateResponse(kwUrl, chUrl);
-        }
-
-        // 반환 객체에서 "keywordUrl"/"getKeywordUrl" 같은 문자열 속성을 안전하게 꺼낸다.
-    private static String getStringProp(Object obj, String... methodNames) {
-        if (obj == null) return null;
-        try {
-        // 1) 메서드 우선 시도
-        for (String m : methodNames) {
-            try {
-                var md = obj.getClass().getMethod(m);
-                md.setAccessible(true);
-                Object v = md.invoke(obj);
-                if (v != null) return String.valueOf(v);
-            } catch (NoSuchMethodException ignore) { /* 다음 메서드 시도 */ }
-        }
-        // 2) 필드명도 시도 (예: keywordUrl, characterUrl)
-        for (String m : methodNames) {
-            String fieldName = m.startsWith("get") && m.length() > 3
-                    ? Character.toLowerCase(m.charAt(3)) + m.substring(4)
-                    : m;
-            try {
-                var f = obj.getClass().getDeclaredField(fieldName);
-                f.setAccessible(true);
-                Object v = f.get(obj);
-                if (v != null) return String.valueOf(v);
-            } catch (NoSuchFieldException ignore) { /* 다음 필드 시도 */ }
-        }
-    } catch (Exception e) {
-        // 무시하고 null 반환
-    }
-    return null;
+        return new ImageGenerateDtos.GenerateResponse(res.keywordUrl(), res.characterUrl());
     }
 
     private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 }
+

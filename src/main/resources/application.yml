@@ -1,14 +1,10 @@
 server:
   port: 8080
-  error:
-    include-message: always
-    include-binding-errors: always
-    include-stacktrace: on_param
-  servlet:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
+
+  # env 파일 못읽어서 추가
+spring:
+  config:
+    import: optional:file:.env[.properties]
 
 app:
   media:

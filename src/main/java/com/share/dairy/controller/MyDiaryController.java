@@ -13,12 +13,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 // ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
 import com.share.dairy.util.game.AvoidRocksPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
+
+// ===== [추가] 진행률 상태 파싱용 Jackson =====
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+// ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
+import com.share.dairy.util.game.AvoidRocksPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -28,12 +36,16 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
@@ -41,12 +53,25 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
+
+/**
+ * MyDiaryController (교체본)
+ * ------------------------------------------------------------
+ * - 일기 저장 → 분석 → (서버 트리거) 이미지 생성
+ * - 생성 동안 '로딩 오버레이(진행률 바 + 돌 피하기 게임)' 표시
+ * - 2초 폴링으로 /images/status 조회 → DONE 시 최종 완료 처리
+ *
+ * 백엔드 필요(이미 안내/구현함):
+ *   POST /api/diary/{id}/images/auto      → 이미지 생성 비동기 시작
+ *   GET  /api/diary/{id}/images/status    → {status, progress, message}
+ */
+import static com.share.dairy.auth.UserSession.currentId;
 
 /**
  * MyDiaryController (교체본)
@@ -125,6 +150,19 @@ public class MyDiaryController {
     private ScheduledFuture<?> fakeFuture;
     private int fakeProgress = 0;
 
+    // ===== [추가] 상태 폴링/오버레이 관련 필드 =====
+    private final ObjectMapper mapper = new ObjectMapper();
+    private ScheduledExecutorService poller;
+    private Stage loadingStage;
+    private ProgressBar overlayProgress;
+    private Label overlayPercent, overlayMsg;
+    private AvoidRocksPane gamePane;
+
+    // (옵션) 상태 API 없을 때 테스트용 가짜 진행률 모드
+    private static final boolean FAKE_STATUS_MODE = false;
+    private ScheduledFuture<?> fakeFuture;
+    private int fakeProgress = 0;
+
     @FXML
     public void initialize() {
         if (titleField  != null) titleField.setDisable(false);
@@ -162,13 +200,20 @@ public class MyDiaryController {
         if (contentArea != null) contentArea.setDisable(false);
     }
 
-    /** SAVE: 내용만 저장(제목은 나중에 처리) */
+    /**
+     * SAVE: 일기 저장 → 분석 → (서버 트리거) 이미지 생성 → 오버레이+폴링 시작
+     *
+     * ⚠️ 변경 포인트:
+     *   - 예전처럼 트리거 직후에 "완료" Alert를 즉시 띄우지 않는다.
+     *   - 최종 Alert는 /status 가 DONE을 반환했을 때 띄운다.
+     */
     @FXML
     private void onSave() {
         try {
-            Long uid = com.share.dairy.auth.UserSession.currentId();
+            Long uid = com.share.dairy.auth.UserSession.currentId();            Long uid = currentId();
             String title   = (titleField  != null) ? titleField.getText().trim()  : "";
             String content = (contentArea != null) ? contentArea.getText().trim() : "";
+
 
             if (content.isBlank()) {
                 new Alert(Alert.AlertType.WARNING, "본문을 입력해 주세요.").showAndWait();
@@ -177,18 +222,23 @@ public class MyDiaryController {
 
             DiaryEntry entry = new DiaryEntry();
             entry.setUserId(uid);
+            entry.setUserId(uid);
             entry.setEntryDate(LocalDate.now());
             entry.setTitle(title);
             entry.setDiaryContent(content);
             entry.setVisibility(Visibility.PRIVATE);
+            entry.setVisibility(Visibility.PRIVATE);
 
+            // DB 저장 (entry_id 획득)
             // DB 저장 (entry_id 획득)
             DiaryEntryDao dao = new DiaryEntryDao();
             long entryId = dao.save(entry);
 
             // 분석/이미지 생성 트리거는 백그라운드로
+            // 분석/이미지 생성 트리거는 백그라운드로
             new Thread(() -> {
                 try {
+                    // 1) GPT 분석
                     // 1) GPT 분석
                     new DiaryAnalysisService().process(entryId);
 
@@ -494,6 +544,7 @@ public class MyDiaryController {
             musicMuteBtn.setText(isMuted ? "🔇" : "🔈");
         }
     }
+
 
     // =========================
     // 이미지 자동 생성(서버 트리거)
