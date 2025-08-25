@@ -2,13 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "java",
-      "name": "ServerApplication",
-      "request": "launch",
-      "mainClass": "com.share.dairy.ServerApplication",
-      "projectName": "dairy",
-      "envFile": "${workspaceFolder}/.env"
-    },
+    "type": "java",
+    "name": "ServerApplication",
+    "request": "launch",
+    "mainClass": "com.share.dairy.ServerApplication",
+    "projectName": "dairy",
+    "envFile": "${workspaceFolder}/.env",
+    "presentation": { "hidden": true }   // ← 이 줄 추가
+  },
 
     {
       "type": "java",
@@ -39,8 +40,8 @@
   ],
   "compounds": [
     {
-      "name": "Run Server + HelloApp",
-      "configurations": ["ServerApplication", "HelloApplication"]
+      "name": " HelloApp",
+      "configurations": ["HelloApplication"]
     }
   ]
 }
