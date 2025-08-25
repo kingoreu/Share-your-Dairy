@@ -4,24 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/96bcc0e0-4dda-4b67-ba52-66e7852b34c9.corrupted.20250812-024714.reason.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/96bcc0e0-4dda-4b67-ba52-66e7852b34c9.corrupted.20250812-024714.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620.corrupted.20250820-105940.reason.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620.corrupted.20250820-105940.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620/storage_v2/_src_/schema/dragon.E74YsQ.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/data_source_mapping.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/httpRequests/http-client.cookies" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated-images/37_character.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated-images/37_keyword.png" beforeDir="false" />
-    </list>
+    <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
