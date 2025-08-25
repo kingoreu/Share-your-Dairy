@@ -24,7 +24,7 @@ public class HelloApplication extends Application {
             springContext = new SpringApplicationBuilder(ServerApplication.class)
                     .properties(Map.of(
                             "server.port", "8080",
-                            "spring.datasource.url", "jdbc:mysql://113.198.238.119:3306/dairy?serverTimezone=Asia/Seoul",
+                            "spring.datasource.url", "jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8",
                             "spring.datasource.username", "dairyuser",
                             "spring.datasource.password", "dairypass"
                     ))
@@ -53,6 +53,9 @@ public class HelloApplication extends Application {
                 getClass().getResourceAsStream("/fonts/NanumSquareRoundEB.ttf"),
                 14 // 기본 크기, 실제 표시할 때는 CSS에서 조절됨
         );
+
+        Font.getFamilies().forEach(System.out::println);
+
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/login/Login.fxml"));
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("공유일기");

@@ -55,34 +55,6 @@ public class ImageController {
         return ResponseEntity.ok(ImageJobStatusDto.of(st));
     }
 
-
-//    /** (기존) 수동 생성: 클라가 keyword/character를 직접 보냄(재생성/디버깅용) */
-//    @PostMapping("/diary/{entryId}/images")
-//    public ResponseEntity<?> generateTwo(@PathVariable long entryId,
-//                                         @RequestBody GenerateRequest req) {
-//        if (req == null || req.keyword == null || req.keyword.isBlank()
-//                || req.character == null) {
-//            return ResponseEntity.badRequest().body(Map.of(
-//                    "error","missing fields", "need","keyword & character"
-//            ));
-//        }
-//        try {
-//            // 추가 (enum 에서 파일 경로 추출)
-//            String charPath = req.character.getImagePath();
-//
-//            Path baseCharPng = assetResolver.resolve(charPath);
-//            var res = imageSvc.generateTwoWithBase_NoMask(
-//                    entryId, req.keyword, req.character.name(), baseCharPng,
-//                    !(Boolean.TRUE.equals(req.regenerate)), req.size
-//            );
-//            return ResponseEntity.ok(new GenerateResponse(res.keywordUrl(), res.characterUrl()));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body(Map.of(
-//                    "error","image generation failed", "detail", e.getMessage()
-//            ));
-//        }
-
     /** (옵션) 동기 생성: 관리/디버그용 — 프론트에서는 미사용 권장 */
     @PostMapping("/{entryId}/images/auto/sync")
     public ResponseEntity<ImageGenerateDtos.GenerateResponse> autoGenerateSync(

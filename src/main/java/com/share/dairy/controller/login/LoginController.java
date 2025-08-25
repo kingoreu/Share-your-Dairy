@@ -101,21 +101,19 @@ public class LoginController {
     }
 
     private void goMain(ActionEvent event) {
-    try {
-        URL url = getClass().getResource("/fxml/mainFrame/Main.fxml"); // classpath 절대경로
-        if (url == null) {
-            alert("화면 전환 실패: FXML을 찾지 못했습니다.\n경로: /fxml/mainFrame/Main.fxml");
-            return;
-        }
+        try {
+            // var loader = new FXMLLoader(getClass().getResource("/fxml/mainFrame/Main.fxml"));
+            URL url = getClass().getResource("/fxml/mainFrame/Main.fxml");
+            System.out.println("Main.fxml resource url = " + url);
 
-        FXMLLoader loader = new FXMLLoader(url);
-        Parent root = loader.load();
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.getScene().setRoot(root);
-    } catch (Exception e) {
-        alert("화면 전환 실패: " + e.getMessage());
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            alert("화면 전환 실패: " + e.getMessage());
+        }
     }
-}
 
     // ───────── helpers ─────────
     private static String trim(String s){ return s==null? "" : s.trim(); }

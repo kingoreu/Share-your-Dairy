@@ -47,7 +47,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.StageStyle;
-
+import java.sql.SQLException; 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -150,19 +150,6 @@ public class MyDiaryController {
     private ScheduledFuture<?> fakeFuture;
     private int fakeProgress = 0;
 
-    // ===== [추가] 상태 폴링/오버레이 관련 필드 =====
-    private final ObjectMapper mapper = new ObjectMapper();
-    private ScheduledExecutorService poller;
-    private Stage loadingStage;
-    private ProgressBar overlayProgress;
-    private Label overlayPercent, overlayMsg;
-    private AvoidRocksPane gamePane;
-
-    // (옵션) 상태 API 없을 때 테스트용 가짜 진행률 모드
-    private static final boolean FAKE_STATUS_MODE = false;
-    private ScheduledFuture<?> fakeFuture;
-    private int fakeProgress = 0;
-
     @FXML
     public void initialize() {
         if (titleField  != null) titleField.setDisable(false);
@@ -210,7 +197,7 @@ public class MyDiaryController {
     @FXML
     private void onSave() {
         try {
-            Long uid = com.share.dairy.auth.UserSession.currentId();            Long uid = currentId();
+            Long uid = com.share.dairy.auth.UserSession.currentId();          
             String title   = (titleField  != null) ? titleField.getText().trim()  : "";
             String content = (contentArea != null) ? contentArea.getText().trim() : "";
 

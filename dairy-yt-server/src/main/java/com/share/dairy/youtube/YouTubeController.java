@@ -1,4 +1,4 @@
-package com.share.dairy.youtube;
+package com.share.dairy.api.youtube;
 
 import java.util.List;
 import java.util.Map;

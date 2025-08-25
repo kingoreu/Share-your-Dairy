@@ -1,16 +1,32 @@
 package com.share.dairy.service.diary_analysis;
 
+// ---- OkHttp: 와일드카드 금지 ----
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+// ---- Jackson ----
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import okhttp3.*;
 
+// ---- Spring ----
+import org.springframework.stereotype.Service;
+
+// ---- JDK ----
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;        
+import java.sql.DriverManager;    
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;       
+import java.sql.SQLException;    
 import java.time.Instant;
 import java.util.Objects;
 
+@Service
 public class DiaryAnalysisService {
 
     // ====== ENV 전용 유틸 ======
@@ -97,7 +113,7 @@ public class DiaryAnalysisService {
     // ---------- DB ----------
     private String getDiaryContent(long entryId) throws SQLException {
         String sql = "SELECT diary_content FROM diary_entries WHERE entry_id = ?";
-        try (java.sql.Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, entryId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -117,7 +133,7 @@ public class DiaryAnalysisService {
               analysis_keywords = VALUES(analysis_keywords),
               analyzed_at = CURRENT_TIMESTAMP
             """;
-        try (java.sql.Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, entryId);
             ps.setString(2, r.summary);

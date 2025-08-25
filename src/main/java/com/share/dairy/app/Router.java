@@ -18,8 +18,7 @@ public class Router {
     private static final Deque<Parent> history = new ArrayDeque<>();
 
     private static final Map<String, String> ROUTES = Map.of(
-        // 🔧 FIX: 클래스패스 절대 경로로 변경 (resources/ 제거)
-        "Home",     "/fxml/mainFrame/Main.fxml",
+        "Home",     "/fxml/mainFrame/Main.fxml", // ← 기존 네 코드 그대로
         "DiaryHub", "/fxml/diary/diary_hub/diary-hub-view.fxml"
     );
 
