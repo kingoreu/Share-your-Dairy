@@ -67,12 +67,19 @@ public class FriendshipService {
             return null; // commit
         });
     }
-
+    // 친구 관계 삭제 (양방향)
     public List<Friendship> findPendingFor(long userId) throws SQLException {
         return friendshipDao.findPendingFor(userId);
     }
-
+    // 내 친구 목록 조회
     public List<Friendship> findFriendsFor(long userId) throws SQLException {
         return friendshipDao.findFriendsFor(userId);
+    }
+    // 수락된 친구 목록 (id, nickname) 조회
+    public record BuddyDto(long id, String name) {}
+    public List<BuddyDto> getAcceptedBuddies(long me) throws SQLException {
+        return friendshipDao.findAcceptedBuddies(me).stream()
+                .map(r -> new BuddyDto(r.id(), r.nickname()))
+                .toList();
     }
 }

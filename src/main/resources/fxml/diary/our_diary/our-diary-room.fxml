@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.share.dairy.controller.OurDiaryRoomController"
+      spacing="12" prefWidth="600" prefHeight="680" style="-fx-padding:16;">
+    <!-- 상단: 방 제목 -->
+    <Label fx:id="roomTitle" text="OUR DIARY" style="-fx-font-size:18;-fx-font-weight:800;"/>
+
+    <!-- 작성 영역 -->
+    <TextField fx:id="titleField" promptText="TITLE"/>
+    <TextArea fx:id="contentArea" promptText="CONTENTS" prefRowCount="8"/>
+    <HBox spacing="8">
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Button fx:id="saveButton" text="SAVE" onAction="#onSave"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- 목록 -->
+    <ScrollPane fitToWidth="true" prefHeight="420">
+        <content>
+            <VBox fx:id="listContainer" spacing="12"/>
+        </content>
+    </ScrollPane>
+</VBox>

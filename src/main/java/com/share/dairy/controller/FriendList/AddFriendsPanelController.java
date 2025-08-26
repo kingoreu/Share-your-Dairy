@@ -248,8 +248,8 @@ public class AddFriendsPanelController extends OverlayChildController {
             ps.setLong(1, userId);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) return new UserMini(
-                        rs.getLong("user_id"), rs.getString("login_id"),
-                        rs.getString("nickname"), CharacterType.fromString(rs.getString("character_type"))
+                    rs.getLong("user_id"), rs.getString("login_id"),
+                    rs.getString("nickname"), CharacterType.fromString(rs.getString("character_type"))
                 );
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -266,8 +266,8 @@ public class AddFriendsPanelController extends OverlayChildController {
             ps.setString(1, q); ps.setString(2, q);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) return new UserMini(
-                        rs.getLong("user_id"), rs.getString("login_id"),
-                        rs.getString("nickname"), CharacterType.fromString(rs.getString("character_type"))
+                    rs.getLong("user_id"), rs.getString("login_id"),
+                    rs.getString("nickname"), CharacterType.fromString(rs.getString("character_type"))
                 );
             }
         } catch (Exception e) { e.printStackTrace(); }

@@ -267,5 +267,41 @@ public class FriendshipDao {
             }
         }
     }
+    /* ========== ★ 모달용: ACCEPTED 친구 (id+nickname) ========== */
+
+    /** 라이트 모델 */
+    public record BuddyRow(long id, String nickname) {}
+
+    /** 서로 친구(ACCEPTED)인 사용자 목록을 (상대 user_id + nickname)으로 반환 */
+    public List<BuddyRow> findAcceptedBuddies(long me) throws SQLException {
+        String sql = """
+            SELECT DISTINCT
+                   CASE WHEN f.user_id = ? THEN f.friend_id ELSE f.user_id END AS buddy_id,
+                   u.nickname
+            FROM friendship f
+            JOIN users u ON u.user_id =
+                 CASE WHEN f.user_id = ? THEN f.friend_id ELSE f.user_id END
+            WHERE (f.user_id = ? OR f.friend_id = ?)
+              AND f.friendship_status = 'ACCEPTED'
+            ORDER BY u.nickname
+        """;
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, me);
+            ps.setLong(2, me);
+            ps.setLong(3, me);
+            ps.setLong(4, me);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<BuddyRow> list = new ArrayList<>();
+                while (rs.next()) {
+                    list.add(new BuddyRow(
+                            rs.getLong("buddy_id"),
+                            rs.getString("nickname")
+                    ));
+                }
+                return list;
+            }
+        }
+    }
 
 }

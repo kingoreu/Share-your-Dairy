@@ -17,6 +17,7 @@ public class UserDao {
     private final RowMapper<User> mapper = new UserMapper();
 
     public UserDao(DataSource ds) { this.ds = ds; }
+
     public Optional<User> findById(long userId) throws SQLException {
         String sql = """
             SELECT user_id, nickname, login_id, password, user_email, character_type,
@@ -119,5 +120,40 @@ public class UserDao {
         }
     }
 
+       /* ===================== 추가: 닉네임 일괄 조회 ===================== */
 
+    /** 단건 닉네임만 필요할 때 */
+    public Optional<String> findNicknameById(long userId) throws SQLException {
+        String sql = "SELECT nickname FROM users WHERE user_id=?";
+        Connection con = DataSourceUtils.getConnection(ds);
+        try (var ps = con.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (var rs = ps.executeQuery()) {
+                return rs.next() ? Optional.ofNullable(rs.getString(1)) : Optional.empty();
+            }
+        }
+    }
+
+    /**
+     * 여러 user_id의 닉네임을 한 번에 map으로 반환.
+     * 존재하지 않는 id는 map에 포함되지 않습니다.
+     */
+    public Map<Long, String> findNicknames(Collection<Long> ids) throws SQLException {
+        Map<Long, String> map = new HashMap<>();
+        if (ids == null || ids.isEmpty()) return map;
+
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        String sql = "SELECT user_id, nickname FROM users WHERE user_id IN (" + placeholders + ")";
+        Connection con = DataSourceUtils.getConnection(ds);
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            int i = 1;
+            for (Long id : ids) ps.setLong(i++, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    map.put(rs.getLong(1), rs.getString(2));
+                }
+            }
+        }
+        return map;
+    }
 }

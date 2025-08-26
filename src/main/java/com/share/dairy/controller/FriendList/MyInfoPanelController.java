@@ -22,8 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 
-import java.util.Map;
-import java.util.ResourceBundle;
+
 
 public class MyInfoPanelController extends OverlayChildController {
 
@@ -223,10 +222,10 @@ public class MyInfoPanelController extends OverlayChildController {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new UserInfo(
-                            rs.getString("login_id"),
-                            rs.getString("user_email"),
-                            rs.getString("nickname"),
-                            CharacterType.fromString(rs.getString("character_type"))
+                        rs.getString("login_id"),
+                        rs.getString("user_email"),
+                        rs.getString("nickname"),
+                        CharacterType.fromString(rs.getString("character_type"))
                     );
                 }
             }
@@ -244,10 +243,10 @@ public class MyInfoPanelController extends OverlayChildController {
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return new UserInfo(
-                        rs.getString("login_id"),
-                        rs.getString("user_email"),
-                        rs.getString("nickname"),
-                        CharacterType.fromString(rs.getString("character_type"))
+                    rs.getString("login_id"),
+                    rs.getString("user_email"),
+                    rs.getString("nickname"),
+                    CharacterType.fromString(rs.getString("character_type"))
                 );
             }
         } catch (Exception e) {

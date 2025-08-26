@@ -82,7 +82,7 @@ public class LoginController {
                     } else {
                         alert("로그인 실패: " + res.body());
                     }
-                    // ✅ 로그인 성공 → 응답 JSON에서 사용자 정보 추출해 세션에 저장
+                        // ✅ 로그인 성공 → 응답 JSON에서 사용자 정보 추출해 세션에 저장
 //                        String body = res.body();
 //
 //                        long   userId        = parseLong(jget(body, "userId", "id"), -1);

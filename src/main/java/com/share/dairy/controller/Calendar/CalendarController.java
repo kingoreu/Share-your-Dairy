@@ -47,7 +47,7 @@ public class CalendarController extends OverlayChildController {
         PLACEHOLDER = new Image(ph.toExternalForm());
 
         // (디버그용) 그리드 라인 보이기
-        calendarGrid.setGridLinesVisible(true);
+         calendarGrid.setGridLinesVisible(true);
 
         // 3) 좌/우 버튼으로 월 이동
         prevBtn.setOnAction(e -> moveMonth(-1));
@@ -57,22 +57,22 @@ public class CalendarController extends OverlayChildController {
         refresh();
     }
 
-    // CalendarController 필드
-    private static final String MEDIA_BASE_URL = "http://localhost:8080"; // 서버 주소에 맞춰 수정
+        // CalendarController 필드
+        private static final String MEDIA_BASE_URL = "http://localhost:8080"; // 서버 주소에 맞춰 수정
 
-    private String toLoadableUrl(String pathOrUrl) {
-        if (pathOrUrl == null || pathOrUrl.isBlank()) return null;
-        String p = pathOrUrl.trim();
+        private String toLoadableUrl(String pathOrUrl) {
+            if (pathOrUrl == null || pathOrUrl.isBlank()) return null;
+            String p = pathOrUrl.trim();
 
-        // 이미 절대 URL이면 그대로 사용
-        if (p.startsWith("http://") || p.startsWith("https://") || p.startsWith("file:")) return p;
+            // 이미 절대 URL이면 그대로 사용
+            if (p.startsWith("http://") || p.startsWith("https://") || p.startsWith("file:")) return p;
 
-        // /media/.. 형태면 서버 베이스 붙이기
-        if (p.startsWith("/")) return MEDIA_BASE_URL + p;
+            // /media/.. 형태면 서버 베이스 붙이기
+            if (p.startsWith("/")) return MEDIA_BASE_URL + p;
 
-        // 로컬 파일 경로라면 file:///로 변환
-        return java.nio.file.Paths.get(p).toUri().toString(); // => file:///C:/... 또는 file:///home/...
-    }
+            // 로컬 파일 경로라면 file:///로 변환
+            return java.nio.file.Paths.get(p).toUri().toString(); // => file:///C:/... 또는 file:///home/...
+        }
 
 
     /** 월 이동 공통 처리 */
@@ -80,7 +80,7 @@ public class CalendarController extends OverlayChildController {
         currentYm = currentYm.plusMonths(deltaMonth);
         refresh();
     }
-
+    
     /** 열/행 제약을 매번 보강해서 레이아웃이 0으로 접히는 걸 방지 */
     private void ensureGridLayout() {
         if (calendarGrid.getColumnConstraints().isEmpty()) {
@@ -147,8 +147,8 @@ public class CalendarController extends OverlayChildController {
             String url = imageByDate.get(date);
 
             VBox cell = buildDayCell(day, url, date);
-            cell.setMinSize(100, 90);
-            cell.setPrefSize(120, 110);
+            cell.setMinSize(100, 80);
+            cell.setPrefSize(120, 100);
 
             calendarGrid.add(cell, col, row);
             col++;
@@ -157,7 +157,7 @@ public class CalendarController extends OverlayChildController {
 
         calendarGrid.applyCss();
         calendarGrid.requestLayout();
-        // 🔎 확인 로그
+         // 🔎 확인 로그
         System.out.println("[Calendar] children=" + calendarGrid.getChildren().size()
                 + ", cols=" + calendarGrid.getColumnConstraints().size()
                 + ", rows=" + calendarGrid.getRowConstraints().size());
@@ -165,33 +165,33 @@ public class CalendarController extends OverlayChildController {
 
     /** 날짜 셀 생성 */
     private VBox buildDayCell(int day, String imageUrl, LocalDate date) {
-        Label dayLabel = new Label(String.valueOf(day));
-        dayLabel.setStyle("-fx-font-weight: bold;");
+    Label dayLabel = new Label(String.valueOf(day));
+    dayLabel.setStyle("-fx-font-weight: bold;");
 
-        ImageView iv = new ImageView();
-        iv.setFitWidth(48);
-        iv.setFitHeight(48);
-        iv.setPreserveRatio(true);
-        iv.setSmooth(true);
+    ImageView iv = new ImageView();
+    iv.setFitWidth(56);
+    iv.setFitHeight(56);
+    iv.setPreserveRatio(true);
+    iv.setSmooth(true);
 
-        String loadable = toLoadableUrl(imageUrl);
-        if (loadable != null) {
-            Image img = new Image(loadable, 48, 48, true, true, true); // backgroundLoading=true
-            iv.setImage(img);
-            img.errorProperty().addListener((obs, wasErr, isErr) -> {
-                if (isErr) iv.setImage(PLACEHOLDER);
-            });
-        } else {
-            iv.setImage(PLACEHOLDER);
-        }
-
-        VBox box = new VBox(dayLabel, iv);
-        box.setAlignment(Pos.TOP_CENTER);
-        box.setPadding(new Insets(6));
-        box.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-background-radius: 8; -fx-border-radius: 8;");
-        if (date.equals(LocalDate.now())) {
-            box.setStyle("-fx-background-color: white; -fx-border-color: #f48cab; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;");
-        }
-        return box;
+    String loadable = toLoadableUrl(imageUrl);
+    if (loadable != null) {
+        Image img = new Image(loadable, 56, 56, true, true, true); // backgroundLoading=true
+        iv.setImage(img);
+        img.errorProperty().addListener((obs, wasErr, isErr) -> {
+            if (isErr) iv.setImage(PLACEHOLDER);
+        });
+    } else {
+        iv.setImage(PLACEHOLDER);
     }
+
+    VBox box = new VBox(dayLabel, iv);
+    box.setAlignment(Pos.TOP_CENTER);
+    box.setPadding(new Insets(6));
+    box.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-background-radius: 7; -fx-border-radius: 7;");
+    if (date.equals(LocalDate.now())) {
+        box.setStyle("-fx-background-color: white; -fx-border-color: #f48cab; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;");
+    }
+    return box;
+}
 }
