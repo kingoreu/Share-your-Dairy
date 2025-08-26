@@ -370,8 +370,16 @@ public class BuddyDiaryController {
         Label preview = new Label(tidy(e.text(), 140));
         preview.setWrapText(true);
         preview.setStyle("-fx-font-size:12; -fx-text-fill:#222;");
-        card.widthProperty().addListener((o, ov, nv) -> preview.setMaxWidth(nv.doubleValue() - 20));
-        preview.setMouseTransparent(true);
+
+        // ✅ 항상 카드 폭을 따라가도록 바인딩 (초기 페인트도 안정)
+        preview.setMaxWidth(Double.MAX_VALUE);                   // 라벨이 줄바꿈 가능하도록
+        preview.maxWidthProperty().bind(card.widthProperty().subtract(20));
+        StackPane.setAlignment(preview, Pos.TOP_LEFT);          // (선택) 정렬 일관성
+
+        // 초기 페인트 타이밍 보정(첫 클릭부터 여러 줄 보이게)
+        javafx.application.Platform.runLater(() ->
+                preview.setPrefWidth(card.getWidth() - 24)
+        );
 
         card.getChildren().add(preview);
 
