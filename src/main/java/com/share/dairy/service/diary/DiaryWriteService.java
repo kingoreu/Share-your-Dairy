@@ -40,15 +40,19 @@ public class DiaryWriteService {
     // 목록 조회: 컨트롤러가 쓰기 쉽게 DAO 호출을 한 줄로 감쌉니다.
 
     public List<DiaryEntry> loadMyDiaryList(Long userId) {
-        if (userId == null || userId <= 0)  // ✅ 로그인 없으면 막기
-            throw new IllegalStateException("로그인이 필요합니다.");
+        if (userId == null || userId <= 0) throw new IllegalStateException("로그인이 필요합니다.");
         try {
-            Long uid = com.share.dairy.auth.UserSession.currentId();
-            return new DiaryEntryDao().findAllByUser(uid); // ✅ 전체조회 금지
+            // ❌ 잘못된 코드(항상 내 세션 글만)
+            // Long uid = com.share.dairy.auth.UserSession.currentId();
+            // return new DiaryEntryDao().findAllByUser(uid);
+
+            // ✅ 전달받은 userId의 글을 조회해야 친구 글이 뜸
+            return new DiaryEntryDao().findAllByUser(userId);
         } catch (Exception e) {
-            throw new RuntimeException("내 일기 조회 실패", e);
+            throw new RuntimeException("일기 조회 실패", e);
         }
     }
+
 
 
     /**

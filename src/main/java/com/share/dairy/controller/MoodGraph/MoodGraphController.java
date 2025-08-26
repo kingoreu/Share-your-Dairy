@@ -1,5 +1,6 @@
 package com.share.dairy.controller.MoodGraph;
 
+import com.share.dairy.auth.UserSession;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 
@@ -37,6 +38,12 @@ public class MoodGraphController extends OverlayChildController{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        var session = UserSession.get();
+        if (session != null) {
+            this.userId = session.getUserId();
+        }
+
         // 차트 기본 스타일
         moodChart.setCreateSymbols(false);   // 기본은 선-only
         moodChart.setAnimated(false);
