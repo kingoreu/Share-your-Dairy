@@ -65,7 +65,7 @@ public class DiaryEntryDao {
             SELECT entry_id, user_id, shared_diary_id, entry_date, title,
                 diary_content, visibility, diary_created_at, diary_updated_at
             FROM diary_entries
-            WHERE user_id = ?                 -- ✅ 꼭 있어야 함
+            WHERE user_id = ? AND shared_diary_id IS NULL
             ORDER BY entry_date DESC, entry_id DESC
         """;
         try (var con = DBConnection.getConnection();
