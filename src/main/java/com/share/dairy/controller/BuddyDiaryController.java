@@ -299,7 +299,8 @@ public class BuddyDiaryController {
 
         try {
             // ⚠ DiaryWriteService.loadMyDiaryList(userId) 가 userId 인자를 무시하지 않도록 아래 '필수 패치' 적용 필요
-            var list = diaryWriteService.loadMyDiaryList(userId);
+            // var list = diaryWriteService.loadMyDiaryList(userId);
+            var list = diaryWriteService.loadUserDiaryList(userId);
 
             list.stream()
                     .filter(d -> d.getVisibility() != Visibility.PRIVATE) // 친구/공개만
