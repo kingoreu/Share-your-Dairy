@@ -25,6 +25,7 @@ public interface ImageDbRepository {
             long analysisId,
             long userId,
             String analysisKeywords,
+            String summary,          // ✨ 추가
             String characterType
     ) {}
 
