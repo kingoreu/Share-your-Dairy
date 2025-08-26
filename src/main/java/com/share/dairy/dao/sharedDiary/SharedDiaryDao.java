@@ -42,6 +42,39 @@ public class SharedDiaryDao {
         }
     }
 
+    public record CardRow(long diaryId, String title, String membersCsv, Timestamp createdAt) {}
+
+public List<CardRow> findCardsForUser(long userId) throws SQLException {
+    String sql = """
+        SELECT sd.shared_diary_id,
+               sd.shared_diary_title,
+               MIN(sd.created_at) AS created_at,
+               GROUP_CONCAT(u.nickname ORDER BY u.nickname SEPARATOR ',') AS members
+        FROM shared_diaries sd
+        JOIN shared_diary_members sdm ON sdm.shared_diary_id = sd.shared_diary_id
+        JOIN users u ON u.user_id = sdm.user_id
+        WHERE sd.owner_id = ? OR sdm.user_id = ?
+        GROUP BY sd.shared_diary_id, sd.shared_diary_title
+        ORDER BY created_at DESC
+    """;
+    try (var con = DBConnection.getConnection();
+         var ps = con.prepareStatement(sql)) {
+        ps.setLong(1, userId);
+        ps.setLong(2, userId);
+        try (var rs = ps.executeQuery()) {
+            var list = new ArrayList<CardRow>();
+            while (rs.next()) {
+                list.add(new CardRow(
+                        rs.getLong("shared_diary_id"),
+                        rs.getString("shared_diary_title"),
+                        rs.getString("members"),
+                        rs.getTimestamp("created_at")));
+            }
+            return list;
+        }
+    }
+}
+
     public long insert(Connection con, SharedDiary s) throws SQLException {
         try (var ps = con.prepareStatement("""
             INSERT INTO shared_diaries (shared_diary_title, owner_id) VALUES (?,?)
