@@ -14,6 +14,7 @@
     <children>
         <ImageView fx:id="characterImg"
                    pickOnBounds="true"
+                   fitWidth="160"
                    fitHeight="200"
                    preserveRatio="true"
                    smooth="true"

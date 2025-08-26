@@ -2,6 +2,7 @@ package com.share.dairy.controller.FriendList;
 
 import com.share.dairy.auth.UserSession;
 import com.share.dairy.controller.OverlayChildController;
+import com.share.dairy.controller.character.CharacterPaneController;
 import com.share.dairy.model.enums.CharacterType;
 import com.share.dairy.util.DBConnection;
 import javafx.event.ActionEvent;
@@ -101,6 +102,13 @@ public class MyInfoPanelController extends OverlayChildController {
                 }
 
                 setCharacterPreviewByType(sel);
+
+                // 캐릭터 변경 시 바로 업데이트
+                var pane = CharacterPaneController.getInstance();
+                if (pane != null) {
+                    String path = sel.getImagePath();
+                    pane.updateCharacter(getClass().getResource(path).toExternalForm());
+                }
             } else {
                 lblHint.setText("저장 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
             }

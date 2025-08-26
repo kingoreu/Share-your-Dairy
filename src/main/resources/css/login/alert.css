@@ -1,0 +1,33 @@
+/* 공통 알림창 스타일 */
+.custom-alert {
+    -fx-font-family: "NanumSquareRound Bold";
+    -fx-font-size: 16px;
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f5f5f5);
+    -fx-background-radius: 15;
+    -fx-border-color: #66cdaa;
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+}
+
+/* 내용 텍스트 */
+.custom-alert .content {
+    -fx-alignment: center;   /* 중앙 정렬 */
+    -fx-text-alignment: center;
+    -fx-label-padding: 0 0 0 0;
+    -fx-text-fill: #333333;
+}
+
+/* 버튼 영역 */
+.custom-alert .button-bar .button {
+    -fx-background-color: linear-gradient(#7ed6c6, #66cdaa);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-padding: 6 15 6 15;
+}
+
+.custom-alert .button-bar .button:hover {
+    -fx-background-color: linear-gradient(#8be6d5, #5bb5a5);
+}

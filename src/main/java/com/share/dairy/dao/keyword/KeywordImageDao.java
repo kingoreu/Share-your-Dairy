@@ -18,15 +18,16 @@ public class KeywordImageDao {
 
     public long insert(KeywordImage e) throws SQLException {
         String sql = """
-            INSERT INTO keyword_images (analysis_id, user_id, created_at)
-            VALUES (?, ?, COALESCE(?, NOW()))
+            INSERT INTO keyword_images (analysis_id, user_id, path_or_url, created_at)
+            VALUES (?, ?, ?, ?)
         """;
         try (var con = DBConnection.getConnection();
              var ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, e.getAnalysisId());
             ps.setLong(2, e.getUserId());
-            if (e.getCreatedAt() != null) ps.setTimestamp(3, Timestamp.valueOf(e.getCreatedAt()));
-            else ps.setNull(3, Types.TIMESTAMP);
+            ps.setString(3, e.getPathOrUrl());
+            if (e.getCreatedAt() != null) ps.setTimestamp(4, Timestamp.valueOf(e.getCreatedAt()));
+            else ps.setNull(4, Types.TIMESTAMP);
             ps.executeUpdate();
             try (var keys = ps.getGeneratedKeys()) {
                 return keys.next() ? keys.getLong(1) : 0L;

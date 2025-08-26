@@ -60,19 +60,36 @@ public class UserRestController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> body) throws SQLException {
+    public ResponseEntity<UserResponse> login(@RequestBody Map<String, String> body) throws SQLException {
         String loginId = body.getOrDefault("loginId", "").trim();
         String password = body.getOrDefault("password", "");
+//        if (loginId.isEmpty() || password.isEmpty()) {
+//            return ResponseEntity.badRequest().body(Map.of("message", "loginId/password 필수"));
+//        }
         if (loginId.isEmpty() || password.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "loginId/password 필수"));
+            return ResponseEntity.badRequest().build();
         }
         var user = userService.authenticate(loginId, password); // ← 서비스에 아래 메서드 추가(있으면 그대로 사용)
-        return ResponseEntity.ok(Map.of(
-                "userId", user.getUserId(),
-                "nickname", user.getNickname(),
-                "userEmail", user.getUserEmail(),
-                "characterType", user.getCharacterType()
-        ));
+        return ResponseEntity.ok(UserService.toResponse(user));
+//        return ResponseEntity.ok(Map.of(
+//                "userId", user.getUserId(),
+//                "nickname", user.getNickname(),
+//                "userEmail", user.getUserEmail(),
+//                "characterType", user.getCharacterType()
+//        ));
     }
 
+    // 아이디 중복 조회
+    @GetMapping("/check_id")
+    public ResponseEntity<Map<String, Object>> checkLoginId(@RequestParam String loginId) throws SQLException {
+        boolean exists = userService.existsByLoginId(loginId);
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
+
+    // 이메일 중복 조회
+    @GetMapping("/check_email")
+    public ResponseEntity<Map<String, Object>> checkEmail(@RequestParam String email) throws SQLException {
+        boolean exists = userService.existsByEmail(email);
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
 }

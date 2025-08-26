@@ -81,11 +81,22 @@ public class UserService {
         return opt.get();
     }
 
+    // dao에 있긴 한데, 레이어 아키텍처 원칙 지켜야해서 한번 더 감쌈
+    @Transactional(readOnly = true)
+    public boolean existsByLoginId(String loginId) throws SQLException {
+        return userDao.existsByLoginId(loginId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) throws SQLException {
+        return userDao.existsByEmail(email);
+    }
 
     // 모델 → 응답 DTO 변환
     public static UserResponse toResponse(User u) {
         UserResponse res = new UserResponse();
         res.setUserId(u.getUserId());
+        res.setLoginId(u.getLoginId());
         res.setNickname(u.getNickname());
         res.setUserEmail(u.getUserEmail());
         res.setCharacterType(u.getCharacterType());

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class UserResponse {
     private Long userId;
+    private String loginId;
     private String nickname;
     private String userEmail;
     private String characterType;

@@ -18,6 +18,8 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,6 +75,29 @@ public class LoginController {
                                     userNode.path("userEmail").asText(),
                                     type
                             ));
+//                            UserSession session = new UserSession(
+//                                    userNode.path("userId").asLong(),
+//                                    userNode.path("loginId").asText(),
+//                                    userNode.path("nickname").asText(),
+//                                    userNode.path("userEmail").asText(),
+//                                    type
+//                            );
+
+//
+//                            String updatedAtStr = userNode.path("userUpdatedAt").asText(null);
+//                            if (updatedAtStr != null && !updatedAtStr.isBlank()) {
+//                                LocalDateTime updatedAt;
+//                                try {
+//                                    // 기본 ISO-8601 (2025-08-25T18:11:23) 대응
+//                                    updatedAt = LocalDateTime.parse(updatedAtStr);
+//                                } catch (Exception ex) {
+//                                    // MySQL datetime 형식 (2025-08-25 18:11:23) 대응
+//                                    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//                                    updatedAt = LocalDateTime.parse(updatedAtStr, fmt);
+//                                }
+//                                session.setUserUpdatedAt(updatedAt);
+//                            }
+
 
                             System.out.println("login res=" + res.body());
                             goMain(event); // 메인 화면으로 전환
