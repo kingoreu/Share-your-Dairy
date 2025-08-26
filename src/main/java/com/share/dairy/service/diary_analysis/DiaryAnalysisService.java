@@ -60,13 +60,13 @@ public class DiaryAnalysisService {
     // ====== DB 설정 (ENV만 사용, Spring 호환 키도 지원) ======
     private static final String JDBC_URL  = Objects.requireNonNullElse(
             envFirst("JDBC_URL", "SPRING_DATASOURCE_URL"),
-            "jdbc:mysql://localhost:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul");
+            "jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8");
     private static final String JDBC_USER = Objects.requireNonNullElse(
             envFirst("JDBC_USER", "SPRING_DATASOURCE_USERNAME"),
-            "root");
+            "dairyuser");
     private static final String JDBC_PASS = Objects.requireNonNullElse(
             envFirst("JDBC_PASS", "SPRING_DATASOURCE_PASSWORD"),
-            "1234");
+            "dairypass");
 
     private static final OkHttpClient HTTP = new OkHttpClient();
     private static final ObjectMapper MAPPER = new ObjectMapper();

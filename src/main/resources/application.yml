@@ -1,6 +1,7 @@
 server:
   port: 8080
 
+
 app:
   media:
     root-dir: ./generated-images    # 생성 이미지 저장 폴더(프로젝트 루트 기준)
