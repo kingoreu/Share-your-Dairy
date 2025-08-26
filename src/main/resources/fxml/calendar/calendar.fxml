@@ -22,7 +22,7 @@
                 <Button fx:id="homeButton" onAction="#goHome"
                         style="-fx-background-color: transparent; -fx-padding: 6;">
                     <graphic>
-                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                        <ImageView fitWidth="35" fitHeight="35" preserveRatio="true">
                             <image><Image url="@/icons/home.png"/></image>
                         </ImageView>
                     </graphic>
@@ -46,33 +46,30 @@
     </top>
 
     <!-- 중앙 달력 -->
-    <center>
-        <GridPane fx:id="calendarGrid"
-                  hgap="8" vgap="8"
-                  style="-fx-padding: 12;"
-                  GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+        <center>
+  <ScrollPane fitToWidth="true" fitToHeight="false"
+              vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+              pannable="true"
+              style="-fx-background-color: transparent;">
+    <content>
+      <GridPane fx:id="calendarGrid"
+                hgap="6" vgap="6"
+                maxWidth="Infinity"
+                style="-fx-padding: 12;">
+        <!-- 7열 정확히 100% -->
+        <columnConstraints>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+        </columnConstraints>
+        <!-- rowConstraints 없음: 내용 높이에 따라 커지고, 필요 시 스크롤 -->
+      </GridPane>
+    </content>
+  </ScrollPane>
+</center>
 
-            <!-- 7열 균등 -->
-            <columnConstraints>
-                <ColumnConstraints percentWidth="14.2857"/>
-                <ColumnConstraints percentWidth="14.2857"/>
-                <ColumnConstraints percentWidth="14.2857"/>
-                <ColumnConstraints percentWidth="14.2857"/>
-                <ColumnConstraints percentWidth="14.2857"/>
-                <ColumnConstraints percentWidth="14.2857"/>
-                <ColumnConstraints percentWidth="14.2857"/>
-            </columnConstraints>
-
-            <!-- (옵션) 헤더 포함 총 7행을 균등 확장 -->
-            <rowConstraints>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints vgrow="ALWAYS"/>
-            </rowConstraints>
-        </GridPane>
-    </center>
 </BorderPane>

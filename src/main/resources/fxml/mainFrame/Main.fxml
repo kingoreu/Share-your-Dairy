@@ -24,31 +24,31 @@
     <Rectangle fx:id="wardrobeHotspot"  
                layoutX="50"  layoutY="60"
                width="100" height="300"
-               fill="black"
+               fill="transparent"
                onMouseClicked="#onWardrobeClicked"/>
     <!-- 창문 -->
     <Rectangle fx:id="windowHotspot"
                layoutX="170" layoutY="80"
                width="180" height="200"
-               fill="black"
+               fill="transparent"
                onMouseClicked="#onWindowClicked"/>
     <!-- 노트북 -->
     <Rectangle fx:id="laptopHotspot"
                layoutX="380" layoutY="200"
                width="200" height="120"
-               fill="black"
+               fill="transparent"
                onMouseClicked="#onLaptopClicked"/>
     <!-- 책장 -->
     <Rectangle fx:id="bookshelfHotspot"
                layoutX="550" layoutY="60"
                width="120" height="280"
-               fill="black"
+               fill="transparent"
                onMouseClicked="#onBookshelfClicked"/>
     <!-- 라디오 -->
     <Rectangle fx:id="radioHotspot"
                layoutX="500" layoutY="520"
                width="100" height="60"
-               fill="black"
+               fill="transparent"
                onMouseClicked="#onRadioClicked"/>
 
     <!-- 3) 콘텐츠 영역 (초기엔 숨김) -->
@@ -69,8 +69,16 @@
 <!--               preserveRatio="true"-->
 <!--               smooth="true"-->
 <!--               onMouseClicked="#onCharacterClicked" />-->
-    <fx:include fx:id="characterPane"
-                source="/fxml/mainFrame/CharacterPane.fxml" />
+    <AnchorPane>
+      <children>
+        <!-- 캐릭터 Pane을 감싸는 AnchorPane -->
+        <AnchorPane layoutX="320" layoutY="300">
+          <fx:include fx:id="characterPane"
+                      source="/fxml/mainFrame/CharacterPane.fxml"/>
+        </AnchorPane>
+      </children>
+    </AnchorPane>
+
 
     <Button fx:id="btnLogout" text="로그아웃"
             onAction="#onLogout"

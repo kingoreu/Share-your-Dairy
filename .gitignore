@@ -54,14 +54,3 @@ build/
 ### OS ###
 .DS_Store
 Thumbs.db
-
-### Secrets & Env ###
-.env
-.env.*
-!.env.example
-
-# Spring/Java config에 비밀이 있을 수 있으므로(원치 않으면 이 블록은 빼세요)
-**/application.properties
-**/application-*.properties
-**/application.yml
-**/application-*.yml

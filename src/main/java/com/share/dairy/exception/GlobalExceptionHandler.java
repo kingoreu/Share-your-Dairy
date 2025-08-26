@@ -10,6 +10,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+// 상단 import 정리 (중복 제거/추가)
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.validation.BindException;
@@ -55,13 +59,42 @@ public class GlobalExceptionHandler {
         return badRequest("BindError", msg);
     }
 
+@ExceptionHandler(MissingServletRequestParameterException.class)
+public ResponseEntity<ApiErrorResponse> handleMissingParam(MissingServletRequestParameterException ex,
+                                                           HttpServletRequest req) {
+    String uri = req.getRequestURI();
+    String qs  = req.getQueryString();
+    if (qs != null && !qs.isBlank()) uri += "?" + qs;
+
+    log.warn("Missing request parameter: {} (required type {}), uri={}",
+            ex.getParameterName(), ex.getParameterType(), uri);
+
+    String msg = ex.getParameterName() + " 파라미터가 필요합니다.";
+    return badRequest("MissingParameter", msg);
+}
+
     // 타입 불일치(예: id=abc 를 long에 바인딩)
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String msg = ex.getName() + " 타입이 올바르지 않습니다.";
-        log.warn("Type mismatch: {}", msg);
-        return badRequest("TypeMismatch", msg);
-    }
+    
+@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+public ResponseEntity<ApiErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                           HttpServletRequest req) {
+    // 파라미터 이름/값/기대 타입
+    String paramName = ex.getName();
+    Object rawValue  = ex.getValue();
+    String expected  = (ex.getRequiredType() != null) ? ex.getRequiredType().getSimpleName() : "unknown";
+
+    // 전체 요청 URI(+쿼리)
+    String uri = req.getRequestURI();
+    String qs  = req.getQueryString();
+    if (qs != null && !qs.isBlank()) uri += "?" + qs;
+
+    // 로그에 '정확히 무엇이 문제였는지'를 남김
+    log.warn("Type mismatch: {}={} (expected {}), uri={}", paramName, rawValue, expected, uri);
+
+    // 응답 메시지도 조금 더 친절하게
+    String msg = paramName + "의 타입이 올바르지 않습니다. (값=" + rawValue + ", 기대타입=" + expected + ")";
+    return badRequest("TypeMismatch", msg);
+}
 
     // JSON 파싱 실패
     @ExceptionHandler(HttpMessageNotReadableException.class)

@@ -147,8 +147,8 @@ public class CalendarController extends OverlayChildController {
             String url = imageByDate.get(date);
 
             VBox cell = buildDayCell(day, url, date);
-            cell.setMinSize(100, 90);
-            cell.setPrefSize(120, 110);
+            cell.setMinSize(100, 80);
+            cell.setPrefSize(120, 100);
 
             calendarGrid.add(cell, col, row);
             col++;
@@ -169,14 +169,14 @@ public class CalendarController extends OverlayChildController {
     dayLabel.setStyle("-fx-font-weight: bold;");
 
     ImageView iv = new ImageView();
-    iv.setFitWidth(48);
-    iv.setFitHeight(48);
+    iv.setFitWidth(56);
+    iv.setFitHeight(56);
     iv.setPreserveRatio(true);
     iv.setSmooth(true);
 
     String loadable = toLoadableUrl(imageUrl);
     if (loadable != null) {
-        Image img = new Image(loadable, 48, 48, true, true, true); // backgroundLoading=true
+        Image img = new Image(loadable, 56, 56, true, true, true); // backgroundLoading=true
         iv.setImage(img);
         img.errorProperty().addListener((obs, wasErr, isErr) -> {
             if (isErr) iv.setImage(PLACEHOLDER);
@@ -188,7 +188,7 @@ public class CalendarController extends OverlayChildController {
     VBox box = new VBox(dayLabel, iv);
     box.setAlignment(Pos.TOP_CENTER);
     box.setPadding(new Insets(6));
-    box.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-background-radius: 8; -fx-border-radius: 8;");
+    box.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-background-radius: 7; -fx-border-radius: 7;");
     if (date.equals(LocalDate.now())) {
         box.setStyle("-fx-background-color: white; -fx-border-color: #f48cab; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;");
     }

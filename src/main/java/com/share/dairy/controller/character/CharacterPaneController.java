@@ -92,6 +92,8 @@ public class CharacterPaneController implements MainController.NeedsOverlayHost{
     private void onCharacterClicked(MouseEvent e) {
         if (overlayHost != null) {
             overlayHost.openOverlay("/fxml/FriendList/MyInfoPanel.fxml");
+        } else {
+            System.err.println("[CharacterPane] overlayHost is null!");
         }
     }
 

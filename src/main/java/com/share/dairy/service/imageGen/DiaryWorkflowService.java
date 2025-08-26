@@ -12,14 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-<<<<<<< HEAD
- * 오케스트레이션 서비스:
- *  1) entryId로 DB에서 (analysis_keywords, character_type, analysis_id, user_id) 조회
- *  2) 캐릭터 PNG 경로 해석 (classpath 또는 file 시스템)
- *  3) ImageGenService 호출 → 2장 생성
- *  4) ✅ diary_attachments에는 더 이상 저장하지 않고
- *       keyword_images / character_keyword_images 두 테이블에만 저장
-=======
  * DiaryWorkflowService
  * -------------------------------------------------------
  * 역할:
@@ -32,7 +24,6 @@ import java.nio.file.Path;
  *   - ProgressRegistry로 단계별 진행률/상태 기록(프론트 폴링용)
  *   - generateImagesAsync(...) 비동기 메서드: 프론트의 /auto가 호출
  *   - generateFromDb(...) 동기 메서드: 관리/디버그/배치에서 사용
->>>>>>> origin/이민우
  */
 @Service
 public class DiaryWorkflowService {
@@ -122,7 +113,6 @@ public class DiaryWorkflowService {
     public ImageGenerateDtos.GenerateResponse generateFromDb(long entryId,
                                                              boolean regenerate,
                                                              String size) {
-
         var ctxOpt = imageDbRepo.findContext(entryId);
         if (ctxOpt.isEmpty()) {
             throw new IllegalStateException("분석(키워드) 또는 일기/사용자 정보가 부족합니다. entry_id=" + entryId);
@@ -156,4 +146,3 @@ public class DiaryWorkflowService {
 
     private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 }
-
