@@ -1,5 +1,6 @@
 package com.share.dairy.service.diary;
 
+import com.share.dairy.auth.UserSession;
 import com.share.dairy.dao.diary.DiaryAttachmentDao;
 import com.share.dairy.dao.diary.DiaryEntryDao;
 import com.share.dairy.model.diary.DiaryAttachment;
@@ -38,15 +39,45 @@ public class DiaryWriteService {
     }
 
     // 목록 조회: 컨트롤러가 쓰기 쉽게 DAO 호출을 한 줄로 감쌉니다.
-    
-    public List<DiaryEntry> loadMyDiaryList(Long userId) {
-        if (userId == null || userId <= 0)  // ✅ 로그인 없으면 막기
-            throw new IllegalStateException("로그인이 필요합니다.");
+
+
+    /** 내 일기(세션 사용자)만 */
+    public List<DiaryEntry> loadMyDiaryList() {
+        long myId = UserSession.requireId();
         try {
-            Long uid = com.share.dairy.auth.UserSession.currentId();
-            return new DiaryEntryDao().findAllByUser(uid); // ✅ 전체조회 금지
+            return diaryEntryDao.findAllByUser(myId)
+                    .stream()
+                    .filter(d -> d.getUserId() != null && d.getUserId() == myId) // ✅ 2중 안전장치
+                    .collect(java.util.stream.Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("내 일기 조회 실패", e);
+        }
+    }
+
+    /** 특정 사용자 일기 (Buddy 화면에서 사용) */
+    public List<DiaryEntry> loadUserDiaryList(long userId) {
+        if (userId <= 0) throw new IllegalArgumentException("userId must be positive");
+        try {
+            return diaryEntryDao.findAllByUser(userId)
+                    .stream()
+                    .filter(d -> d.getUserId() != null && d.getUserId() == userId) // ✅ 확실히 그 사용자 것만
+                    .collect(java.util.stream.Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("사용자 일기 조회 실패: userId=" + userId, e);
+        }
+    }
+
+    /** 호환용 (My Diary가 아직도 이걸 호출할 수 있음) → 파라미터 무시하고 '내 것'만 */
+    @Deprecated
+    public List<DiaryEntry> loadMyDiaryList(Long ignored) {
+        long myId = UserSession.requireId();
+        try {
+            return diaryEntryDao.findAllByUser(myId)
+                    .stream()
+                    .filter(d -> d.getUserId() != null && d.getUserId() == myId) // ✅ 강제 필터
+                    .collect(java.util.stream.Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("일기 조회 실패(호환용)", e);
         }
     }
 
