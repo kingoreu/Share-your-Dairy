@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.DiaryHubController"
+            style="-fx-background-color: #fdeaf4;"
+            prefWidth="960" prefHeight="640">
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <top>
+        <VBox>
+            <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 18;">
+                <Button fx:id="homeButton" onAction="#showDiaryHub"
+                        style="-fx-background-color: transparent; -fx-padding: 6;">
+                    <tooltip><Tooltip text="Home"/></tooltip>
+                    <graphic>
+                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                            <image><Image url="@/icons/home.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Label fx:id="titleLabel" text="Diary Hub" styleClass="title"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <Separator styleClass="top-sep"/>
+        </VBox>
+    </top>
+
+    <left>
+        <VBox spacing="12" style="-fx-padding: 20;" styleClass="sidebar">
+            <Button text="MY DIARY"    onAction="#showDiaryHub"/>
+            <Button text="OUR DIARY"   onAction="#showOurDiary"/>
+            <Button text="BUDDY DIARY" onAction="#showBuddyDiary"/>
+            <Separator/>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane fx:id="content" BorderPane.alignment="CENTER">
+            <StackPane fx:id="centerHolder"/>
+            <!-- 하단 펜슬(FAB) 유지 -->
+            <Button fx:id="fabNew" onAction="#showMyDiary" styleClass="fab"
+                    StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </StackPane.margin>
+                <tooltip><Tooltip text="New diary"/></tooltip>
+                <graphic>
+                    <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                        <image><Image url="@/icons/pen.png"/></image>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </StackPane>
+    </center>
+
+</BorderPane>

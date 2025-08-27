@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.BuddyDiaryController"
+            prefWidth="700" prefHeight="560"
+            styleClass="root"
+            stylesheets="@/css/friendlist.css">
+
+    <HBox spacing="12"
+          AnchorPane.topAnchor="0"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0"
+          AnchorPane.bottomAnchor="0">
+
+        <!-- 좌측: 친구 리스트 (폭 고정) -->
+        <StackPane prefWidth="240" minWidth="240" maxWidth="240"
+                   style="-fx-background-color:#E9CFE5; -fx-background-radius:16; -fx-padding:10;"
+                   VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: transparent;"
+                        maxHeight="Infinity" VBox.vgrow="ALWAYS">
+                <content>
+                    <VBox fx:id="buddyList" spacing="10" style="-fx-padding:6;"
+                          maxHeight="Infinity" VBox.vgrow="ALWAYS" />
+                </content>
+            </ScrollPane>
+        </StackPane>
+
+        <!-- 우측: 프리뷰 그리드(컨트롤러가 셀을 동적으로 추가) -->
+        <ScrollPane fx:id="entriesScroll"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="ALWAYS"
+                    style="-fx-background-color: transparent;"
+                    HBox.hgrow="ALWAYS">
+            <content>
+                <AnchorPane style="-fx-background-color:#F3EFF2; -fx-background-radius:12;">
+                    <children>
+
+                        <!-- ⚠️ 여기엔 '빈' GridPane만 둔다. (행/열 제약 없음) -->
+                        <GridPane fx:id="entriesGrid"
+                                  hgap="24" vgap="24" alignment="TOP_CENTER"
+                                  AnchorPane.topAnchor="18"
+                                  AnchorPane.leftAnchor="18"
+                                  AnchorPane.rightAnchor="18"/>
+                        <!-- ⬆ bottomAnchor를 두지 않아야 스크롤이 정상 동작 -->
+
+                    </children>
+                </AnchorPane>
+            </content>
+        </ScrollPane>
+    </HBox>
+</AnchorPane>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<DialogPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.NewShareDiaryDialogController"
+            headerText="새 OUR DIARY 만들기">
+    <content>
+        <VBox spacing="8">
+            <TextField fx:id="titleField" promptText="TITLE"/>
+            <TextArea fx:id="contentArea" promptText="CONTENTS" prefRowCount="8"/>
+        </VBox>
+    </content>
+    <buttonTypes>
+        <ButtonType text="확인" buttonData="OK_DONE"/>
+        <ButtonType text="취소" buttonData="CANCEL_CLOSE"/>
+    </buttonTypes>
+</DialogPane>

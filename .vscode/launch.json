@@ -1,30 +1,47 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        
-        {
-            "type": "java",
-            "name": "Current File",
-            "request": "launch",
-            "mainClass": "${file}",
-            // 코드 렌즈(클래스 위 Run|Debug)로도 실행하고 싶다면 여기도 vmArgs 추가
-            "vmArgs": "--module-path \"C:/Java/javafxsdk-21.0-.8/lib\" --add-modules javafx.controls,javafx.fxml"
-        },
-        {
-            "type": "java",
-            "name": "HelloApplication",
-            "request": "launch",
-            "mainClass": "com.share.dairy.HelloApplication",
-            "projectName": "dairy",
-            "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml"
-        },
-        {
-            "type": "java",
-            "name": "Launcher",
-            "request": "launch",
-            "mainClass": "com.share.dairy.Launcher",
-            "projectName": "dairy",
-            "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+    "type": "java",
+    "name": "ServerApplication",
+    "request": "launch",
+    "mainClass": "com.share.dairy.ServerApplication",
+    "projectName": "dairy",
+    "envFile": "${workspaceFolder}/.env",
+    "presentation": { "hidden": true }   // ← 이 줄 추가
+  },
+
+    {
+      "type": "java",
+      "name": "HelloApplication",
+      "request": "launch",
+      "mainClass": "com.share.dairy.app.HelloApplication",
+      "projectName": "dairy",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Launcher",
+      "request": "launch",
+      "mainClass": "com.share.dairy.app.Launcher",
+      "projectName": "dairy",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Current File",
+      "request": "launch",
+      "mainClass": "${file}",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ],
+  "compounds": [
+    {
+      "name": " HelloApp",
+      "configurations": ["HelloApplication"]
+    }
+  ]
 }

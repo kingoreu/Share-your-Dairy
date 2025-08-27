@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.share.dairy.controller.login.AfterSignUpController"
+           stylesheets="@/css/login/login.css"
+           prefHeight="600.0" prefWidth="800.0">
+
+    <children>
+        <ImageView fitWidth="800" fitHeight="600" preserveRatio="true" smooth="true">
+            <image>
+                <Image url="@/login_images/login_background.png"/>
+            </image>
+        </ImageView>
+
+        <!-- 카드(배경 + 콘텐츠 묶음) -->
+        <StackPane alignment="CENTER" prefWidth="450" prefHeight="400"
+                   maxWidth="450" maxHeight="400" >
+
+            <children>
+                <!-- 폼 뒤 배경 -->
+                <Rectangle width="450" height="450" arcWidth="30" arcHeight="30"
+                           styleClass="card-background"/>
+
+                <VBox alignment="CENTER" spacing="18">
+                    <!-- 로고: 크기 고정 -->
+                    <ImageView fitWidth="260" fitHeight="260" preserveRatio="true" smooth="true">
+                        <image><Image url="@/logo/logo4.png"/></image>
+                    </ImageView>
+
+                    <Label text="회원가입 완료!" style="-fx-font-size: 30px; -fx-text-fill: black;"/>
+
+                    <Button text="로그인 화면으로" maxWidth="250" onAction="#onLoginClicked"/>
+                </VBox>
+            </children>
+
+        </StackPane>
+    </children>
+</StackPane>
+

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import java.net.URL?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.Calendar.CalendarController"
+            style="-fx-background-color: #fdeaf4;">
+
+    <!-- CSS -->
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <!-- 상단바 -->
+    <top>
+        <BorderPane style="-fx-padding: 8 12;">
+            <left>
+                <Button fx:id="homeButton" onAction="#goHome"
+                        style="-fx-background-color: transparent; -fx-padding: 6;">
+                    <graphic>
+                        <ImageView fitWidth="35" fitHeight="35" preserveRatio="true">
+                            <image><Image url="@/icons/home.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </left>
+
+            <center>
+                <HBox spacing="15" alignment="CENTER" style="-fx-padding: 12;">
+                    <Button fx:id="prevBtn" text="◀"/>
+                    <Label fx:id="monthLabel" text="2025 . 08"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <Button fx:id="nextBtn" text="▶"/>
+                </HBox>
+            </center>
+
+            <!-- 상단 구분선 -->
+            <bottom>
+                <Separator styleClass="top-sep"/>
+            </bottom>
+        </BorderPane>
+    </top>
+
+    <!-- 중앙 달력 -->
+        <center>
+  <ScrollPane fitToWidth="true" fitToHeight="false"
+              vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+              pannable="true"
+              style="-fx-background-color: transparent;">
+    <content>
+      <GridPane fx:id="calendarGrid"
+                hgap="6" vgap="6"
+                maxWidth="Infinity"
+                style="-fx-padding: 12;">
+        <!-- 7열 정확히 100% -->
+        <columnConstraints>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+          <ColumnConstraints percentWidth="14.2857"/>
+        </columnConstraints>
+        <!-- rowConstraints 없음: 내용 높이에 따라 커지고, 필요 시 스크롤 -->
+      </GridPane>
+    </content>
+  </ScrollPane>
+</center>
+
+</BorderPane>

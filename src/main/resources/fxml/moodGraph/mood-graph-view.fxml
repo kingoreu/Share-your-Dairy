@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import java.net.URL?> 
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.share.dairy.controller.MoodGraph.MoodGraphController"
+            style="-fx-background-color: #fdeaf4;">
+
+    <!-- ✅ CSS 연결 (올바른 문법) -->
+    <stylesheets>
+        <!-- FXML과 같은 패키지면 @style.css, 다른 위치면 경로 맞춰줘 -->
+        <!-- 예) resources/com/share/dairy/css/style.css 라면 -->
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <!-- 상단: 제목 -->
+     <top>
+        <BorderPane style="-fx-padding: 8 12;">
+            <left>
+                <Button fx:id="homeButton" onAction="#goHome"
+                        style="-fx-background-color: transparent; -fx-padding: 6;">
+                    <graphic>
+                        <ImageView fitWidth="22" fitHeight="22" preserveRatio="true">
+                            <image><Image url="@/icons/home.png"/></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </left>
+            <center>
+                <VBox alignment="CENTER">
+                    <Label text="Mood  Graph"
+                           style="-fx-font-size: 28px; -fx-font-family: 'Pixel'; -fx-padding: 6 0 8 0; -fx-text-fill: black;"/>
+                    <Separator />
+                    <Separator styleClass="top-sep"/>
+                </VBox>
+            </center>
+        </BorderPane>
+    </top>
+
+    <!-- 좌측: 버튼 메뉴 -->
+<left>
+    <VBox spacing="16" alignment="CENTER" style="-fx-padding: 24;">
+        <fx:define>
+            <ToggleGroup fx:id="rangeGroup"/>
+        </fx:define>
+
+        <ToggleButton fx:id="weekToggle" text="1week"
+                      toggleGroup="$rangeGroup" onAction="#loadWeekData"
+                      styleClass="chip">
+            <graphic>
+                <StackPane styleClass="chip-icon">
+                    <Label text="🌙" styleClass="chip-check"/>
+                </StackPane>
+            </graphic>
+        </ToggleButton>
+
+        <ToggleButton fx:id="days15Toggle" text="15days"
+                      toggleGroup="$rangeGroup" onAction="#load15DaysData"
+                      styleClass="chip">
+            <graphic>
+                <StackPane styleClass="chip-icon">
+                    <Label text="🌗" styleClass="chip-check"/>
+                </StackPane>
+            </graphic>
+        </ToggleButton>
+
+            <ToggleButton fx:id="monthToggle" text="1month"
+                      toggleGroup="$rangeGroup" onAction="#loadMonthData"
+                         styleClass="chip">
+                  <graphic>
+                    <StackPane styleClass="chip-icon">
+                      <Label text="🌕" styleClass="chip-check"/>
+                  </StackPane>
+                </graphic>
+            </ToggleButton>
+         </VBox>
+    </left>
+
+    <!-- 센터: 감정 그래프 (카드 느낌) -->
+    <center>
+        <StackPane styleClass="content-pane" BorderPane.alignment="CENTER" style="-fx-padding: 16;">
+            <LineChart fx:id="moodChart" legendVisible="false">
+                <xAxis>
+                    <CategoryAxis label="Date"/>
+                </xAxis>
+                <!-- ✅ 행복도 스케일 1~10로 고정 -->
+                <yAxis>
+                    <NumberAxis lowerBound="1" upperBound="10" tickUnit="1" label=""/>
+                </yAxis>
+            </LineChart>
+        </StackPane>
+    </center>
+</BorderPane>
