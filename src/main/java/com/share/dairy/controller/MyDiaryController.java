@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
-import com.share.dairy.util.game.DodgeHellPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
+import com.share.dairy.util.game.TetrisPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -85,7 +85,7 @@ public class MyDiaryController {
     private Stage loadingStage;
     private ProgressBar overlayProgress;
     private Label overlayPercent, overlayMsg;
-    private DodgeHellPane gamePane;
+    private TetrisPane gamePane;
 
     // (옵션) 상태 API 없을 때 테스트용 가짜 진행률 모드
     private static final boolean FAKE_STATUS_MODE = false;
@@ -331,8 +331,7 @@ public class MyDiaryController {
         prog.setAlignment(Pos.CENTER);
 
         // === 별도 파일로 분리된 '돌 피하기' 게임 삽입 ===
-        gamePane = new DodgeHellPane(520, 280);
-        gamePane.start();      
+        gamePane = new TetrisPane(520, 280);
 
         Button closeBtn = new Button("오버레이 닫기"); // 작업 취소 아님, UI만 닫기
         closeBtn.setOnAction(e -> { if (loadingStage != null) loadingStage.close(); });
@@ -400,20 +399,19 @@ public class MyDiaryController {
     }
 
     /** 진행률/메시지 UI 갱신 + 게임 배경 틴트 반영 */
-private void updateOverlay(int progress, String msg, String status) {
-    if (progress >= 0) {
-        overlayProgress.setProgress(progress / 100.0);
-        overlayPercent.setText(progress + "%");
-        if (gamePane != null) {
-            gamePane.setProgressTint(progress);                   // 기존
-            gamePane.setDifficultyScale(0.9 + (progress / 100.0) * 0.6); // ★ 추가: 0.9 ~ 1.5
+    private void updateOverlay(int progress, String msg, String status) {
+        if (progress >= 0) {
+            overlayProgress.setProgress(progress / 100.0);
+            overlayPercent.setText(progress + "%");
+        } else {
+            overlayProgress.setProgress(-1);
+            overlayPercent.setText("");
         }
-    } else {
-        overlayProgress.setProgress(-1);
-        overlayPercent.setText("");
+        overlayMsg.setText((msg == null || msg.isBlank()) ? ("상태: " + status) : msg);
+
+        // 진행률에 따라 게임 배경을 조금 밝게
+        if (gamePane != null && progress >= 0) gamePane.setProgressTint(progress);
     }
-    overlayMsg.setText((msg == null || msg.isBlank()) ? ("상태: " + status) : msg);
-}
 
     /** DONE 처리: 오버레이 닫고 최종 Alert/콜백/리프레시/모달 닫기 */
     private void onImageDone(long entryId) {
