@@ -38,6 +38,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.event.EventHandler;
 
 import static com.share.dairy.auth.UserSession.currentId;
 
@@ -216,15 +221,61 @@ public class MyDiaryController {
     }
 
     /** 카드: 단순 표시(클릭 동작 없음 — 안정 상태) */
+    /** 카드: 클릭(더블클릭/Enter) 시 해당 일기 뷰어 열기 */
     private VBox makeCard(DiaryEntry d) {
-        VBox card = new VBox(6);
-        card.getStyleClass().add("diary-card");
-        Label date = new Label("DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null));
-        Label title = new Label("TITLE" + Optional.ofNullable(d.getTitle()).orElse("")); // 제목은 나중에
-        Label content = new Label("CONTENTS " + Optional.ofNullable(d.getDiaryContent()).orElse(""));
-        card.getChildren().addAll(date, title, content);
-        return card;
+    VBox card = new VBox(6);
+    card.setPadding(new Insets(12));
+    card.setStyle("-fx-background-color:white;-fx-background-radius:12;"
+            + "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 3);");
+    card.setPickOnBounds(true);          // 패딩 영역도 클릭 인식
+    card.setCursor(Cursor.HAND);         // 마우스 커서 손모양
+    card.setFocusTraversable(true);      // 키보드 포커스 가능
+
+    // 날짜
+    Label date = new Label("DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null));
+    date.setStyle("-fx-text-fill:#666;-fx-font-size:12;");
+
+    // 제목
+    String titleTxt = Optional.ofNullable(d.getTitle()).map(String::trim)
+            .filter(s -> !s.isEmpty()).orElse("(제목 없음)");
+    Label title = new Label("TITLE " + titleTxt);
+    title.setStyle("-fx-font-size:15;-fx-font-weight:700;");
+
+    // 본문 프리뷰
+    String body = Optional.ofNullable(d.getDiaryContent()).orElse("");
+    String preview = body.length() > 200 ? body.substring(0, 200) + "…" : body;
+    Label content = new Label("CONTENTS " + preview);
+    content.setWrapText(true);
+
+    card.getChildren().addAll(date, title, content);
+
+    // 🔑 클릭 핸들러 (카드 + 자식들 모두에 붙여 안전하게)
+    EventHandler<MouseEvent> open = e -> {
+        if (e.getButton() == MouseButton.PRIMARY) {
+            openDiaryViewer(d);
+            e.consume();
+        }
+    };
+    card.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
+    for (Node n : card.getChildren()) {
+        n.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
     }
+
+    // 키보드 접근성(Enter/Space로 열기)
+    card.setOnKeyPressed(e -> {
+        switch (e.getCode()) {
+            case ENTER, SPACE -> openDiaryViewer(d);
+        }
+    });
+
+    // (선택) hover 효과
+    card.setOnMouseEntered(e ->
+        card.setStyle(card.getStyle() + "-fx-background-color:#fff7fd;"));
+    card.setOnMouseExited(e ->
+        card.setStyle(card.getStyle().replace("-fx-background-color:#fff7fd;", "")));
+
+    return card;
+}
 
     /** 읽기 전용 모달 (나중용) */
     private void openDiaryViewer(DiaryEntry d) {
