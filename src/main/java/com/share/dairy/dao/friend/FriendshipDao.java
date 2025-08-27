@@ -222,4 +222,86 @@ public class FriendshipDao {
             }
         }
     }
+
+    /* ========== ★ 모달용: ACCEPTED 친구 (id+nickname) ========== */
+
+    /** 라이트 모델 */
+    public record BuddyRow(long id, String nickname) {}
+
+    /** 서로 친구(ACCEPTED)인 사용자 목록을 (상대 user_id + nickname)으로 반환 */
+    public List<BuddyRow> findAcceptedBuddies(long me) throws SQLException {
+        String sql = """
+            SELECT DISTINCT
+                   CASE WHEN f.user_id = ? THEN f.friend_id ELSE f.user_id END AS buddy_id,
+                   u.nickname
+            FROM friendship f
+            JOIN users u ON u.user_id =
+                 CASE WHEN f.user_id = ? THEN f.friend_id ELSE f.user_id END
+            WHERE (f.user_id = ? OR f.friend_id = ?)
+              AND f.friendship_status = 'ACCEPTED'
+            ORDER BY u.nickname
+        """;
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, me);
+            ps.setLong(2, me);
+            ps.setLong(3, me);
+            ps.setLong(4, me);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<BuddyRow> list = new ArrayList<>();
+                while (rs.next()) {
+                    list.add(new BuddyRow(
+                        rs.getLong("buddy_id"),
+                        rs.getString("nickname")
+                    ));
+                }
+                return list;
+            }
+        }
+    }
+    // FriendshipDao.java 에 추가 (users: user_id, nickname, character_type 컬럼 가정)
+    public static final class FriendSummary {
+        public final long buddyId;
+        public final String nickname;
+        public final String characterType; // DB의 문자열(enum명). 컨트롤러에서 CharacterType.valueOf(...) 가능.
+
+        public FriendSummary(long buddyId, String nickname, String characterType) {
+            this.buddyId = buddyId; this.nickname = nickname; this.characterType = characterType;
+        }
+    }
+
+    public List<FriendSummary> findAcceptedSummariesFor(long myId) throws SQLException {
+        try (var con = DBConnection.getConnection()) {
+            String sql = """
+            SELECT 
+              CASE WHEN f.user_id = ? THEN u2.user_id ELSE u1.user_id END                AS buddy_id,
+              CASE WHEN f.user_id = ? THEN u2.nickname ELSE u1.nickname END              AS buddy_nickname,
+              CASE WHEN f.user_id = ? THEN u2.character_type ELSE u1.character_type END  AS buddy_character_type
+            FROM friendship f
+            JOIN users u1 ON u1.user_id = f.user_id
+            JOIN users u2 ON u2.user_id = f.friend_id
+            WHERE f.friendship_status='ACCEPTED'
+              AND (f.user_id=? OR f.friend_id=?)
+            ORDER BY buddy_nickname ASC
+        """;
+            try (var ps = con.prepareStatement(sql)) {
+                ps.setLong(1, myId);
+                ps.setLong(2, myId);
+                ps.setLong(3, myId);
+                ps.setLong(4, myId);
+                ps.setLong(5, myId);
+                try (var rs = ps.executeQuery()) {
+                    var list = new ArrayList<FriendSummary>();
+                    while (rs.next()) {
+                        list.add(new FriendSummary(
+                                rs.getLong("buddy_id"),
+                                rs.getString("buddy_nickname"),
+                                rs.getString("buddy_character_type")
+                        ));
+                    }
+                    return list;
+                }
+            }
+        }
+    }
 }

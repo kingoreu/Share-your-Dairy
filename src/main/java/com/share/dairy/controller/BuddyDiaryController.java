@@ -1,7 +1,12 @@
 package com.share.dairy.controller;
 
-import com.share.dairy.model.diary.DiaryEntry;
-import com.share.dairy.service.diary.DiaryWriteService;
+import com.share.dairy.auth.UserSession;                // ✅ 현재 로그인 사용자
+import com.share.dairy.dao.friend.FriendshipDao;        // ✅ 친구 목록 DAO
+import com.share.dairy.model.friend.Friendship;         // ✅ 친구 관계 엔티티
+import com.share.dairy.model.diary.DiaryEntry;          // ✅ 일기 엔티티
+import com.share.dairy.model.enums.Visibility;          // ✅ PRIVATE 필터링용
+import com.share.dairy.model.enums.CharacterType;       // ⭕ 아바타 타입(없으면 null)
+import com.share.dairy.service.diary.DiaryWriteService; // ✅ 일기 조회 서비스
 
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -14,108 +19,161 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+import java.util.Locale;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
-/** Buddy Diary – 보기 전용(다른 사람이 쓴 일기만 표시) */
+/**
+ * BuddyDiaryController
+ * -----------------------------------------------------------------------
+ * 좌측: "승인된 친구(ACCEPTED)" 목록을 카드로 표시
+ * 우측: 선택한 친구의 글을 최신순으로 보여줌
+ *  - 첫 화면 4개
+ *  - 스크롤을 바닥 근처로 내리면 다음 N개를 동적 추가 (무한 스크롤 느낌)
+ *
+ * ⚠ FXML에서 우측 ScrollPane에 fx:id="entriesScroll" 한 줄만 추가하면 됨.
+ *   그 외는 전부 이 컨트롤러 코드로 처리.
+ */
 public class BuddyDiaryController {
 
-    // FXML
-    @FXML private GridPane entriesGrid;   // 우측 2×2 그리드
-    @FXML private VBox buddyList;         // 좌측 버디 리스트
+    /* ============================
+     * FXML 노드
+     * ============================ */
+    @FXML private ScrollPane entriesScroll; // 우측 목록 스크롤 (무한 스크롤 트리거)
+    @FXML private GridPane entriesGrid;     // 우측 2열 그리드 (셀을 동적으로 추가)
+    @FXML private VBox buddyList;           // 좌측 친구 리스트(ScrollPane content)
 
-    // 상태
-    private String selectedBuddyId;
-    private boolean gridInitialized = false;
+    /* ============================
+     * 상태/상수
+     * ============================ */
+    private String selectedBuddyId;                      // 현재 선택된 친구의 user_id(문자열)
+    private boolean scrollHooked = false;                // 스크롤 리스너 중복 방지
 
-    // 셀 참조(표시/모달용)
-    private final Label[] dateLabels     = new Label[4];
-    private final Label[] previewLabels  = new Label[4];
-    private final PreviewEntry[] cellData = new PreviewEntry[4];
+    // 무한 스크롤 상태
+    private final List<PreviewEntry> allEntries = new ArrayList<>(); // 선택 친구의 전체 글(필터/정렬 후)
+    private int renderedCount = 0;                                    // 그리드에 그린 개수
+    private static final int FIRST_PAGE = 4;                          // 첫 화면 개수
+    private static final int NEXT_PAGE  = 8;                          // 이후 스크롤 시 추가 개수
 
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
-    // DB 서비스(조회만 사용)
+    /* ============================
+     * 서비스/DAO
+     * ============================ */
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
+    private final FriendshipDao friendshipDao = new FriendshipDao();
 
-    // ────────────────────────────────────────────────────────────────────────────
-
+    /* =======================================================================
+     * 라이프사이클
+     * ======================================================================= */
     @FXML
     public void initialize() {
-        // ESC 무력화 + 버튼 크기 고정(눌림 변형 방지)
-        entriesGrid.sceneProperty().addListener((obs, o, s) -> {
-            if (s != null) {
-                s.addEventFilter(KeyEvent.KEY_PRESSED, e -> { if (e.getCode() == KeyCode.ESCAPE) e.consume(); });
-                freezeAllButtonSizesOnce(s);
+        // ESC 키로 모달이 비정상 종료되는 걸 예방 + 버튼 눌림시 크기 튐 방지
+        entriesGrid.sceneProperty().addListener((obs, oldScene, scene) -> {
+            if (scene != null) {
+                scene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED,
+                        e -> { if (e.getCode() == KeyCode.ESCAPE) e.consume(); });
+                freezeAllButtonSizesOnce(scene);
             }
         });
 
-        // 그리드 기본(가로만 부모에 맞추고 세로는 스크롤)
-        entriesGrid.setHgap(18);
-        entriesGrid.setVgap(18);
-        entriesGrid.setPadding(new Insets(16));
-        setupGridConstraints();
-        setupRowConstraints();
-        bindGridToParent();
+        // 우측 그리드: 2열 고정, 행 제약은 두지 않음(행이 동적으로 늘어나도록)
+        setupGridColumnsOnly();
+        bindGridWidthToParent();
 
-        // 좌측 리스트
+        // 좌측 친구 리스트 스타일
         buddyList.setAlignment(Pos.TOP_CENTER);
         buddyList.setFillWidth(true);
         buddyList.setSpacing(12);
         buddyList.setPadding(new Insets(0, 10, 0, 10));
 
-        // ▶ 여기서는 데모 버디만 넣어둠.
-        //    실제 연결 시, id에 **해당 버디의 user_id(숫자 문자열)** 를 넣어주세요.
-        renderBuddyList(fakeBuddies());
+        // 좌측: DB에서 친구 목록 로드 → 렌더링
+        renderBuddyList(loadBuddiesFromDB());
 
-        // 2×2 셀 생성
-        ensureGridBuilt();
+        // 우측: 무한 스크롤 리스너(한 번만 설치)
+        hookInfiniteScrollOnce();
 
-        // 첫 선택(데모용)
+        // 첫 친구 자동 선택
         if (!buddyList.getChildren().isEmpty()) {
             Object firstId = buddyList.getChildren().getFirst().getUserData();
             if (firstId != null) selectBuddy(String.valueOf(firstId));
         }
     }
 
-    // ───────────────────────── 좌측 리스트 ─────────────────────────
+    /* =======================================================================
+     * 좌측: 친구 리스트
+     * ======================================================================= */
+
+    /**
+     * DB에서 "ACCEPTED" 친구 목록을 읽어 화면 모델(Buddy)로 변환.
+     * 현재 Dao는 닉네임/캐릭터를 안 실어오므로 이름은 "USER {id}" 로 폴백.
+     * (아래 '선택 개선' 섹션에 users 조인 방법을 제공)
+     */
+    private List<Buddy> loadBuddiesFromDB() {
+        long myId = UserSession.requireId();
+        List<FriendshipDao.FriendSummary> rows;
+        try {
+            rows = friendshipDao.findAcceptedSummariesFor(myId);
+        } catch (Exception e) {
+            System.err.println("[BuddyDiary] 친구 요약 로드 실패: " + e.getMessage());
+            rows = List.of();
+        }
+
+        return rows.stream()
+                .map(s -> new Buddy(
+                        String.valueOf(s.buddyId),
+                        (s.nickname != null && !s.nickname.isBlank()) ? s.nickname : ("USER " + s.buddyId),
+                        (s.characterType != null) ? safeEnum(s.characterType) : null
+                ))
+                .sorted(Comparator.comparing(Buddy::name, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    // 기존 safeEnum 대체
+    private static CharacterType safeEnum(String dbValue) {
+        try { return CharacterType.valueOf(dbValue.toUpperCase(Locale.ROOT)); }
+        catch (Exception ignore) { return null; }
+    }
+
+    /** VBox 컨테이너(buddyList)에 친구 카드들을 렌더링 */
     private void renderBuddyList(List<Buddy> buddies) {
         buddyList.getChildren().clear();
         for (Buddy b : buddies) buddyList.getChildren().add(buildBuddyItem(b));
     }
 
+    /** 친구 카드 한 줄 생성 */
     private Node buildBuddyItem(Buddy b) {
         HBox card = new HBox(12);
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(16));
-        card.setMinHeight(64); card.setPrefHeight(68);
+        card.setMinHeight(64);
+        card.setPrefHeight(68);
         card.setMaxWidth(Double.MAX_VALUE);
 
         final String BASE   = "-fx-background-color:#CBAFD1; -fx-background-radius:14;";
         final String HILITE = "-fx-background-color:white; -fx-background-radius:14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 0, 3);";
         card.setStyle(BASE);
 
-        Node avatar = loadAvatar(b.id());
+        Node avatar = loadAvatar(b); // 캐릭터 타입 기반(없으면 폴백)
         Label nameLabel = new Label(b.name());
         nameLabel.setStyle("-fx-font-size:17; -fx-font-weight:bold; -fx-text-fill:#141414;");
         card.getChildren().addAll(avatar, nameLabel);
 
+        // 좌우 여백 맞추기 위해 감싸는 슬롯 사용
         double gutter = buddyList.getPadding().getLeft();
         StackPane slot = new StackPane(card);
         slot.setAlignment(Pos.CENTER);
         StackPane.setMargin(card, new Insets(0, gutter, 0, gutter));
         card.maxWidthProperty().bind(slot.widthProperty().subtract(gutter * 2));
 
-        // ▼ 이 userData가 selectBuddy로 그대로 전달됩니다.
-        //    실제 환경에서는 b.id()에 "실제 buddy의 user_id(문자열)" 를 넣어주세요.
+        // 클릭 시 selectBuddy()로 전달할 값(친구 user_id 문자열)
         slot.setUserData(b.id());
 
         slot.setOnMouseClicked(e -> selectBuddy(b.id()));
@@ -126,24 +184,66 @@ public class BuddyDiaryController {
         return slot;
     }
 
-    private Node loadAvatar(String id) {
+    /** 아바타 로딩: CharacterType → /images/characters/{TYPE}.png, 없으면 폴백 */
+    /** 아바타 로딩: CharacterType → /character/{TYPE}.png, 없으면 폴백 */
+    private Node loadAvatar(Buddy b) {
         try {
-            Image img = new Image(Objects.requireNonNullElse(
-                getClass().getResourceAsStream("/images/buddy/" + id + ".png"),
-                getClass().getResourceAsStream("/images/buddy/_fallback.png")
-            ));
+            Image img;
+            if (b.ctype() != null) {
+                // ✅ 리소스 경로 수정 (resources 접두사 X, 폴더명 character)
+                String p = "/character/" + b.ctype().name().toLowerCase(Locale.ROOT) + ".png";
+                // 파일명이 소문자라면 ↓로 바꿔 쓰세요
+                // String p = "/character/" + b.ctype().name().toLowerCase(Locale.ROOT) + ".png";
+
+                img = new Image(Objects.requireNonNullElse(
+                        getClass().getResourceAsStream(p),
+                        // ✅ 폴백도 같은 폴더에 두기
+                        getClass().getResourceAsStream("/character/_fallback.png")
+                ));
+            } else {
+                // 사용자별 이미지가 있으면 사용, 없으면 캐릭터 폴더 폴백
+                img = new Image(Objects.requireNonNullElse(
+                        getClass().getResourceAsStream("/images/buddy/" + b.id() + ".png"),
+                        getClass().getResourceAsStream("/character/_fallback.png")
+                ));
+            }
             ImageView iv = new ImageView(img);
+
+            iv.setPreserveRatio(true);
+            iv.setSmooth(true);
+            iv.setFitHeight(36);         // 한쪽만
+            // 🔧 클립 초기 크기를 36x36으로 먼저 줘서 0클립을 방지
+            Rectangle clip = new Rectangle(36, 36);
+            clip.setArcWidth(16);
+            clip.setArcHeight(16);
+            iv.setClip(clip);
+            // 이후 실제 렌더 크기에 맞춰 클립을 업데이트
+            iv.layoutBoundsProperty().addListener((o, ov, nv) -> {
+                clip.setWidth(nv.getWidth());
+                clip.setHeight(nv.getHeight());
+            });
+            return iv;
+
+        } catch (Exception ignore) {
+            // 마지막 안전망: 폴백
+            ImageView iv = new ImageView(new Image(
+                    Objects.requireNonNull(getClass().getResourceAsStream("/character/_fallback.png"))
+            ));
             iv.setFitWidth(36); iv.setFitHeight(36);
             Rectangle clip = new Rectangle(36, 36); clip.setArcWidth(36); clip.setArcHeight(36);
             iv.setClip(clip);
             return iv;
-        } catch (Exception ignore) { return new Label(); }
+        }
     }
 
+
+    /* =======================================================================
+     * 좌측 카드 클릭 → 우측: 무한 스크롤 목록 초기화/렌더
+     * ======================================================================= */
     private void selectBuddy(String buddyId) {
         this.selectedBuddyId = buddyId;
 
-        // 좌측 하이라이트
+        // 좌측 하이라이트 갱신
         final String BASE = "-fx-background-color:#CBAFD1; -fx-background-radius:14;";
         final String HILITE = "-fx-background-color:white; -fx-background-radius:14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 0, 3);";
         for (Node slot : buddyList.getChildren()) {
@@ -151,68 +251,141 @@ public class BuddyDiaryController {
             card.setStyle(Objects.equals(slot.getUserData(), buddyId) ? HILITE : BASE);
         }
 
-        // ▶ DB에서 해당 버디(user_id)의 최신 4건을 읽어 2×2에 매핑
-        renderFromDB(buddyId);
-    }
+        // 1) 선택된 친구의 "전체 글"을 메모리에 로드(가시성/최신순)
+        loadAllEntriesForBuddy(buddyId);
 
-    // ───────────────────────── 2×2 셀 구성/렌더 ─────────────────────────
-    private void ensureGridBuilt() {
-        if (gridInitialized) return;
+        // 2) 그리드 초기화 → 처음 4개 렌더
         entriesGrid.getChildren().clear();
-        for (int i = 0; i < 4; i++) {
-            VBox cell = createCell(i);
-            GridPane.setHgrow(cell, Priority.ALWAYS);
-            GridPane.setVgrow(cell, Priority.ALWAYS);
-            entriesGrid.add(cell, i % 2, i / 2);
-        }
-        gridInitialized = true;
+        renderedCount = 0;
+        renderNextPage(FIRST_PAGE);
+
+        // 3) 스크롤 맨 위로
+        if (entriesScroll != null) entriesScroll.setVvalue(0);
+
+        // ✅ 초기 4개만으로 화면이 남으면 자동으로 더 채움
+        ensureViewportFilledLater();
     }
 
-    private VBox createCell(int idx) {
+    /** 콘텐츠 높이가 뷰포트보다 작으면 NEXT_PAGE씩 계속 추가해서 꽉 채움(또는 더 이상 없음). */
+    private void fillViewportIfShort() {
+        if (entriesScroll == null) return;
+
+        // ScrollPane 내부 콘텐츠(AnchorPane) 안의 GridPane 높이로 판단
+        double viewportH = entriesScroll.getViewportBounds().getHeight();
+        double contentH  = entriesGrid.getBoundsInParent().getHeight(); // grid 자체의 보이는 높이
+
+        // 콘텐츠가 뷰포트보다 작고, 아직 남은 데이터가 있으면 계속 추가
+        while (renderedCount < allEntries.size() && contentH <= viewportH + 1) {
+            renderNextPage(Math.min(NEXT_PAGE, allEntries.size() - renderedCount));
+            // 레이아웃 갱신 후 높이 다시 측정
+            entriesGrid.applyCss(); entriesGrid.layout();
+            contentH = entriesGrid.getBoundsInParent().getHeight();
+        }
+    }
+
+    /** 초기 렌더 직후 레이아웃이 잡힌 다음, 화면이 비어보이면 자동으로 더 렌더한다. */
+    private void ensureViewportFilledLater() {
+        javafx.application.Platform.runLater(() -> {
+            fillViewportIfShort();
+        });
+    }
+
+
+    /** 선택된 친구의 전체 글을 메모리에 로드(가시성/최신순 정렬) */
+    private void loadAllEntriesForBuddy(String buddyId) {
+        allEntries.clear();
+        Long userId = parseUserId(buddyId);
+        if (userId == null) return;
+
+        try {
+            // ⚠ DiaryWriteService.loadMyDiaryList(userId) 가 userId 인자를 무시하지 않도록 아래 '필수 패치' 적용 필요
+            // var list = diaryWriteService.loadMyDiaryList(userId);
+            var list = diaryWriteService.loadUserDiaryList(userId);
+
+            list.stream()
+                    .filter(d -> d.getVisibility() != Visibility.PRIVATE) // 친구/공개만
+                    .sorted(Comparator
+                            .comparing(DiaryEntry::getEntryDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                            .thenComparing(DiaryEntry::getEntryId, Comparator.nullsLast(Comparator.naturalOrder()))
+                            .reversed() // 최신순
+                    )
+                    .map(d -> new PreviewEntry(
+                            d.getEntryId(),
+                            d.getEntryDate(),
+                            nvl(d.getTitle()),
+                            nvl(d.getDiaryContent())
+                    ))
+                    .forEach(allEntries::add);
+
+        } catch (RuntimeException ex) {
+            System.err.println("[BuddyDiary] 일기 로드 실패: " + ex.getMessage());
+        }
+    }
+
+    /* =======================================================================
+     * 우측: 동적 셀 렌더링(2열) + 무한 스크롤
+     * ======================================================================= */
+
+    /** 그리드에 다음 N개 셀을 추가(2열 유지, 행은 자동 증가) */
+    private void renderNextPage(int count) {
+        int end = Math.min(allEntries.size(), renderedCount + count);
+        for (int i = renderedCount; i < end; i++) {
+            PreviewEntry e = allEntries.get(i);
+            VBox cell = createDynamicCell(e);
+            int col = i % 2;         // 0,1 반복
+            int row = i / 2;         // 행 인덱스
+            entriesGrid.add(cell, col, row);
+        }
+        renderedCount = end;
+    }
+
+    /** 프리뷰 셀 1개 생성 (날짜 + 내용 요약 + 클릭 시 모달) */
+    private VBox createDynamicCell(PreviewEntry e) {
         VBox wrap = new VBox(5);
-        wrap.setPrefHeight(210);
         wrap.setFillWidth(true);
         wrap.setMaxWidth(Double.MAX_VALUE);
-        VBox.setVgrow(wrap, Priority.ALWAYS);
 
         // 날짜
-        Label date = new Label();
+        Label date = new Label(e.date() != null ? e.date().format(DAY_FMT) : "");
         date.setStyle("-fx-font-size:14; -fx-text-fill:#4a4a4a; -fx-padding:0 0 6 4;");
-        dateLabels[idx] = date;
 
-        // 카드(흰 배경 + 그림자)
+        // 카드
         StackPane card = new StackPane();
         card.setPrefHeight(170);
         card.setStyle(
-            "-fx-background-color:white;" +
-            "-fx-background-radius:16;" +
-            "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.12), 10, 0.2, 0, 2);" +
-            "-fx-padding:12;"
+                "-fx-background-color:white;" +
+                        "-fx-background-radius:16;" +
+                        "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.12), 10, 0.2, 0, 2);" +
+                        "-fx-padding:12;"
         );
         card.setCursor(Cursor.HAND);
 
-        // 둥근 모서리 클리핑
         Rectangle clip = new Rectangle();
         clip.setArcWidth(16); clip.setArcHeight(16);
         card.layoutBoundsProperty().addListener((o, ov, nv) -> {
-            clip.setWidth(nv.getWidth());
-            clip.setHeight(nv.getHeight());
+            clip.setWidth(nv.getWidth()); clip.setHeight(nv.getHeight());
         });
         card.setClip(clip);
 
-        // 미리보기 라벨(스크롤 없음)
-        Label preview = new Label();
+        Label preview = new Label(tidy(e.text(), 140));
         preview.setWrapText(true);
         preview.setStyle("-fx-font-size:12; -fx-text-fill:#222;");
-        card.widthProperty().addListener((o, ov, nv) -> preview.setMaxWidth(nv.doubleValue() - 20));
-        preview.setMouseTransparent(true);
-        previewLabels[idx] = preview;
+
+        // ✅ 항상 카드 폭을 따라가도록 바인딩 (초기 페인트도 안정)
+        preview.setMaxWidth(Double.MAX_VALUE);                   // 라벨이 줄바꿈 가능하도록
+        preview.maxWidthProperty().bind(card.widthProperty().subtract(20));
+        StackPane.setAlignment(preview, Pos.TOP_LEFT);          // (선택) 정렬 일관성
+
+        // 초기 페인트 타이밍 보정(첫 클릭부터 여러 줄 보이게)
+        javafx.application.Platform.runLater(() ->
+                preview.setPrefWidth(card.getWidth() - 24)
+        );
+
         card.getChildren().add(preview);
 
-        // 클릭 → 보기 전용 모달
-        card.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() >= 1) {
-                openViewerModal(idx);
+        card.setOnMouseClicked(ev -> {
+            if (ev.getButton() == MouseButton.PRIMARY && ev.getClickCount() >= 1) {
+                openViewerModalByData(e);
             }
         });
 
@@ -220,55 +393,11 @@ public class BuddyDiaryController {
         return wrap;
     }
 
-    private void renderEntriesGrid(List<PreviewEntry> entries) {
-        for (int i = 0; i < 4; i++) {
-            PreviewEntry e = entries.get(i);
-            cellData[i] = e;
-            dateLabels[i].setText(e.date() != null ? e.date().format(DAY_FMT) : "");
-            previewLabels[i].setText(tidy(e.text(), 140)); // 썸네일은 요약
-        }
-    }
-
-    /** DB에서 불러와 2×2에 매핑 */
-    private void renderFromDB(String buddyId) {
-        Long userId = parseUserId(buddyId);
-        List<PreviewEntry> four = new ArrayList<>(4);
-        try {
-            if (userId != null) {
-                List<DiaryEntry> list = diaryWriteService.loadMyDiaryList(userId);
-                // 최신 4개만, 부족하면 빈칸 채우기
-                for (int i = 0; i < 4; i++) {
-                    if (i < list.size()) {
-                        DiaryEntry d = list.get(i);
-                        four.add(new PreviewEntry(
-                            d.getEntryId(),
-                            d.getEntryDate(),
-                            nvl(d.getTitle()),
-                            nvl(d.getDiaryContent())
-                        ));
-                    } else {
-                        four.add(new PreviewEntry(null, null, "", "")); // 빈 칸
-                    }
-                }
-            } else {
-                // userId 파싱 실패 → 빈칸
-                for (int i = 0; i < 4; i++) four.add(new PreviewEntry(null, null, "", ""));
-            }
-        } catch (RuntimeException ex) {
-            // 조회 실패해도 화면은 유지
-            for (int i = 0; i < 4; i++) four.add(new PreviewEntry(null, null, "", ""));
-        }
-        renderEntriesGrid(four);
-    }
-
-    // ───────────────────────── 보기 전용 모달 ─────────────────────────
-    private void openViewerModal(int idx) {
-        PreviewEntry cur = cellData[idx];
-        LocalDate date = (cur != null && cur.date() != null)
-                ? cur.date()
-                : parseDateLabelSafe(dateLabels[idx].getText());
-        String title = (cur != null ? nvl(cur.title()) : "");
-        String text  = (cur != null ? nvl(cur.text())  : "");
+    /** 데이터 기반 보기 전용 모달 */
+    private void openViewerModalByData(PreviewEntry e) {
+        LocalDate date = e.date();
+        String title = nvl(e.title());
+        String text  = nvl(e.text());
 
         Stage dlg = new Stage();
         if (entriesGrid.getScene() != null) dlg.initOwner(entriesGrid.getScene().getWindow());
@@ -296,38 +425,68 @@ public class BuddyDiaryController {
         dlg.showAndWait();
     }
 
-    // ───────────────────────── 레이아웃/유틸 ─────────────────────────
-    private void bindGridToParent() {
-        if (entriesGrid.getParent() instanceof Region prGrid) {
-            entriesGrid.prefWidthProperty().bind(prGrid.widthProperty()); // width only (세로 스크롤 유지)
+    /* =======================================================================
+     * 스크롤 이벤트: 바닥 90% 이상 → 다음 페이지 자동 로드
+     * ======================================================================= */
+    private void hookInfiniteScrollOnce() {
+        if (entriesScroll == null || scrollHooked) return;
+        scrollHooked = true;
+
+        // ▶ 바닥 98% 이상 도달 시 다음 페이지 로드
+        entriesScroll.vvalueProperty().addListener((obs, ov, v) -> {
+            if (selectedBuddyId == null || renderedCount >= allEntries.size()) return;
+            if (v.doubleValue() >= 0.98) {
+                renderNextPage(NEXT_PAGE);
+            }
+        });
+
+        // ▶ 뷰포트 크기(윈도우 리사이즈 등) 바뀌면, 화면이 비면 자동으로 더 채움
+        entriesScroll.viewportBoundsProperty().addListener((obs, ov, nv) -> {
+            fillViewportIfShort();
+        });
+
+        // ▶ 그리드 높이가 바뀔 때도 한 번 더 체크(초기 렌더 직후 안정화용)
+        entriesGrid.heightProperty().addListener((obs, ov, nv) -> {
+            fillViewportIfShort();
+        });
+    }
+
+    /* =======================================================================
+     * 레이아웃/공통 유틸
+     * ======================================================================= */
+
+    /** GridPane: 2열(50/50), 행 제약은 없음(행은 동적으로 증가) */
+    private void setupGridColumnsOnly() {
+        entriesGrid.getColumnConstraints().clear();
+        entriesGrid.getRowConstraints().clear();
+
+        ColumnConstraints c1 = new ColumnConstraints();
+        c1.setPercentWidth(50); c1.setHgrow(Priority.ALWAYS);
+
+        ColumnConstraints c2 = new ColumnConstraints();
+        c2.setPercentWidth(50); c2.setHgrow(Priority.ALWAYS);
+
+        entriesGrid.getColumnConstraints().addAll(c1, c2);
+    }
+
+    /** 가로폭만 부모에 바인딩(세로는 ScrollPane이 담당) */
+    private void bindGridWidthToParent() {
+        if (entriesGrid.getParent() instanceof Region pr) {
+            entriesGrid.prefWidthProperty().bind(pr.widthProperty());
         } else {
             entriesGrid.parentProperty().addListener((o, oldP, p) -> {
-                if (p instanceof Region prGrid2) {
-                    entriesGrid.prefWidthProperty().bind(prGrid2.widthProperty());
+                if (p instanceof Region pr2) {
+                    entriesGrid.prefWidthProperty().bind(pr2.widthProperty());
                 }
             });
         }
     }
 
-    private void setupGridConstraints() {
-        entriesGrid.getColumnConstraints().clear();
-        ColumnConstraints c1 = new ColumnConstraints(); c1.setPercentWidth(50); c1.setHgrow(Priority.ALWAYS);
-        ColumnConstraints c2 = new ColumnConstraints(); c2.setPercentWidth(50); c2.setHgrow(Priority.ALWAYS);
-        entriesGrid.getColumnConstraints().addAll(c1, c2);
-    }
-
-    private void setupRowConstraints() {
-        entriesGrid.getRowConstraints().clear();
-        RowConstraints r1 = new RowConstraints(); r1.setPercentHeight(50); r1.setVgrow(Priority.ALWAYS);
-        RowConstraints r2 = new RowConstraints(); r2.setPercentHeight(50); r2.setVgrow(Priority.ALWAYS);
-        entriesGrid.getRowConstraints().addAll(r1, r2);
-    }
-
+    /** 버튼 눌림시 크기 튐 방지(1회성) */
     private void freezeAllButtonSizesOnce(Scene scene) {
         javafx.application.Platform.runLater(() -> {
             Parent root = scene.getRoot();
-            root.applyCss();
-            root.layout();
+            root.applyCss(); root.layout();
             for (Node n : root.lookupAll(".button")) {
                 if (n instanceof Button b) {
                     double w = b.prefWidth(-1), h = b.prefHeight(-1);
@@ -337,35 +496,23 @@ public class BuddyDiaryController {
         });
     }
 
-    // ───────────────────────── 데모 버디 목록 ─────────────────────────
-    private List<Buddy> fakeBuddies() {
-        // 중요: id 자리에 **실제 user_id(문자열)** 를 넣어야 DB 조회가 됩니다.
-        // 지금은 예시로 17, 23, 42, 58, 61을 넣어둡니다.
-        return List.of(
-            new Buddy("17", "K.K"), // ← 친구 A의 user_id
-            new Buddy("23", "NaKi"), // ← 친구 B의 user_id
-            new Buddy("42", "Guide"), // ← 친구 C의 user_id
-            new Buddy("58", "K.K"),
-            new Buddy("61", "K.K")
-        );
-    }
+    /* =======================================================================
+     * 작은 헬퍼들
+     * ======================================================================= */
 
-    private Long parseUserId(String buddyId) {
-        try { return Long.parseLong(buddyId); } catch (Exception e) { return null; }
-    }
-
-    // ───────────────────────── 헬퍼/모델 ─────────────────────────
     private static String tidy(String s, int limit) {
         String one = nvl(s).replace("\r", " ").replace("\n", " ").trim();
         return one.length() > limit ? one.substring(0, limit) + "…" : one;
     }
     private static String nvl(String s) { return s == null ? "" : s; }
 
-    private static LocalDate parseDateLabelSafe(String label) {
-        try { return (label == null || label.isBlank()) ? LocalDate.now() : LocalDate.parse(label, DAY_FMT); }
-        catch (Exception e) { return LocalDate.now(); }
+    private Long parseUserId(String buddyId) {
+        try { return Long.parseLong(buddyId); } catch (Exception e) { return null; }
     }
 
-    private record Buddy(String id, String name) {}
+    // 좌측 표시용 모델(닉네임/캐릭터가 Dao에서 오면 여기에 그대로 넣어주면 됨)
+    private record Buddy(String id, String name, CharacterType ctype) {}
+
+    // 우측 프리뷰 표시용 모델
     private record PreviewEntry(Long id, LocalDate date, String title, String text) {}
 }

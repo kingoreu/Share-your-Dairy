@@ -7,11 +7,9 @@ import com.share.dairy.model.enums.Visibility;
 import com.share.dairy.service.diary.DiaryWriteService;
 import com.share.dairy.service.diary_analysis.DiaryAnalysisService;
 
-// 진행률 상태 파싱(Jackson)
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// UI / 게임 오버레이
 import com.share.dairy.util.game.AvoidRocksPane;
 
 import javafx.application.Platform;
@@ -32,6 +30,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -40,7 +40,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.awt.Desktop;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -53,16 +52,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import javafx.scene.layout.Region;
+import javafx.scene.Node;
+
 
 /**
- * MyDiaryController (통합본)
- * ------------------------------------------------------------
- * 공통: 일기 저장 → 분석 → (서버 트리거) 이미지 생성 → 오버레이/폴링으로 진행 상태 표시
- * 추가(두 번째 코드 전용이던 부분): 음악 검색/브금 WebView 패널 + 미니바 + 음소거 토글
- *
- * 백엔드 필요:
- *   POST /api/diary/{id}/images/auto      → 이미지 생성 비동기 시작
- *   GET  /api/diary/{id}/images/status    → {status, progress, message}
+ * MyDiaryController (옵션 B 적용본)
+ * - 카드에 "보기" 버튼만 추가 (전역 필터/투명 버튼 없음)
+ * - 다른 기능들은 변경 없음
  */
 public class MyDiaryController {
 
@@ -74,7 +71,7 @@ public class MyDiaryController {
     /* ========== [상단 MUSIC 버튼] ========== */
     @FXML private Button btnMusic;
 
-    /* ========== [음악 패널/미니바 — (두 번째 코드에만 있던 기능)] ========== */
+    /* ========== [음악 패널/미니바] ========== */
     @FXML private HBox     musicBar;         // 큰 패널
     @FXML private WebView  musicWeb;
     @FXML private Label    musicTitle, musicChannel;
@@ -128,19 +125,30 @@ public class MyDiaryController {
     public void initialize() {
         if (titleField  != null) titleField.setDisable(false);
         if (contentArea != null) contentArea.setDisable(false);
-        if (listContainer != null) refreshList();
+        if (listContainer != null){
+            listContainer.setMouseTransparent(false);
+            listContainer.setPickOnBounds(true);
+        }
+        refreshList();
 
         if (btnMusic != null) btnMusic.setOnAction(e -> openMusicDialog());
 
-        // 음악 패널/미니바 기본 비노출
-        if (musicBar  != null) { musicBar.setVisible(false);  musicBar.setManaged(false); }
-        if (musicMini != null) { musicMini.setVisible(false); musicMini.setManaged(false); }
+        // 음악 패널/미니바 기본 비노출 (숨길 때는 클릭 통과)
+        if (musicBar != null) {
+            musicBar.setVisible(false);
+            musicBar.setManaged(false);
+            musicBar.setMouseTransparent(true);
+        }
+        if (musicMini != null) {
+            musicMini.setVisible(false);
+            musicMini.setManaged(false);
+            musicMini.setMouseTransparent(true);
+        }
 
         // WebView UA 최신화(임베드 신뢰도 ↑)
         if (musicWeb != null) {
             musicWeb.getEngine().setUserAgent(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
             );
         }
 
@@ -149,6 +157,21 @@ public class MyDiaryController {
 
         // 음소거 버튼 초기 아이콘
         syncMuteButton();
+
+        // FAB 레이어가 클릭 가리는 문제 방지 (FAB만 클릭되게)
+        Platform.runLater(() -> {
+            if (pencilFab != null) {
+                javafx.scene.Parent p = pencilFab.getParent();
+                while (p != null && !(p instanceof javafx.scene.layout.Pane)) p = p.getParent();
+                if (p instanceof javafx.scene.layout.Pane fabLayer) {
+                    fabLayer.setPickOnBounds(false);
+                    fabLayer.setMouseTransparent(false);
+                }
+                pencilFab.setPickOnBounds(true);
+            }
+        });
+
+        // 옵션 B: 전역 클릭 필터/투명 버튼 설치 안 함
     }
 
     /* ======================================
@@ -166,7 +189,6 @@ public class MyDiaryController {
 
     /* ======================================
      *      저장 → 분석 → 이미지 생성 트리거
-     *     (공통 / 첫 번째 코드의 핵심 로직)
      * ====================================== */
     @FXML
     private void onSave() {
@@ -196,7 +218,7 @@ public class MyDiaryController {
                     // 1) GPT 분석
                     new DiaryAnalysisService().process(entryId);
 
-                    // 2) 분석 완료 안내(비차단)
+                    // 2) 안내
                     Platform.runLater(() ->
                         new Alert(Alert.AlertType.INFORMATION,
                                   "분석 완료! 키워드/캐릭터 이미지 생성을 시작합니다.").show()
@@ -223,40 +245,39 @@ public class MyDiaryController {
 
     /* ======================================
      *             FAB → 새 일기 모달
-     *        (FAB는 모달에서 반드시 숨김)
      * ====================================== */
     @FXML
     private void onClickFabPencil() {
-    try {
-        FXMLLoader fxml = new FXMLLoader(
-                getClass().getResource("/fxml/diary/my_diary/my-diary-view.fxml")); // ← 고정 경로
-        Parent root = fxml.load();
+        try {
+            FXMLLoader fxml = new FXMLLoader(
+                    getClass().getResource("/fxml/diary/my_diary/my-diary-view.fxml")); // ← 고정 경로
+            Parent root = fxml.load();
 
-        MyDiaryController child = fxml.getController();
-        child.setDialogMode(true);
-        child.setOnSaved(id -> refreshList());
-        child.forceHideFab(); // 안전빵
+            MyDiaryController child = fxml.getController();
+            child.setDialogMode(true);
+            child.setOnSaved(id -> refreshList());
+            child.forceHideFab(); // 안전빵
 
-        // 혹시라도 lookup으로 한 번 더 제거
-        var fab = root.lookup("#pencilFab");
-        if (fab == null) fab = root.lookup(".fab");
-        if (fab != null) { fab.setVisible(false); fab.setManaged(false); }
+            // 혹시라도 lookup으로 한 번 더 제거
+            var fab = root.lookup("#pencilFab");
+            if (fab == null) fab = root.lookup(".fab");
+            if (fab != null) { fab.setVisible(false); fab.setManaged(false); }
 
-        Stage dlg = new Stage();
-        if (listContainer != null && listContainer.getScene() != null) {
-            dlg.initOwner(listContainer.getScene().getWindow());
+            Stage dlg = new Stage();
+            if (listContainer != null && listContainer.getScene() != null) {
+                dlg.initOwner(listContainer.getScene().getWindow());
+            }
+            dlg.initModality(Modality.APPLICATION_MODAL);
+            dlg.setTitle("New Diary");
+            dlg.setScene(new Scene(root));
+            dlg.showAndWait();
+
+            refreshList();
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR,
+                "새 일기 화면을 열 수 없습니다.\n" + (e.getMessage() == null ? e.toString() : e.getMessage())
+            ).showAndWait();
         }
-        dlg.initModality(Modality.APPLICATION_MODAL);
-        dlg.setTitle("New Diary");
-        dlg.setScene(new Scene(root));
-        dlg.showAndWait();
-
-        refreshList();
-    } catch (Exception e) {
-        new Alert(Alert.AlertType.ERROR,
-            "새 일기 화면을 열 수 없습니다.\n" + (e.getMessage() == null ? e.toString() : e.getMessage())
-        ).showAndWait();
-    }
     }
 
     /* ======================================
@@ -283,49 +304,96 @@ public class MyDiaryController {
         for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
     }
 
-    /** 카드: 단순 표시(안정 상태) */
-    private VBox makeCard(DiaryEntry d) {
-        VBox card = new VBox(6);
-        card.getStyleClass().add("diary-card");
-        Label date    = new Label("DATE "    + Optional.ofNullable(d.getEntryDate()).orElse(null));
-        Label title   = new Label("TITLE "   + Optional.ofNullable(d.getTitle()).orElse(""));
-        Label content = new Label("CONTENTS "+ Optional.ofNullable(d.getDiaryContent()).orElse(""));
-        card.getChildren().addAll(date, title, content);
-        return card;
+    // 카드 하나 생성: 내용 + 우측 아래 "열기" 링크
+    private javafx.scene.Node makeCard(com.share.dairy.model.diary.DiaryEntry d) {
+    VBox card = new VBox(6);
+    card.getStyleClass().add("diary-card");
+
+    Label dateLbl  = new Label("DATE "    + java.util.Optional.ofNullable(d.getEntryDate()).orElse(null));
+    Label titleLbl = new Label("TITLE "   + java.util.Optional.ofNullable(d.getTitle()).orElse(""));
+    Label bodyLbl  = new Label("CONTENTS "+ java.util.Optional.ofNullable(d.getDiaryContent()).orElse(""));
+    card.getChildren().addAll(dateLbl, titleLbl, bodyLbl);
+
+    // ---- 여기부터 추가: 우하단 "열기" 링크 ----
+    javafx.scene.layout.HBox linkRow = new javafx.scene.layout.HBox(8);
+    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+    Hyperlink openLink = new Hyperlink("열기");
+    // 팀 CSS가 링크 색을 죽여버릴 수 있으니 강제로 보이게(필요 없으면 지워도 됨)
+    openLink.setStyle("-fx-text-fill:#3366ff; -fx-font-weight:bold;");
+    openLink.setFocusTraversable(false);
+    openLink.setOnAction(ev -> {
+        System.out.println("[MYDIARY] OPEN: " + d.getTitle() + " / " + d.getEntryDate());
+        openDiaryViewer(d);
+    });
+
+    linkRow.getChildren().addAll(spacer, openLink);
+    card.getChildren().add(linkRow);
+    // ---- 추가 끝 ----
+
+    return card;
     }
 
-    /** 읽기 전용 모달 (옵션) */
+    /** 읽기 전용 모달 (MY DIARY 카드 → 보기 버튼) */
     private void openDiaryViewer(DiaryEntry d) {
+        System.out.println("[MYDIARY] openDiaryViewer()");
         Stage dlg = new Stage();
+
+        // 소유자 지정(있으면)
         if (listContainer != null && listContainer.getScene() != null) {
             dlg.initOwner(listContainer.getScene().getWindow());
         } else {
             Stage st = currentStage();
             if (st != null) dlg.initOwner(st);
         }
-        dlg.initModality(Modality.APPLICATION_MODAL);
-        dlg.setTitle("Diary");
+        dlg.initModality(Modality.WINDOW_MODAL);
 
-        String dateText  = "DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null);
-        String titleText = "TITLE " + Optional.ofNullable(d.getTitle())
-                .map(String::trim).filter(s -> !s.isEmpty()).orElse("제목 없음");
+        // 날짜 포맷: yyyy.MM.dd
+        String dateDot = Optional.ofNullable(d.getEntryDate())
+                .map(ld -> ld.format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd")))
+                .orElse("");
 
-        Label date  = new Label(dateText);
-        Label title = new Label(titleText);
+        String titleText = Optional.ofNullable(d.getTitle())
+                .map(String::trim).filter(s -> !s.isEmpty()).orElse("TITLE");
+
+        Label lblTopDate = new Label(dateDot);
+        lblTopDate.setStyle("-fx-font-size: 13; -fx-text-fill: #333;");
+
+        Label lblTitle = new Label(titleText);
+        lblTitle.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
+
+        Label lblSubDate = new Label(dateDot);
+        lblSubDate.setStyle("-fx-text-fill: #666;");
 
         TextArea body = new TextArea(Optional.ofNullable(d.getDiaryContent()).orElse(""));
         body.setEditable(false);
         body.setWrapText(true);
         body.setPrefRowCount(18);
+        body.setStyle("-fx-font-size: 13;");
 
         Button close = new Button("닫기");
         close.setOnAction(ev -> dlg.close());
 
-        VBox root = new VBox(10, date, title, body, close);
+        VBox root = new VBox(10, lblTopDate, lblTitle, lblSubDate, body, close);
         root.setPadding(new Insets(16));
 
-        dlg.setScene(new Scene(root, 640, 480));
-        dlg.showAndWait();
+        dlg.setTitle(dateDot.isEmpty() ? "MY DIARY" : dateDot);
+        dlg.setScene(new Scene(root, 720, 520));
+        dlg.setResizable(false);
+
+        // ESC로 닫기
+        dlg.getScene().setOnKeyPressed(k -> {
+            if (k.getCode() == javafx.scene.input.KeyCode.ESCAPE) dlg.close();
+        });
+
+        // 배경 살짝 어둡게(있을 때만)
+        Stage owner = (Stage) (listContainer != null && listContainer.getScene() != null
+                ? listContainer.getScene().getWindow() : currentStage());
+        if (owner != null && owner.getScene() != null) owner.getScene().getRoot().setOpacity(0.60);
+        try { dlg.showAndWait(); } finally {
+            if (owner != null && owner.getScene() != null) owner.getScene().getRoot().setOpacity(1.0);
+        }
     }
 
     private Stage currentStage() {
@@ -335,7 +403,7 @@ public class MyDiaryController {
     }
 
     /* ======================================
-     *     [음악 패널/미니바] — (추가된 기능)
+     *     [음악 패널/미니바]
      * ====================================== */
 
     /** MUSIC 버튼 → 검색 모달 → 선택 시 브금 재생(성공 즉시 미니로 접기) */
@@ -434,8 +502,16 @@ public class MyDiaryController {
 
     /** 패널 보이기/숨기기 */
     private void showPanel(boolean show) {
-        musicBar.setManaged(show); musicBar.setVisible(show);
-        if (musicMini != null) { musicMini.setManaged(!show); musicMini.setVisible(!show); }
+        if (musicBar != null) {
+            musicBar.setManaged(show);
+            musicBar.setVisible(show);
+            musicBar.setMouseTransparent(!show);  // 숨기면 클릭 통과
+        }
+        if (musicMini != null) {
+            musicMini.setManaged(!show);
+            musicMini.setVisible(!show);
+            musicMini.setMouseTransparent(show);  // 미니가 보일 땐 미니만 클릭
+        }
     }
     private void showMini(boolean showMini) { showPanel(!showMini); }
 
@@ -505,7 +581,6 @@ public class MyDiaryController {
 
     /* ======================================
      *     상태 조회 + 오버레이(게임) + 폴링
-     *    (공통 / 첫 번째 코드의 핵심 로직)
      * ====================================== */
     private JsonNode fetchImageStatus(long entryId) throws Exception {
         HttpRequest req = HttpRequest.newBuilder(

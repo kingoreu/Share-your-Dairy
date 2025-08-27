@@ -7,7 +7,9 @@ import com.share.dairy.util.DBConnection;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DiaryEntryDao {
@@ -35,6 +37,27 @@ public class DiaryEntryDao {
             }
         }
     }
+    /* 공유 일기장 글 목록 */
+    public List<DiaryEntry> findAllBySharedDiaryId(long sharedDiaryId) throws SQLException {
+        String sql = """
+            SELECT
+                entry_id, user_id, shared_diary_id, entry_date, title, diary_content, visibility,
+                diary_created_at AS created_at,      -- ★ 매퍼가 created_at/updated_at을 기대하면 alias
+                diary_updated_at AS updated_at
+            FROM diary_entries
+            WHERE shared_diary_id = ?
+            ORDER BY entry_date DESC, entry_id DESC
+        """;
+        try    (var con = DBConnection.getConnection();
+             var ps  = con.prepareStatement(sql)) {
+            ps.setLong(1, sharedDiaryId);
+            try (var rs = ps.executeQuery()) {
+                List<DiaryEntry> list = new ArrayList<>();
+                while (rs.next()) list.add(mapper.map(rs));
+                return list;
+            }
+        }
+    }
 
     /* ✅ 내 글 목록(현재 user_id 전용) */
     public List<DiaryEntry> findAllByUser(long userId) throws SQLException {
@@ -42,7 +65,7 @@ public class DiaryEntryDao {
             SELECT entry_id, user_id, shared_diary_id, entry_date, title,
                 diary_content, visibility, diary_created_at, diary_updated_at
             FROM diary_entries
-            WHERE user_id = ?                 -- ✅ 꼭 있어야 함
+            WHERE user_id = ? AND shared_diary_id IS NULL
             ORDER BY entry_date DESC, entry_id DESC
         """;
         try (var con = DBConnection.getConnection();
@@ -56,41 +79,28 @@ public class DiaryEntryDao {
         }
     }
 
-    // 공유 일기장 글 목록 조회
-    public List<DiaryEntry> findAllBySharedDiaryId(long sharedDiaryId) throws SQLException {
-    String sql = """
-        SELECT entry_id, user_id, shared_diary_id, entry_date, title,
-               diary_content, visibility, diary_created_at, diary_updated_at
-          FROM diary_entries
-         WHERE shared_diary_id = ?
-         ORDER BY entry_date DESC, entry_id DESC
-    """;
-    try (var con = DBConnection.getConnection();
-         var ps  = con.prepareStatement(sql)) {
-        ps.setLong(1, sharedDiaryId);
-        try (var rs = ps.executeQuery()) {
-            List<DiaryEntry> list = new java.util.ArrayList<>();
-            while (rs.next()) list.add(mapper.map(rs));
-            return list;
-        }
-    }
-}
+
 
     /* 저장 */
     public long save(DiaryEntry entry) throws SQLException {
         String sql = """
             INSERT INTO diary_entries
-                (user_id, entry_date, title, diary_content, visibility, diary_created_at)
-            VALUES (?, ?, ?, ?, ?, NOW())
+                (user_id, shared_diary_id, entry_date, title, diary_content, visibility, diary_created_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW())
         """;
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try    (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, entry.getUserId());
-            ps.setDate(2, java.sql.Date.valueOf(entry.getEntryDate()));
-            ps.setString(3, entry.getTitle());
-            ps.setString(4, entry.getDiaryContent());
-            ps.setString(5, entry.getVisibility().name()); // ENUM → 문자열
+
+            // ★ 공유방이면 방 ID, 개인일기면 NULL
+            if (entry.getSharedDiaryId() == null) ps.setNull(2, Types.BIGINT);
+            else ps.setLong(2, entry.getSharedDiaryId());
+
+            ps.setDate(3, java.sql.Date.valueOf(entry.getEntryDate()));
+            ps.setString(4, entry.getTitle());
+            ps.setString(5, entry.getDiaryContent());
+            ps.setString(6, entry.getVisibility().name());
 
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -102,7 +112,7 @@ public class DiaryEntryDao {
 
     /* 내용 수정 */
     public int updateContent(Connection con, long entryId, String content) throws SQLException {
-        String sql = "UPDATE diary_entries SET diary_content=? WHERE entry_id=?";
+        String sql = "UPDATE diary_entries SET diary_content=?, diary_updated_at=NOW() WHERE entry_id=?";
         try (var ps = con.prepareStatement(sql)) {
             ps.setString(1, content);
             ps.setLong(2, entryId);

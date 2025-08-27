@@ -2,74 +2,55 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import java.net.URL?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21"
+<AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.share.dairy.controller.Calendar.CalendarController"
-            style="-fx-background-color: #fdeaf4;">
+            fx:controller="com.share.dairy.controller.BuddyDiaryController"
+            prefWidth="700" prefHeight="560"
+            styleClass="root"
+            stylesheets="@/css/friendlist.css">
 
-    <!-- CSS -->
-    <stylesheets>
-        <URL value="@/css/style.css"/>
-    </stylesheets>
+    <HBox spacing="12"
+          AnchorPane.topAnchor="0"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0"
+          AnchorPane.bottomAnchor="0">
 
-    <!-- 상단바 -->
-    <top>
-        <BorderPane style="-fx-padding: 8 12;">
-            <left>
-                <Button fx:id="homeButton" onAction="#goHome"
-                        style="-fx-background-color: transparent; -fx-padding: 6;">
-                    <graphic>
-                        <ImageView fitWidth="35" fitHeight="35" preserveRatio="true">
-                            <image><Image url="@/icons/home.png"/></image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </left>
+        <!-- 좌측: 친구 리스트 (폭 고정) -->
+        <StackPane prefWidth="240" minWidth="240" maxWidth="240"
+                   style="-fx-background-color:#E9CFE5; -fx-background-radius:16; -fx-padding:10;"
+                   VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: transparent;"
+                        maxHeight="Infinity" VBox.vgrow="ALWAYS">
+                <content>
+                    <VBox fx:id="buddyList" spacing="10" style="-fx-padding:6;"
+                          maxHeight="Infinity" VBox.vgrow="ALWAYS" />
+                </content>
+            </ScrollPane>
+        </StackPane>
 
-            <center>
-                <HBox spacing="15" alignment="CENTER" style="-fx-padding: 12;">
-                    <Button fx:id="prevBtn" text="◀"/>
-                    <Label fx:id="monthLabel" text="2025 . 08"
-                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                    <Button fx:id="nextBtn" text="▶"/>
-                </HBox>
-            </center>
+        <!-- 우측: 프리뷰 그리드(컨트롤러가 셀을 동적으로 추가) -->
+        <ScrollPane fx:id="entriesScroll"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="ALWAYS"
+                    style="-fx-background-color: transparent;"
+                    HBox.hgrow="ALWAYS">
+            <content>
+                <AnchorPane style="-fx-background-color:#F3EFF2; -fx-background-radius:12;">
+                    <children>
 
-            <!-- 상단 구분선 -->
-            <bottom>
-                <Separator styleClass="top-sep"/>
-            </bottom>
-        </BorderPane>
-    </top>
+                        <!-- ⚠️ 여기엔 '빈' GridPane만 둔다. (행/열 제약 없음) -->
+                        <GridPane fx:id="entriesGrid"
+                                  hgap="24" vgap="24" alignment="TOP_CENTER"
+                                  AnchorPane.topAnchor="18"
+                                  AnchorPane.leftAnchor="18"
+                                  AnchorPane.rightAnchor="18"/>
+                        <!-- ⬆ bottomAnchor를 두지 않아야 스크롤이 정상 동작 -->
 
-    <!-- 중앙 달력 -->
-        <center>
-  <ScrollPane fitToWidth="true" fitToHeight="false"
-              vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
-              pannable="true"
-              style="-fx-background-color: transparent;">
-    <content>
-      <GridPane fx:id="calendarGrid"
-                hgap="6" vgap="6"
-                maxWidth="Infinity"
-                style="-fx-padding: 12;">
-        <!-- 7열 정확히 100% -->
-        <columnConstraints>
-          <ColumnConstraints percentWidth="14.2857"/>
-          <ColumnConstraints percentWidth="14.2857"/>
-          <ColumnConstraints percentWidth="14.2857"/>
-          <ColumnConstraints percentWidth="14.2857"/>
-          <ColumnConstraints percentWidth="14.2857"/>
-          <ColumnConstraints percentWidth="14.2857"/>
-          <ColumnConstraints percentWidth="14.2857"/>
-        </columnConstraints>
-        <!-- rowConstraints 없음: 내용 높이에 따라 커지고, 필요 시 스크롤 -->
-      </GridPane>
-    </content>
-  </ScrollPane>
-</center>
-
-</BorderPane>
+                    </children>
+                </AnchorPane>
+            </content>
+        </ScrollPane>
+    </HBox>
+</AnchorPane>

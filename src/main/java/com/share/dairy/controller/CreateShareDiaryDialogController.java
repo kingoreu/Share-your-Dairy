@@ -3,7 +3,6 @@ package com.share.dairy.controller;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -37,35 +36,35 @@ import java.util.stream.Collectors;
 public class CreateShareDiaryDialogController {
 
     /* ========== FXML 바인딩 ========== */
-    @FXML private TextField titleField;                   // 제목 입력
-    @FXML private TextField searchField;                  // 친구 검색
-    @FXML private ListView<SelectableBuddy> buddyListView; // 체크박스 리스트
-    @FXML private Button startButton;                     // (있으면 기본버튼으로)
+    @FXML private TextField titleField;                     // 제목 입력
+    @FXML private TextField searchField;                    // 친구 검색
+    @FXML private ListView<SelectableBuddy> buddyListView;  // 체크박스 리스트
+    @FXML private Button startButton;                       // START 버튼 (fx:id 일치 확인)
 
     /* ========== 내부 모델 ========== */
 
-    /** 화면에서 체크 선택 가능한 버디 래퍼 */
+    /** 화면에서 체크 선택 가능한 버디 래퍼 (DB user_id = long) */
     public static class SelectableBuddy {
-        private final String id;
+        private final long id;
         private final String name;
         private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
-        public SelectableBuddy(String id, String name) {
+        public SelectableBuddy(long id, String name) {
             this.id = id;
             this.name = name;
         }
-        public String getId() { return id; }
+        public long getId() { return id; }
         public String getName() { return name; }
         public BooleanProperty selectedProperty() { return selected; }
         public boolean isSelected() { return selected.get(); }
         @Override public String toString() { return name; }
     }
 
-    /** 호출 측에서 넘겨줄 가벼운 버디 DTO (실제 Buddy 엔티티 사용해도 OK) */
-    public record BuddyLite(String id, String name) {}
+    /** 호출 측에서 넘겨줄 가벼운 버디 DTO */
+    public record BuddyLite(long id, String name) {}
 
     /** START 클릭 성공 시 호출 측으로 반환할 결과 */
-    public record Result(String title, List<String> buddyIds) {}
+    public record Result(String title, List<Long> buddyIds) {}
 
     /* ========== 상태 ========== */
     private final ObservableList<SelectableBuddy> items = FXCollections.observableArrayList();
@@ -78,12 +77,9 @@ public class CreateShareDiaryDialogController {
         // 1) 체크박스 셀 팩토리: 선택 상태 ↔ 모델 바인딩, 텍스트는 이름
         buddyListView.setItems(filtered);
         buddyListView.setCellFactory(lv -> new CheckBoxListCell<>(
-            // BooleanProperty는 ObservableValue<Boolean>를 상속하므로 캐스팅 불필요
-            (SelectableBuddy sb) -> sb.selectedProperty(),
+            SelectableBuddy::selectedProperty,
             new StringConverter<SelectableBuddy>() {
-                @Override public String toString(SelectableBuddy sb) {
-                    return (sb == null) ? "" : sb.getName();
-                }
+                @Override public String toString(SelectableBuddy sb) { return (sb == null) ? "" : sb.getName(); }
                 @Override public SelectableBuddy fromString(String s) { return null; }
             }
         ));
@@ -110,7 +106,7 @@ public class CreateShareDiaryDialogController {
                     e.consume();
                     return;
                 }
-                // ENTER: 시작 (검색창/제목칸/리스트 어디서든)
+                // ENTER: 시작
                 if (e.getCode() == KeyCode.ENTER) {
                     onStart();
                     e.consume();
@@ -169,9 +165,9 @@ public class CreateShareDiaryDialogController {
         if (!validateInputs()) return;
 
         String title = titleField.getText().trim();
-        List<String> selectedIds = items.stream()
+        List<Long> selectedIds = items.stream()
                 .filter(SelectableBuddy::isSelected)
-                .map(SelectableBuddy::getId)
+                .map(SelectableBuddy::getId)   // long -> Long 오토박싱
                 .toList();
 
         result = Optional.of(new Result(title, selectedIds));
@@ -204,6 +200,8 @@ public class CreateShareDiaryDialogController {
         Stage st = (Stage) titleField.getScene().getWindow();
         st.close();
     }
+
+    // (선택) 저장 콜백 훅 – 실제 저장은 상위 컨트롤러에서 수행
     private java.util.function.Consumer<Long> onSaved;
     public void setOnSaved(java.util.function.Consumer<Long> cb) { this.onSaved = cb; }
 }
