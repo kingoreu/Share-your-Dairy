@@ -2,14 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-    "type": "java",
-    "name": "ServerApplication",
-    "request": "launch",
-    "mainClass": "com.share.dairy.ServerApplication",
-    "projectName": "dairy",
-    "envFile": "${workspaceFolder}/.env",
-    "presentation": { "hidden": true }   // ← 이 줄 추가
-  },
+      "type": "java",
+      "name": "ServerApplication",
+      "request": "launch",
+      "mainClass": "com.share.dairy.ServerApplication",
+      "projectName": "dairy",
+      "envFile": "${workspaceFolder}/.env",
+      "presentation": { "hidden": true }
+    },
 
     {
       "type": "java",
@@ -17,8 +17,8 @@
       "request": "launch",
       "mainClass": "com.share.dairy.app.HelloApplication",
       "projectName": "dairy",
-      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
-      "envFile": "${workspaceFolder}/.env"
+      "envFile": "${workspaceFolder}/.env",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml,javafx.web --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.sg.prism.web=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED"
     },
     {
       "type": "java",
@@ -26,21 +26,21 @@
       "request": "launch",
       "mainClass": "com.share.dairy.app.Launcher",
       "projectName": "dairy",
-      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
-      "envFile": "${workspaceFolder}/.env"
+      "envFile": "${workspaceFolder}/.env",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml,javafx.web --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.sg.prism.web=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED"
     },
     {
       "type": "java",
       "name": "Current File",
       "request": "launch",
       "mainClass": "${file}",
-      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml",
-      "envFile": "${workspaceFolder}/.env"
+      "envFile": "${workspaceFolder}/.env",
+      "vmArgs": "--module-path \"C:/Java/javafx-sdk-21.0.8/lib\" --add-modules javafx.controls,javafx.fxml,javafx.web --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.sg.prism.web=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED"
     }
   ],
   "compounds": [
     {
-      "name": " HelloApp",
+      "name": "HelloApp",
       "configurations": ["HelloApplication"]
     }
   ]

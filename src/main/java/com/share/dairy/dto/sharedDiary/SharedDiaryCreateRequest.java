@@ -7,4 +7,3 @@ public class SharedDiaryCreateRequest {
     private String sharedDiaryTitle;
     private Long ownerId;
 }
-
