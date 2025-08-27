@@ -57,3 +57,4 @@ public class DiaryCommentController {
                 : ResponseEntity.notFound().build();
     }
 }
+
