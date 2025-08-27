@@ -60,13 +60,13 @@ public class DiaryAnalysisService {
     // ====== DB 설정 (ENV만 사용, Spring 호환 키도 지원) ======
     private static final String JDBC_URL  = Objects.requireNonNullElse(
             envFirst("JDBC_URL", "SPRING_DATASOURCE_URL"),
-            "jdbc:mysql://localhost:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul");
+            "url=jdbc:mysql://113.198.238.119:3306/dairy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8");
     private static final String JDBC_USER = Objects.requireNonNullElse(
             envFirst("JDBC_USER", "SPRING_DATASOURCE_USERNAME"),
             "root");
     private static final String JDBC_PASS = Objects.requireNonNullElse(
             envFirst("JDBC_PASS", "SPRING_DATASOURCE_PASSWORD"),
-            "1234");
+            "sohyun");
 
     private static final OkHttpClient HTTP = new OkHttpClient();
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -85,6 +85,9 @@ public class DiaryAnalysisService {
 
     /** diary_entries.entry_id를 분석해서 diary_analysis에 upsert */
     public void process(long entryId) throws Exception {
+
+        System.out.println("[DiaryAnalysisService] Using JDBC_URL=" + JDBC_URL + ", USER=" + JDBC_USER);
+
         String content = getDiaryContent(entryId);
         if (isBlank(content)) {
             throw new IllegalArgumentException("일기 내용이 없습니다: entry_id=" + entryId);

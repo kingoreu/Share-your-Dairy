@@ -7,5 +7,6 @@ import lombok.Data;
 public class CreateRequest {
     private Long analysisId;
     private Long userId;
+    private String pathOrUrl;
     // createdAt은 DB DEFAULT 쓰면 생략
 }

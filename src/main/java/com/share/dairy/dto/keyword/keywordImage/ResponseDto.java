@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class ResponseDto {
-    private Long keywordImage;
-    private Long analysisId;
-    private Long userId;
+    private Long id;             // keyword_image PK
+    // private Long analysisId;
+    // private Long userId;
     private LocalDateTime createdAt;
+    private String pathOrUrl;
+    // userId랑 analysis는 프론트 요구사항에서 없을 경우 빼도 됨!
 }
