@@ -29,7 +29,7 @@
                 </Button>
 
                 <!-- 가운데 정렬 타이틀 -->
-                <Label text="구리구리’s  Buddy  list"
+                <Label text="Buddy  list"
                        styleClass="title"
                        StackPane.alignment="CENTER"/>
             </StackPane>

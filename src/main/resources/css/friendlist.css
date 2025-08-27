@@ -1,7 +1,8 @@
 /* ===== 루트 ===== */
 .root {
+    -fx-font-family: "NanumSquareRound Bold";
     -fx-background-color: #f9e9f1;
-    -fx-font-family: "Pretendard","Malgun Gothic","Arial";
+    
 }
 
 /* ===== 헤더 ===== */

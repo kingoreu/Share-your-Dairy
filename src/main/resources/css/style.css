@@ -11,7 +11,7 @@
 
 /* 1. 전역 폰트 & 글자색 */
 * {
-    -fx-font-family: "DungGeunmo";
+    -fx-font-family: "NanumSquareRound Bold", "Arial";
     -fx-font-size: 18px;
     -fx-text-fill: #333;
 }
