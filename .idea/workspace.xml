@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/css/friendlist.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/css/friendlist.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/friendlistpanel.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/friendlistpanel.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +165,7 @@
       <updated>1755615634017</updated>
       <workItem from="1755615636116" duration="5270000" />
       <workItem from="1756167084116" duration="28696000" />
-      <workItem from="1756253512356" duration="8536000" />
+      <workItem from="1756253512356" duration="14016000" />
     </task>
     <servers />
   </component>

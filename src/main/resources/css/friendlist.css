@@ -1,8 +1,10 @@
+
 /* ===== 루트 ===== */
 .root {
     -fx-background-color: #f9e9f1;
-    -fx-font-family: "Pretendard","Malgun Gothic","Arial";
+    -fx-font-family: "NanumSquareRound Bold";
 }
+
 
 /* ===== 헤더 ===== */
 .title-row { /* 필요시 배경 추가 가능 */ }
