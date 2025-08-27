@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
-import com.share.dairy.util.game.AvoidRocksPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
+import com.share.dairy.util.game.TetrisPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -85,7 +85,7 @@ public class MyDiaryController {
     private Stage loadingStage;
     private ProgressBar overlayProgress;
     private Label overlayPercent, overlayMsg;
-    private AvoidRocksPane gamePane;
+    private TetrisPane gamePane;
 
     // (옵션) 상태 API 없을 때 테스트용 가짜 진행률 모드
     private static final boolean FAKE_STATUS_MODE = false;
@@ -331,7 +331,7 @@ public class MyDiaryController {
         prog.setAlignment(Pos.CENTER);
 
         // === 별도 파일로 분리된 '돌 피하기' 게임 삽입 ===
-        gamePane = new AvoidRocksPane(520, 280);
+        gamePane = new TetrisPane(520, 280);
 
         Button closeBtn = new Button("오버레이 닫기"); // 작업 취소 아님, UI만 닫기
         closeBtn.setOnAction(e -> { if (loadingStage != null) loadingStage.close(); });

@@ -5,10 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/game/TetrisPane.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/ImageDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/ImageDbRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ImageGenService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/13_character.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/13_keyword.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/15_character.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/15_keyword.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/19_character.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/19_keyword.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/22_character.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/22_keyword.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/OurDiaryRoomController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/OurDiaryRoomController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/game/AvoidRocksPane.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/our-diary-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/our-diary-view.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,10 +30,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Enum" />
-        <option value="FxmlFile" />
         <option value="CSS File" />
+        <option value="Class" />
+        <option value="FxmlFile" />
       </list>
     </option>
   </component>
@@ -34,12 +46,12 @@
     &quot;assignee&quot;: &quot;kingoreu&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/kingoreu/Share-your-Dairy.git",
-    "accountId": "6735d4f8-9087-4a27-9d82-4b955a6de254"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/kingoreu/Share-your-Dairy.git&quot;,
+    &quot;accountId&quot;: &quot;6735d4f8-9087-4a27-9d82-4b955a6de254&quot;
   }
-}]]></component>
+}</component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -58,31 +70,36 @@
     <option name="showLibraryContents" value="true" />
     <option name="showScratchesAndConsoles" value="false" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Maven.dairy [clean].executor": "Run",
-    "Maven.dairy [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "wook2",
-    "kotlin-language-version-configured": "true",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true",
-    "애플리케이션.HelloApplication.executor": "Run",
-    "애플리케이션.Launcher.executor": "Run"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven.dairy [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.dairy [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;wook2&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
+    &quot;애플리케이션.HelloApplication.executor&quot;: &quot;Run&quot;,
+    &quot;애플리케이션.Launcher.executor&quot;: &quot;Run&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\IntelliJ IDEA 2025.2\dairy\src\main\java\com\share\dairy\util\game" />
+    </key>
+  </component>
   <component name="RunManager" selected="애플리케이션.Launcher">
     <configuration name="HelloApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.share.dairy.app.HelloApplication" />
@@ -160,7 +177,8 @@
       <option name="presentableId" value="Default" />
       <updated>1755615634017</updated>
       <workItem from="1755615636116" duration="5270000" />
-      <workItem from="1756167084116" duration="16106000" />
+      <workItem from="1756167084116" duration="28696000" />
+      <workItem from="1756253512356" duration="5381000" />
     </task>
     <servers />
   </component>
