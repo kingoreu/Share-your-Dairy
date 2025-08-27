@@ -70,13 +70,56 @@ public class MusicDialog {
             }
         });
 
-        WebView preview = new WebView();
+        // ✅ WebView를 '안전 생성'합니다. 실패하면 empty → 외부 브라우저만 사용
+        Optional<WebView> previewOpt = tryCreateWebView();
+
+        Region previewHolder;
         Hyperlink openInYoutube = new Hyperlink("YouTube에서 열기");
         openInYoutube.setVisible(false);
+
+        if (previewOpt.isPresent()) {
+            WebView preview = previewOpt.get();
+            preview.setPrefHeight(280);
+            preview.setMinHeight(200);
+            // 보기 좋게 우측 영역 구성
+            VBox right = new VBox(6, preview, openInYoutube);
+            VBox.setVgrow(preview, Priority.ALWAYS);
+            previewHolder = right;
+
+            // 선택 시: 내장 미리보기 로드 + 콜백 실행
+            list.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
+                if (n == null) return;
+                if (onPick != null) onPick.accept(n);
+                try {
+                    // 간단히 watch URL 로드 (임베드 금지 상황이면 아래 openInYoutube 통해 외부로도 열 수 있음)
+                    preview.getEngine().setUserAgent(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+                                    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36");
+                } catch (Throwable ignore) {}
+                preview.getEngine().load("https://www.youtube.com/watch?v=" + n.videoId());
+                openInYoutube.setVisible(n.url() != null && !n.url().isBlank());
+            });
+
+        } else {
+            // ❗ WebView 생성이 불가 → 우측은 안내만 보여주고, 항상 외부 브라우저로 열기
+            Label noPreview = new Label("내장 미리보기를 사용할 수 없어\n외부 브라우저로 재생합니다.");
+            noPreview.setStyle("-fx-text-fill:#555;");
+            VBox right = new VBox(10, noPreview, openInYoutube);
+            right.setPadding(new Insets(6, 0, 0, 0));
+            previewHolder = right;
+
+            list.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
+                if (n == null) return;
+                if (onPick != null) onPick.accept(n);
+                openInYoutube.setVisible(n.url() != null && !n.url().isBlank());
+                // 실사용자는 링크를 눌러 외부에서 시청
+            });
+        }
+
         openInYoutube.setOnAction(e -> {
             MusicItem sel = list.getSelectionModel().getSelectedItem();
             if (sel != null && sel.url() != null && !sel.url().isBlank()) {
-                try { Desktop.getDesktop().browse(URI.create(sel.url())); } catch (Exception ignored) {}
+                openExternal(sel.url());
             }
         });
 
@@ -88,23 +131,13 @@ public class MusicDialog {
         search.setOnAction(e -> btn.fire());
 
         HBox top = new HBox(8, search, btn, loading);
-        VBox right = new VBox(6, preview, openInYoutube);
-        VBox.setVgrow(preview, Priority.ALWAYS);
-
-        SplitPane split = new SplitPane(new StackPane(list), right);
+        SplitPane split = new SplitPane(new StackPane(list), previewHolder);
         split.setDividerPositions(0.35);
 
         VBox root = new VBox(10, top, split);
         root.setPadding(new Insets(10));
         dialog.getDialogPane().setContent(root);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-
-        list.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
-            if (n == null) return;
-            if (onPick != null) onPick.accept(n);
-            preview.getEngine().load("https://www.youtube.com/watch?v=" + n.videoId());
-            openInYoutube.setVisible(n.url() != null && !n.url().isBlank());
-        });
 
         dialog.show();
     }
@@ -381,7 +414,34 @@ public class MusicDialog {
                 .replace("&gt;", ">");
     }
 
-    // 로컬 서버 포맷
+    // ===== 안전 WebView 생성 & 외부 브라우저 열기 헬퍼 =====
+
+    /** WebView 안전 생성: 내부 모듈 접근 오류(IllegalAccessError 등) 시 empty 반환 */
+    private Optional<WebView> tryCreateWebView() {
+        try {
+            return Optional.of(new WebView());
+        } catch (Throwable t) { // Error/Exception 모두 잡음
+            System.err.println("[WebView] create failed → fallback to external: " + t);
+            return Optional.empty();
+        }
+    }
+
+    /** OS별 외부 브라우저 열기 (여러 단계 폴백) */
+    private void openExternal(String url) {
+        if (url == null || url.isBlank()) return;
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(URI.create(url));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try { new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url).start(); return; } catch (Exception ignore) { }
+        try { new ProcessBuilder("cmd", "/c", "start", "", url).start(); return; } catch (Exception ignore) { }
+        System.err.println("[ExternalOpen] failed: " + url);
+    }
+
+    // ===== 모델 =====
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Result {
         public String videoId;
