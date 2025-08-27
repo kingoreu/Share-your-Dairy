@@ -17,9 +17,12 @@ public class DiaryAttachmentDao {
     public List<DiaryAttachment> findByEntry(long entryId) throws SQLException {
         try (var con = DBConnection.getConnection()) {
             String sql = """
-              SELECT attachment_id, entry_id, attachment_type, path_or_url, display_order, attachment_created_at
-              FROM diary_attachments WHERE entry_id=? ORDER BY display_order NULLS FIRST, attachment_id
+            SELECT attachment_id, entry_id, attachment_type, path_or_url, display_order, attachment_created_at
+            FROM diary_attachments
+            WHERE entry_id=?
+            ORDER BY display_order, attachment_id
             """;
+
             try (var ps = con.prepareStatement(sql)) {
                 ps.setLong(1, entryId);
                 try (var rs = ps.executeQuery()) {

@@ -1,34 +1,46 @@
 package com.share.dairy.controller;
 
+import com.share.dairy.app.music.MusicDialog;
 import com.share.dairy.dao.diary.DiaryEntryDao;
 import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.model.enums.Visibility;
 import com.share.dairy.service.diary.DiaryWriteService;
 import com.share.dairy.service.diary_analysis.DiaryAnalysisService;
-
 // ===== [추가] 진행률 상태 파싱용 Jackson =====
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
 import com.share.dairy.util.game.TetrisPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
+
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button; 
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.IOException;
+import java.awt.Desktop;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -36,41 +48,45 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import javafx.scene.Cursor;
+import javafx.scene.layout.Region;
 import javafx.scene.Node;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.event.EventHandler;
 
-import static com.share.dairy.auth.UserSession.currentId;
 
 /**
- * MyDiaryController (교체본)
- * ------------------------------------------------------------
- * - 일기 저장 → 분석 → (서버 트리거) 이미지 생성
- * - 생성 동안 '로딩 오버레이(진행률 바 + 돌 피하기 게임)' 표시
- * - 2초 폴링으로 /images/status 조회 → DONE 시 최종 완료 처리
- *
- * 백엔드 필요(이미 안내/구현함):
- *   POST /api/diary/{id}/images/auto      → 이미지 생성 비동기 시작
- *   GET  /api/diary/{id}/images/status    → {status, progress, message}
+ * MyDiaryController (옵션 B 적용본)
+ * - 카드에 "보기" 버튼만 추가 (전역 필터/투명 버튼 없음)
+ * - 다른 기능들은 변경 없음
  */
 public class MyDiaryController {
 
-    /* 작성 화면 필드(있을 수도 있고 없을 수도 있음) */
+    /* ========== [폼/목록 공통] ========== */
     @FXML private TextField titleField, placeField, musicField, timeField;
-    @FXML private TextArea contentArea;
+    @FXML private TextArea  contentArea;
+    @FXML private VBox      listContainer;
 
-    /* 목록 컨테이너(있으면 목록 모드) */
-    @FXML private VBox listContainer;
+    /* ========== [상단 MUSIC 버튼] ========== */
+    @FXML private Button btnMusic;
 
+    /* ========== [음악 패널/미니바] ========== */
+    @FXML private HBox     musicBar;         // 큰 패널
+    @FXML private WebView  musicWeb;
+    @FXML private Label    musicTitle, musicChannel;
+    @FXML private Hyperlink musicOpenLink;
+
+    @FXML private HBox     musicMini;        // 접었을 때 미니 아이콘
+    @FXML private Button   musicMiniToggle;  // 펼치기 버튼
+    @FXML private Button   musicMuteBtn;     // 🔈/🔇
+
+    /* ========== [우하단 연필 FAB — 목록에서만 노출] ========== */
+    @FXML private Button pencilFab;
+
+    /* ========== [상태/서비스] ========== */
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
-    // ✅ 수정: 하드코딩 제거(=FK 오류 원인). 외부에서 로그인 유저 ID 주입받도록 함.
-
-
-    // ===== 서버 URL/HTTP 클라이언트 =====
     private static final String BASE_URL = "http://localhost:8080";
     private static final HttpClient HTTP = HttpClient.newHttpClient();
 
@@ -78,139 +94,232 @@ public class MyDiaryController {
     private Runnable afterSave;
     public void setAfterSave(Runnable r) { this.afterSave = r; }
 
-    /* 새 일기 모달 모드 & 저장 콜백(필요 시) */
-    private boolean dialogMode = false;
+    /* 새 일기 모달 모드 & 저장 콜백 */
+    private boolean        dialogMode = false;
     private Consumer<Long> onSaved;
-    public void setDialogMode(boolean dialogMode) { this.dialogMode = dialogMode; }
+    public void setDialogMode(boolean dialogMode) { this.dialogMode = dialogMode; if (dialogMode) forceHideFab(); }
     public void setOnSaved(Consumer<Long> onSaved) { this.onSaved = onSaved; }
 
-    // ===== [추가] 상태 폴링/오버레이 관련 필드 =====
+    /* ========== [오버레이/폴링 공통] ========== */
     private final ObjectMapper mapper = new ObjectMapper();
     private ScheduledExecutorService poller;
     private Stage loadingStage;
     private ProgressBar overlayProgress;
     private Label overlayPercent, overlayMsg;
     private TetrisPane gamePane;
-
-    // (옵션) 상태 API 없을 때 테스트용 가짜 진행률 모드
+    /* 상태 API 없을 때 테스트용 */
     private static final boolean FAKE_STATUS_MODE = false;
     private ScheduledFuture<?> fakeFuture;
     private int fakeProgress = 0;
 
+    /* ========== [음악 패널 상태] ========== */
+    private String  currentVideoId, currentVideoUrl;
+    private boolean minimizeOnReady = false;
+    private boolean playerReady     = false;
+    private boolean isMuted         = false;
+
+    /* ======================================
+     *               초기화
+     * ====================================== */
     @FXML
     public void initialize() {
-        if (titleField != null)  titleField.setDisable(false);
+        if (titleField  != null) titleField.setDisable(false);
         if (contentArea != null) contentArea.setDisable(false);
-        if (listContainer != null) refreshList();
+        if (listContainer != null){
+            listContainer.setMouseTransparent(false);
+            listContainer.setPickOnBounds(true);
+        }
+        refreshList();
+
+        if (btnMusic != null) btnMusic.setOnAction(e -> openMusicDialog());
+
+        // 음악 패널/미니바 기본 비노출 (숨길 때는 클릭 통과)
+        if (musicBar != null) {
+            musicBar.setVisible(false);
+            musicBar.setManaged(false);
+            musicBar.setMouseTransparent(true);
+        }
+        if (musicMini != null) {
+            musicMini.setVisible(false);
+            musicMini.setManaged(false);
+            musicMini.setMouseTransparent(true);
+        }
+
+        // WebView UA 최신화(임베드 신뢰도 ↑)
+        if (musicWeb != null) {
+            musicWeb.getEngine().setUserAgent(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+            );
+        }
+
+        // 모달이면 FAB 안전 숨김
+        Platform.runLater(() -> { if (dialogMode) forceHideFab(); });
+
+        // 음소거 버튼 초기 아이콘
+        syncMuteButton();
+
+        // FAB 레이어가 클릭 가리는 문제 방지 (FAB만 클릭되게)
+        Platform.runLater(() -> {
+            if (pencilFab != null) {
+                javafx.scene.Parent p = pencilFab.getParent();
+                while (p != null && !(p instanceof javafx.scene.layout.Pane)) p = p.getParent();
+                if (p instanceof javafx.scene.layout.Pane fabLayer) {
+                    fabLayer.setPickOnBounds(false);
+                    fabLayer.setMouseTransparent(false);
+                }
+                pencilFab.setPickOnBounds(true);
+            }
+        });
+
+        // 옵션 B: 전역 클릭 필터/투명 버튼 설치 안 함
     }
 
+    /* ======================================
+     *               상단 버튼
+     * ====================================== */
     @FXML private void onPlace(){ if (placeField != null) placeField.requestFocus(); }
-    @FXML private void onMusic(){ if (musicField != null) musicField.requestFocus(); }
-    @FXML private void onTime(){  if (timeField  != null) timeField.requestFocus();  }
+    @FXML private void onMusic(){ openMusicDialog(); }
+    @FXML private void onTime(){  if (timeField  != null) timeField.requestFocus(); }
 
     @FXML
-    private void onEdit(){
-        if (titleField != null)  titleField.setDisable(false);
+    private void onEdit() {
+        if (titleField  != null) titleField.setDisable(false);
         if (contentArea != null) contentArea.setDisable(false);
     }
 
-    /**
-     * SAVE: 일기 저장 → 분석 → (서버 트리거) 이미지 생성 → 오버레이+폴링 시작
-     *
-     * ⚠️ 변경 포인트:
-     *   - 예전처럼 트리거 직후에 "완료" Alert를 즉시 띄우지 않는다.
-     *   - 최종 Alert는 /status 가 DONE을 반환했을 때 띄운다.
-     */
+    /* ======================================
+     *      저장 → 분석 → 이미지 생성 트리거
+     * ====================================== */
     @FXML
     private void onSave() {
+    try {
+        Long uid = com.share.dairy.auth.UserSession.currentId();
+        String title   = (titleField  != null) ? titleField.getText().trim()  : "";
+        String content = (contentArea != null) ? contentArea.getText().trim() : "";
+
+        if (content.isBlank()) {
+            new Alert(Alert.AlertType.WARNING, "본문을 입력해 주세요.").showAndWait();
+            return;
+        }
+
+        DiaryEntry entry = new DiaryEntry();
+        entry.setUserId(uid);
+        entry.setEntryDate(LocalDate.now());
+        entry.setTitle(title);
+        entry.setDiaryContent(content);
+        entry.setVisibility(Visibility.PRIVATE);
+
+        // DB 저장 (entry_id 획득)
+        long entryId = new DiaryEntryDao().save(entry);
+
+    // ★ 선택한 음악 URL을 diary_attachments에 저장 (있을 때만)
+    if (pendingMusicUrl != null && !pendingMusicUrl.isBlank()) {
+    try (var con = com.share.dairy.util.DBConnection.getConnection()) {
+        var att = new com.share.dairy.model.diary.DiaryAttachment();
+        att.setEntryId(entryId);
+
+        // enum LINK가 있으면 쓰고, 없으면 NULL로 저장
         try {
-            Long uid = currentId();
-            String title   = (titleField  != null) ? titleField.getText().trim()  : "";
-            String content = (contentArea != null) ? contentArea.getText().trim() : "";
+            att.setAttachmentType(com.share.dairy.model.enums.AttachmentType.valueOf("LINK"));
+        } catch (IllegalArgumentException e) {
+            att.setAttachmentType(null);
+        }
 
-            if (content.isBlank()) {
-                new Alert(Alert.AlertType.WARNING, "본문을 입력해 주세요.").showAndWait();
-                return;
+        att.setPathOrUrl(pendingMusicUrl);  // 유튜브 URL
+        att.setDisplayOrder(1);
+
+        new com.share.dairy.dao.diary.DiaryAttachmentDao().insert(con, att);
+        System.out.println("[BGM] saved url: " + pendingMusicUrl + " (entryId=" + entryId + ")");
+    } catch (Exception ex) {
+        System.err.println("BGM URL 저장 실패: " + ex.getMessage());
+    } finally {
+        pendingMusicUrl = null; // 한 번 저장했으면 비워두기
+    }
+    }
+
+        // 백그라운드로 분석 → 이미지 생성 트리거 → 오버레이+폴링
+        new Thread(() -> {
+            try {
+                // 1) GPT 분석
+                new DiaryAnalysisService().process(entryId);
+
+                // 2) 안내
+                Platform.runLater(() ->
+                    new Alert(Alert.AlertType.INFORMATION,
+                              "분석 완료! 키워드/캐릭터 이미지 생성을 시작합니다.").show()
+                );
+
+                // 3) 이미지 생성 트리거
+                triggerAutoImage(entryId);
+
+                // 4) 오버레이 + 상태 폴링 시작
+                Platform.runLater(() -> showImageGenOverlayAndPoll(entryId));
+
+            } catch (Exception ex) {
+                Platform.runLater(() ->
+                    new Alert(Alert.AlertType.ERROR,
+                              "분석/이미지 생성 중 오류: " + ex.getMessage()).showAndWait()
+                );
             }
+        }).start();
 
-            DiaryEntry entry = new DiaryEntry();
-            entry.setUserId(uid);
-            entry.setEntryDate(LocalDate.now());
-            entry.setTitle(title);
-            entry.setDiaryContent(content);
-            entry.setVisibility(Visibility.PRIVATE);
-
-            // DB 저장 (entry_id 획득)
-            DiaryEntryDao dao = new DiaryEntryDao();
-            long entryId = dao.save(entry);
-
-            // 분석/이미지 생성 트리거는 백그라운드로
-            new Thread(() -> {
-                try {
-                    // 1) GPT 분석
-                    new DiaryAnalysisService().process(entryId);
-
-                    // 2) 분석 완료 안내(비차단)
-                    Platform.runLater(() ->
-                            new Alert(Alert.AlertType.INFORMATION,
-                                    "분석 완료! 키워드/캐릭터 이미지 생성을 시작합니다.").show()
-                    );
-
-                    // 3) 이미지 생성 시작(서버 트리거)
-                    triggerAutoImage(entryId);
-
-                    // 4) 로딩 오버레이 + 상태 폴링 시작
-                    Platform.runLater(() -> showImageGenOverlayAndPoll(entryId));
-
-                    // ⚠️ 최종 완료는 showImageGenOverlayAndPoll() 내부에서
-                    //     /status = DONE 시점에 처리한다.
-
-                } catch (Exception ex) {
-                    Platform.runLater(() ->
-                            new Alert(Alert.AlertType.ERROR,
-                                    "분석/이미지 생성 중 오류: " + ex.getMessage()).showAndWait()
-                    );
-                }
-            }).start();
-
-        } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "저장 중 오류: " + e.getMessage()).showAndWait();
-        }
+    } catch (Exception e) {
+        new Alert(Alert.AlertType.ERROR, "저장 중 오류: " + e.getMessage()).showAndWait();
     }
-
-    /** 목록 화면에서 연필(FAB) → 새 일기 모달 띄우기 */
+    }
+    
+    /* ======================================
+     *             FAB → 새 일기 모달
+     * ====================================== */
     @FXML
-    private void onClickFabPencil() throws IOException {
-        FXMLLoader fxml = new FXMLLoader(getClass().getResource("/fxml/diary/my_diary/my_diary.fxml"));
-        Parent root = fxml.load();
+    private void onClickFabPencil() {
+        try {
+            FXMLLoader fxml = new FXMLLoader(
+                    getClass().getResource("/fxml/diary/my_diary/my-diary-view.fxml")); // ← 고정 경로
+            Parent root = fxml.load();
 
-        MyDiaryController child = fxml.getController();
-        child.setDialogMode(true);
-        Stage dlg = new Stage();
-        if (listContainer != null && listContainer.getScene() != null) {
-            dlg.initOwner(listContainer.getScene().getWindow());
+            MyDiaryController child = fxml.getController();
+            child.setDialogMode(true);
+            child.setOnSaved(id -> refreshList());
+            child.forceHideFab(); // 안전빵
+
+            // 혹시라도 lookup으로 한 번 더 제거
+            var fab = root.lookup("#pencilFab");
+            if (fab == null) fab = root.lookup(".fab");
+            if (fab != null) { fab.setVisible(false); fab.setManaged(false); }
+
+            Stage dlg = new Stage();
+            if (listContainer != null && listContainer.getScene() != null) {
+                dlg.initOwner(listContainer.getScene().getWindow());
+            }
+            dlg.initModality(Modality.APPLICATION_MODAL);
+            dlg.setTitle("New Diary");
+            dlg.setScene(new Scene(root));
+            dlg.showAndWait();
+
+            refreshList();
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR,
+                "새 일기 화면을 열 수 없습니다.\n" + (e.getMessage() == null ? e.toString() : e.getMessage())
+            ).showAndWait();
         }
-        dlg.initModality(Modality.APPLICATION_MODAL);
-        dlg.setTitle("New Diary");
-        dlg.setScene(new Scene(root));
-        dlg.showAndWait();
-
-        refreshList();
     }
 
-    /** 목록 렌더 */
+    /* ======================================
+     *                목록 렌더
+     * ====================================== */
     private void refreshList() {
         if (listContainer == null) return;
 
-        Long uid = currentId();
-        if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
+        Long uid = com.share.dairy.auth.UserSession.currentId();
+        if (uid == null || uid <= 0) {
             listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
             return;
         }
 
         List<DiaryEntry> rows;
         try {
-            rows = diaryWriteService.loadMyDiaryList(uid); // ✅ 내 것만
+            rows = diaryWriteService.loadMyDiaryList(uid);
         } catch (RuntimeException ex) {
             listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
             return;
@@ -220,135 +329,299 @@ public class MyDiaryController {
         for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
     }
 
-    /** 카드: 단순 표시(클릭 동작 없음 — 안정 상태) */
-    /** 카드: 클릭(더블클릭/Enter) 시 해당 일기 뷰어 열기 */
-    private VBox makeCard(DiaryEntry d) {
+    // 카드 하나 생성: 내용 + 우측 아래 "열기" 링크
+    private javafx.scene.Node makeCard(com.share.dairy.model.diary.DiaryEntry d) {
     VBox card = new VBox(6);
-    card.setPadding(new Insets(12));
-    card.setStyle("-fx-background-color:white;-fx-background-radius:12;"
-            + "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 3);");
-    card.setPickOnBounds(true);          // 패딩 영역도 클릭 인식
-    card.setCursor(Cursor.HAND);         // 마우스 커서 손모양
-    card.setFocusTraversable(true);      // 키보드 포커스 가능
+    card.getStyleClass().add("diary-card");
 
-    // 날짜
-    Label date = new Label("DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null));
-    date.setStyle("-fx-text-fill:#666;-fx-font-size:12;");
+    Label dateLbl  = new Label("DATE "    + java.util.Optional.ofNullable(d.getEntryDate()).orElse(null));
+    Label titleLbl = new Label("TITLE "   + java.util.Optional.ofNullable(d.getTitle()).orElse(""));
+    Label bodyLbl  = new Label("CONTENTS "+ java.util.Optional.ofNullable(d.getDiaryContent()).orElse(""));
+    card.getChildren().addAll(dateLbl, titleLbl, bodyLbl);
 
-    // 제목
-    String titleTxt = Optional.ofNullable(d.getTitle()).map(String::trim)
-            .filter(s -> !s.isEmpty()).orElse("(제목 없음)");
-    Label title = new Label("TITLE " + titleTxt);
-    title.setStyle("-fx-font-size:15;-fx-font-weight:700;");
+    // ---- 여기부터 추가: 우하단 "열기" 링크 ----
+    javafx.scene.layout.HBox linkRow = new javafx.scene.layout.HBox(8);
+    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
-    // 본문 프리뷰
-    String body = Optional.ofNullable(d.getDiaryContent()).orElse("");
-    String preview = body.length() > 200 ? body.substring(0, 200) + "…" : body;
-    Label content = new Label("CONTENTS " + preview);
-    content.setWrapText(true);
-
-    card.getChildren().addAll(date, title, content);
-
-    // 🔑 클릭 핸들러 (카드 + 자식들 모두에 붙여 안전하게)
-    EventHandler<MouseEvent> open = e -> {
-        if (e.getButton() == MouseButton.PRIMARY) {
-            openDiaryViewer(d);
-            e.consume();
-        }
-    };
-    card.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
-    for (Node n : card.getChildren()) {
-        n.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
-    }
-
-    // 키보드 접근성(Enter/Space로 열기)
-    card.setOnKeyPressed(e -> {
-        switch (e.getCode()) {
-            case ENTER, SPACE -> openDiaryViewer(d);
-        }
+    Hyperlink openLink = new Hyperlink("열기");
+    // 팀 CSS가 링크 색을 죽여버릴 수 있으니 강제로 보이게(필요 없으면 지워도 됨)
+    openLink.setStyle("-fx-text-fill:#3366ff; -fx-font-weight:bold;");
+    openLink.setFocusTraversable(false);
+    openLink.setOnAction(ev -> {
+        System.out.println("[MYDIARY] OPEN: " + d.getTitle() + " / " + d.getEntryDate());
+        openDiaryViewer(d);
     });
 
-    // (선택) hover 효과
-    card.setOnMouseEntered(e ->
-        card.setStyle(card.getStyle() + "-fx-background-color:#fff7fd;"));
-    card.setOnMouseExited(e ->
-        card.setStyle(card.getStyle().replace("-fx-background-color:#fff7fd;", "")));
+    linkRow.getChildren().addAll(spacer, openLink);
+    card.getChildren().add(linkRow);
+    // ---- 추가 끝 ----
 
     return card;
-}
+    }
 
-    /** 읽기 전용 모달 (나중용) */
+    /** 읽기 전용 모달 (MY DIARY 카드 → 보기 버튼) */
     private void openDiaryViewer(DiaryEntry d) {
+        
         Stage dlg = new Stage();
 
+        // 소유자 지정(있으면)
         if (listContainer != null && listContainer.getScene() != null) {
             dlg.initOwner(listContainer.getScene().getWindow());
         } else {
             Stage st = currentStage();
             if (st != null) dlg.initOwner(st);
         }
-        dlg.initModality(Modality.APPLICATION_MODAL);
-        dlg.setTitle("Diary");
+        dlg.initModality(Modality.WINDOW_MODAL);
 
-        String dateText = "DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null);
-        String titleText = "TITLE " + Optional.ofNullable(d.getTitle())
-                .map(String::trim).filter(s -> !s.isEmpty())
-                .orElse("제목 없음");
+        // 날짜 포맷: yyyy.MM.dd
+        String dateDot = Optional.ofNullable(d.getEntryDate())
+                .map(ld -> ld.format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd")))
+                .orElse("");
 
-        Label date = new Label(dateText);
-        Label title = new Label(titleText);
+        String titleText = Optional.ofNullable(d.getTitle())
+                .map(String::trim).filter(s -> !s.isEmpty()).orElse("TITLE");
+
+        Label lblTopDate = new Label(dateDot);
+        lblTopDate.setStyle("-fx-font-size: 13; -fx-text-fill: #333;");
+
+        Label lblTitle = new Label(titleText);
+        lblTitle.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
+
+        Label lblSubDate = new Label(dateDot);
+        lblSubDate.setStyle("-fx-text-fill: #666;");
 
         TextArea body = new TextArea(Optional.ofNullable(d.getDiaryContent()).orElse(""));
         body.setEditable(false);
         body.setWrapText(true);
         body.setPrefRowCount(18);
+        body.setStyle("-fx-font-size: 13;");
 
         Button close = new Button("닫기");
         close.setOnAction(ev -> dlg.close());
 
-        VBox root = new VBox(10, date, title, body, close);
+        VBox root = new VBox(10, lblTopDate, lblTitle, lblSubDate, body, close);
         root.setPadding(new Insets(16));
 
-        dlg.setScene(new Scene(root, 640, 480));
-        dlg.showAndWait();
+        dlg.setTitle(dateDot.isEmpty() ? "MY DIARY" : dateDot);
+        dlg.setScene(new Scene(root, 720, 520));
+        dlg.setResizable(false);
+
+        // ESC로 닫기
+        dlg.getScene().setOnKeyPressed(k -> {
+            if (k.getCode() == javafx.scene.input.KeyCode.ESCAPE) dlg.close();
+        });
+
+        // 배경 살짝 어둡게(있을 때만)
+        Stage owner = (Stage) (listContainer != null && listContainer.getScene() != null
+                ? listContainer.getScene().getWindow() : currentStage());
+        if (owner != null && owner.getScene() != null) owner.getScene().getRoot().setOpacity(0.60);
+        try { dlg.showAndWait(); } finally {
+            if (owner != null && owner.getScene() != null) owner.getScene().getRoot().setOpacity(1.0);
+        }
     }
 
     private Stage currentStage() {
-        if (titleField != null && titleField.getScene() != null) {
-            return (Stage) titleField.getScene().getWindow();
-        }
-        if (contentArea != null && contentArea.getScene() != null) {
-            return (Stage) contentArea.getScene().getWindow();
-        }
+        if (titleField  != null && titleField.getScene()  != null) return (Stage) titleField.getScene().getWindow();
+        if (contentArea != null && contentArea.getScene() != null) return (Stage) contentArea.getScene().getWindow();
         return null;
     }
 
-    // =========================
-    // 이미지 자동 생성(서버 트리거)
-    // =========================
+    /* ======================================
+     *     [음악 패널/미니바]
+     * ====================================== */
+
+    /** MUSIC 버튼 → 검색 모달 → 선택 시 브금 재생(성공 즉시 미니로 접기) */
+    // 클래스 필드로 추가
+    private String pendingMusicUrl;
+
+    private void openMusicDialog() {
+    try {
+        new MusicDialog(item -> {
+            if (item == null) return;
+            String vid = item.videoId();
+            if (vid == null || vid.isBlank()) return;
+
+            // URL 기억: item.url()이 있으면 그대로, 없으면 vid로 조립
+            pendingMusicUrl = (item.url() != null && !item.url().isBlank())
+                    ? item.url()
+                    : ("https://www.youtube.com/watch?v=" + vid);
+
+            // 기존 패널 재생 로직 유지
+            playInPanel(vid, item.title(), item.channel(), pendingMusicUrl, true);
+        }).show();
+
+    } catch (Throwable ex) {
+        new Alert(Alert.AlertType.ERROR,
+            "음악 검색창을 열 수 없습니다:\n" + (ex.getMessage() == null ? ex.toString() : ex.getMessage()))
+            .showAndWait();
+    }
+    }
+
+    /** 패널에서 YouTube 임베드 재생(반복, autoMinimize 지원, 임베드 금지는 링크로 폴백) */
+    private void playInPanel(String videoId, String title, String channel, String url, boolean autoMinimize) {
+        if (musicWeb == null || musicBar == null) return;
+
+        currentVideoId  = videoId;
+        currentVideoUrl = url;
+
+        if (musicTitle    != null) musicTitle.setText(title   == null ? "" : title);
+        if (musicChannel  != null) musicChannel.setText(channel== null ? "" : channel);
+        if (musicOpenLink != null) musicOpenLink.setVisible(url != null && !url.isBlank());
+
+        String html = playerHtml(videoId);
+        WebEngine eng = musicWeb.getEngine();
+
+        playerReady = false;
+        isMuted = false;            // 새 재생 시 기본 음소거 해제
+        minimizeOnReady = autoMinimize;
+        syncMuteButton();
+
+        eng.getLoadWorker().stateProperty().addListener((obs, old, st) -> {
+            if (st == Worker.State.SUCCEEDED) {
+                playerReady = true;
+                if (minimizeOnReady) {
+                    minimizeOnReady = false;
+                    showMini(true);
+                }
+                applyMuteJS();
+            } else if (st == Worker.State.FAILED) {
+                eng.load("https://www.youtube.com/watch?v=" + videoId);
+                showMini(true);
+                applyMuteJS();
+            }
+        });
+
+        // JS에서 임베드 금지(150/101) 감지용
+        eng.titleProperty().addListener((o, ov, nv) -> {
+            if (nv != null && nv.startsWith("YTERR:")) {
+                eng.load("https://www.youtube.com/watch?v=" + videoId);
+                showMini(true);
+                applyMuteJS();
+            }
+        });
+
+        eng.loadContent(html, "text/html");
+        showPanel(true);            // 우선 펼친 상태로 로드
+    }
+
+    private String playerHtml(String videoId) {
+        String vid = videoId == null ? "" : videoId;
+        return """
+            <!doctype html><html><head><meta charset="utf-8"></head>
+            <body style="margin:0;background:#000">
+              <div id="player"></div>
+              <script src="https://www.youtube.com/iframe_api"></script>
+              <script>
+                var player;
+                function onYouTubeIframeAPIReady(){
+                  player = new YT.Player('player', {
+                    height:'160', width:'284',
+                    videoId:'%s',
+                    playerVars:{
+                      'autoplay':1, 'rel':0, 'modestbranding':1,
+                      'playsinline':1, 'loop':1, 'playlist':'%s',
+                      'enablejsapi':1
+                    },
+                    events:{
+                      'onReady': function(e){ try{e.target.playVideo();}catch(_){}; document.title='YTRDY'; },
+                      'onError': function(e){ try{ document.title = 'YTERR:' + e.data; }catch(_){ } }
+                    }
+                  });
+                }
+                function __mute(){ try{ if(player) player.mute(); }catch(e){} }
+                function __unmute(){ try{ if(player) player.unMute(); }catch(e){} }
+              </script>
+            </body></html>
+        """.formatted(vid, vid);
+    }
+
+    /** 패널 보이기/숨기기 */
+    private void showPanel(boolean show) {
+        if (musicBar != null) {
+            musicBar.setManaged(show);
+            musicBar.setVisible(show);
+            musicBar.setMouseTransparent(!show);  // 숨기면 클릭 통과
+        }
+        if (musicMini != null) {
+            musicMini.setManaged(!show);
+            musicMini.setVisible(!show);
+            musicMini.setMouseTransparent(show);  // 미니가 보일 땐 미니만 클릭
+        }
+    }
+    private void showMini(boolean showMini) { showPanel(!showMini); }
+
+    /** 패널 왼쪽 버튼(기존 정지) → 음소거 토글로 사용 */
+    @FXML private void onMusicStop()       { toggleMute(); }
+    /** 미니바의 음소거 버튼 */
+    @FXML private void onMusicMuteToggle() { toggleMute(); }
+
+    private void toggleMute() {
+        isMuted = !isMuted;
+        syncMuteButton();
+        applyMuteJS();
+    }
+
+    private void applyMuteJS() {
+        if (musicWeb == null) return;
+        try {
+            String js = isMuted ? "__mute()" : "__unmute()";
+            musicWeb.getEngine().executeScript(js);
+        } catch (Exception ignored) {}
+    }
+
+    /** 패널만 숨기고(브금은 계속) 미니 아이콘 표시 */
+    @FXML private void onMusicHide()       { showMini(true); }
+    /** 미니바의 🎵 버튼 → 다시 펼치기 */
+    @FXML private void onMusicMiniToggle() { showMini(false); }
+    /** 유튜브로 열기 */
+    @FXML private void onMusicOpenInYT() {
+        try {
+            if (currentVideoUrl != null && !currentVideoUrl.isBlank()) {
+                Desktop.getDesktop().browse(URI.create(currentVideoUrl));
+            }
+        } catch (Exception ignored) {}
+    }
+
+    /** FAB 강제 숨김 */
+    public void forceHideFab() {
+        if (pencilFab != null) {
+            pencilFab.setVisible(false);
+            pencilFab.setManaged(false);
+        }
+    }
+
+    /** 🔈/🔇 아이콘 동기화 */
+    private void syncMuteButton() {
+        if (musicMuteBtn != null) {
+            musicMuteBtn.setText(isMuted ? "🔇" : "🔈");
+        }
+    }
+
+    /* ======================================
+     *    이미지 자동 생성(서버 트리거)
+     * ====================================== */
     private void triggerAutoImage(long entryId) throws Exception {
         HttpRequest req = HttpRequest.newBuilder(
-                        URI.create(BASE_URL + "/api/diary/" + entryId + "/images/auto"))
-                .POST(HttpRequest.BodyPublishers.noBody())
-                .build();
+                URI.create(BASE_URL + "/api/diary/" + entryId + "/images/auto"))
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build();
 
         HttpResponse<String> res = HTTP.send(req, HttpResponse.BodyHandlers.ofString());
         if (res.statusCode() / 100 != 2) {
             throw new IllegalStateException(
-                    "이미지 자동 생성 실패: HTTP " + res.statusCode() + "\n" + res.body()
+                "이미지 자동 생성 실패: HTTP " + res.statusCode() + "\n" + res.body()
             );
         }
     }
 
-    // =========================
-    // [추가] 상태 조회 + 오버레이(게임) + 폴링
-    // =========================
-
-    /** 상태 조회: /api/diary/{id}/images/status */
+    /* ======================================
+     *     상태 조회 + 오버레이(게임) + 폴링
+     * ====================================== */
     private JsonNode fetchImageStatus(long entryId) throws Exception {
         HttpRequest req = HttpRequest.newBuilder(
-                        URI.create(BASE_URL + "/api/diary/" + entryId + "/images/status"))
-                .GET().build();
+                URI.create(BASE_URL + "/api/diary/" + entryId + "/images/status"))
+            .GET().build();
 
         HttpResponse<String> res = HTTP.send(req, HttpResponse.BodyHandlers.ofString());
         if (res.statusCode() / 100 != 2) {
@@ -357,12 +630,11 @@ public class MyDiaryController {
         return mapper.readTree(res.body());
     }
 
-    /** 로딩 오버레이 생성 + 2초 폴링 시작 */
     private void showImageGenOverlayAndPoll(long entryId) {
         // 이미 떠 있으면 재사용
         if (loadingStage != null && loadingStage.isShowing()) return;
 
-        // ===== 오버레이 UI =====
+         // ===== 오버레이 UI =====
         Label title = new Label("키워드/캐릭터 이미지 생성 중...");
         title.setTextFill(Color.WHITE);
         title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
