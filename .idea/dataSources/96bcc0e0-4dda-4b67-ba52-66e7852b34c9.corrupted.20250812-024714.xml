@@ -5,7 +5,95 @@
       <DefaultCasing>lower/lower</DefaultCasing>
       <DefaultEngine>InnoDB</DefaultEngine>
       <DefaultTmpEngine>InnoDB</DefaultTmpEngine>
-      <ServerVersion>8.0.43</ServerVersion>
+      <Grants>|root||root|localhost|ALTER|G
+|root||root|localhost|ALTER ROUTINE|G
+|root||root|localhost|APPLICATION_PASSWORD_ADMIN|G
+|root||mysql.infoschema|localhost|AUDIT_ABORT_EXEMPT|G
+|root||mysql.session|localhost|AUDIT_ABORT_EXEMPT|G
+|root||mysql.sys|localhost|AUDIT_ABORT_EXEMPT|G
+|root||root|localhost|AUDIT_ABORT_EXEMPT|G
+|root||root|localhost|AUDIT_ADMIN|G
+|root||mysql.session|localhost|AUTHENTICATION_POLICY_ADMIN|G
+|root||root|localhost|AUTHENTICATION_POLICY_ADMIN|G
+|root||mysql.session|localhost|BACKUP_ADMIN|G
+|root||root|localhost|BACKUP_ADMIN|G
+|root||root|localhost|BINLOG_ADMIN|G
+|root||root|localhost|BINLOG_ENCRYPTION_ADMIN|G
+|root||mysql.session|localhost|CLONE_ADMIN|G
+|root||root|localhost|CLONE_ADMIN|G
+|root||mysql.session|localhost|CONNECTION_ADMIN|G
+|root||root|localhost|CONNECTION_ADMIN|G
+|root||root|localhost|CREATE|G
+|root||root|localhost|CREATE ROLE|G
+|root||root|localhost|CREATE ROUTINE|G
+|root||root|localhost|CREATE TABLESPACE|G
+|root||root|localhost|CREATE TEMPORARY TABLES|G
+|root||root|localhost|CREATE USER|G
+|root||root|localhost|CREATE VIEW|G
+|root||root|localhost|DELETE|G
+|root||root|localhost|DROP|G
+|root||root|localhost|DROP ROLE|G
+|root||root|localhost|ENCRYPTION_KEY_ADMIN|G
+|root||root|localhost|EVENT|G
+|root||root|localhost|EXECUTE|G
+|root||root|localhost|FILE|G
+|root||mysql.infoschema|localhost|FIREWALL_EXEMPT|G
+|root||mysql.session|localhost|FIREWALL_EXEMPT|G
+|root||mysql.sys|localhost|FIREWALL_EXEMPT|G
+|root||root|localhost|FIREWALL_EXEMPT|G
+|root||root|localhost|FLUSH_OPTIMIZER_COSTS|G
+|root||root|localhost|FLUSH_STATUS|G
+|root||root|localhost|FLUSH_TABLES|G
+|root||root|localhost|FLUSH_USER_RESOURCES|G
+|root||root|localhost|GROUP_REPLICATION_ADMIN|G
+|root||root|localhost|GROUP_REPLICATION_STREAM|G
+|root||root|localhost|INDEX|G
+|root||root|localhost|INNODB_REDO_LOG_ARCHIVE|G
+|root||root|localhost|INNODB_REDO_LOG_ENABLE|G
+|root||root|localhost|INSERT|G
+|root||root|localhost|LOCK TABLES|G
+|root||root|localhost|PASSWORDLESS_USER_ADMIN|G
+|root||mysql.session|localhost|PERSIST_RO_VARIABLES_ADMIN|G
+|root||root|localhost|PERSIST_RO_VARIABLES_ADMIN|G
+|root||root|localhost|PROCESS|G
+|root||root|localhost|REFERENCES|G
+|root||root|localhost|RELOAD|G
+|root||root|localhost|REPLICATION CLIENT|G
+|root||root|localhost|REPLICATION SLAVE|G
+|root||root|localhost|REPLICATION_APPLIER|G
+|root||root|localhost|REPLICATION_SLAVE_ADMIN|G
+|root||root|localhost|RESOURCE_GROUP_ADMIN|G
+|root||root|localhost|RESOURCE_GROUP_USER|G
+|root||root|localhost|ROLE_ADMIN|G
+|root||mysql.infoschema|localhost|SELECT|G
+|root||root|localhost|SELECT|G
+|root||root|localhost|SENSITIVE_VARIABLES_OBSERVER|G
+|root||root|localhost|SERVICE_CONNECTION_ADMIN|G
+|root||mysql.session|localhost|SESSION_VARIABLES_ADMIN|G
+|root||root|localhost|SESSION_VARIABLES_ADMIN|G
+|root||root|localhost|SET_USER_ID|G
+|root||root|localhost|SHOW DATABASES|G
+|root||root|localhost|SHOW VIEW|G
+|root||root|localhost|SHOW_ROUTINE|G
+|root||mysql.session|localhost|SHUTDOWN|G
+|root||root|localhost|SHUTDOWN|G
+|root||mysql.session|localhost|SUPER|G
+|root||root|localhost|SUPER|G
+|root||mysql.infoschema|localhost|SYSTEM_USER|G
+|root||mysql.session|localhost|SYSTEM_USER|G
+|root||mysql.sys|localhost|SYSTEM_USER|G
+|root||root|localhost|SYSTEM_USER|G
+|root||mysql.session|localhost|SYSTEM_VARIABLES_ADMIN|G
+|root||root|localhost|SYSTEM_VARIABLES_ADMIN|G
+|root||root|localhost|TABLE_ENCRYPTION_ADMIN|G
+|root||root|localhost|TELEMETRY_LOG_ADMIN|G
+|root||root|localhost|TRIGGER|G
+|root||root|localhost|UPDATE|G
+|root||root|localhost|XA_RECOVER_ADMIN|G
+|root||root|localhost|grant option|G
+performance_schema|schema||mysql.session|localhost|SELECT|G
+sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
+      <ServerVersion>8.0.41</ServerVersion>
     </root>
     <collation id="2" parent="1" name="armscii8_bin">
       <Charset>armscii8</Charset>
@@ -907,28 +995,26 @@
       <Charset>utf8mb4</Charset>
     </collation>
     <schema id="288" parent="1" name="dairy">
-      <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Current>1</Current>
-      <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-08-21.06:59:54</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-08-08.03:48:09</LastIntrospectionLocalTimestamp>
+      <CollationName>utf8mb4_general_ci</CollationName>
+    </schema>
+    <schema id="289" parent="1" name="dragon">
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
-    <schema id="289" parent="1" name="information_schema">
+    <schema id="290" parent="1" name="information_schema">
       <CollationName>utf8mb3_general_ci</CollationName>
     </schema>
-    <schema id="290" parent="1" name="mysql">
+    <schema id="291" parent="1" name="mysql">
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
-    <schema id="291" parent="1" name="performance_schema">
+    <schema id="292" parent="1" name="performance_schema">
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
-    <schema id="292" parent="1" name="sys">
+    <schema id="293" parent="1" name="sys">
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
-    <schema id="293" parent="1" name="test">
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
-    </schema>
-    <schema id="294" parent="1" name="mydb">
+    <schema id="294" parent="1" name="test">
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <user id="295" parent="1" name="mysql.infoschema">
@@ -950,117 +1036,102 @@
       <Host>localhost</Host>
       <Plugin>caching_sha2_password</Plugin>
     </user>
-    <table id="299" parent="288" name="character_keyword_images">
-      <DetailsLevel>3</DetailsLevel>
+    <table id="299" parent="288" name="diary_analysis">
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="300" parent="288" name="diary_analysis">
-      <DetailsLevel>3</DetailsLevel>
+    <table id="300" parent="288" name="diary_attachments">
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="301" parent="288" name="diary_attachments">
-      <DetailsLevel>3</DetailsLevel>
+    <table id="301" parent="288" name="diary_comments">
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="302" parent="288" name="diary_comments">
-      <DetailsLevel>3</DetailsLevel>
+    <table id="302" parent="288" name="diary_entries">
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="303" parent="288" name="diary_entries">
-      <DetailsLevel>3</DetailsLevel>
+    <table id="303" parent="288" name="friendship">
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="304" parent="288" name="friendship">
-      <DetailsLevel>3</DetailsLevel>
+    <table id="304" parent="288" name="keyword_images">
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="305" parent="288" name="keyword_images">
-      <DetailsLevel>3</DetailsLevel>
+    <table id="305" parent="288" name="keywords">
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
     <table id="306" parent="288" name="shared_diaries">
-      <DetailsLevel>3</DetailsLevel>
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
     <table id="307" parent="288" name="shared_diary_members">
-      <DetailsLevel>3</DetailsLevel>
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
     <table id="308" parent="288" name="users">
-      <DetailsLevel>3</DetailsLevel>
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_0900_ai_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <column id="309" parent="299" name="keyword_image">
+    <column id="309" parent="299" name="analysis_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="310" parent="299" name="keywords">
+    <column id="310" parent="299" name="entry_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="311" parent="299" name="summary">
+      <Position>3</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="311" parent="299" name="analyzed_id">
-      <NotNull>1</NotNull>
-      <Position>3</Position>
-      <StoredType>bigint|0s</StoredType>
-    </column>
-    <column id="312" parent="299" name="user_id">
-      <NotNull>1</NotNull>
+    <column id="312" parent="299" name="happiness_score">
       <Position>4</Position>
-      <StoredType>bigint|0s</StoredType>
+      <StoredType>tinyint|0s</StoredType>
     </column>
-    <column id="313" parent="299" name="created_at">
-      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+    <column id="313" parent="299" name="analysis_keywords">
       <Position>5</Position>
+      <StoredType>text|0s</StoredType>
+    </column>
+    <column id="314" parent="299" name="analyzed_at">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>6</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <foreign-key id="314" parent="299" name="fk_ckimg_analysis">
-      <ColNames>analyzed_id</ColNames>
+    <foreign-key id="315" parent="299" name="fk_analysis_entry">
+      <ColNames>entry_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
-      <RefColNames>analysis_id</RefColNames>
-      <RefTableName>diary_analysis</RefTableName>
-    </foreign-key>
-    <foreign-key id="315" parent="299" name="fk_ckimg_user">
-      <ColNames>user_id</ColNames>
-      <OnDelete>cascade</OnDelete>
-      <OnUpdate>cascade</OnUpdate>
-      <RefColNames>user_id</RefColNames>
-      <RefTableName>users</RefTableName>
+      <RefColNames>entry_id</RefColNames>
+      <RefTableName>diary_entries</RefTableName>
     </foreign-key>
     <index id="316" parent="299" name="PRIMARY">
-      <ColNames>keyword_image</ColNames>
+      <ColNames>analysis_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="317" parent="299" name="idx_ckimg_analysis">
-      <ColNames>analyzed_id</ColNames>
+    <index id="317" parent="299" name="entry_id">
+      <ColNames>entry_id</ColNames>
       <Type>btree</Type>
+      <Unique>1</Unique>
     </index>
-    <index id="318" parent="299" name="idx_ckimg_user_created">
-      <ColNames>user_id
-created_at</ColNames>
-      <Type>btree</Type>
-    </index>
-    <key id="319" parent="299" name="PRIMARY">
+    <key id="318" parent="299" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="320" parent="300" name="analysis_id">
-      <AutoIncrement>7</AutoIncrement>
+    <key id="319" parent="299" name="entry_id">
+      <UnderlyingIndexName>entry_id</UnderlyingIndexName>
+    </key>
+    <column id="320" parent="300" name="attachment_id">
+      <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
@@ -1070,25 +1141,25 @@ created_at</ColNames>
       <Position>2</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="322" parent="300" name="summary">
+    <column id="322" parent="300" name="attachment_type">
       <Position>3</Position>
-      <StoredType>text|0s</StoredType>
+      <StoredType>enum(&apos;IMAGE&apos;, &apos;VIDEO&apos;, &apos;AUDIO&apos;, &apos;FILE&apos;)|0e</StoredType>
     </column>
-    <column id="323" parent="300" name="happiness_score">
+    <column id="323" parent="300" name="path_or_url">
       <Position>4</Position>
-      <StoredType>tinyint|0s</StoredType>
+      <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="324" parent="300" name="analysis_keywords">
+    <column id="324" parent="300" name="display_order">
       <Position>5</Position>
-      <StoredType>text|0s</StoredType>
+      <StoredType>smallint|0s</StoredType>
     </column>
-    <column id="325" parent="300" name="analyzed_at">
+    <column id="325" parent="300" name="attachment_created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <foreign-key id="326" parent="300" name="fk_analysis_entry">
+    <foreign-key id="326" parent="300" name="fk_attach_entry">
       <ColNames>entry_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
@@ -1096,542 +1167,521 @@ created_at</ColNames>
       <RefTableName>diary_entries</RefTableName>
     </foreign-key>
     <index id="327" parent="300" name="PRIMARY">
-      <ColNames>analysis_id</ColNames>
+      <ColNames>attachment_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="328" parent="300" name="entry_id">
-      <ColNames>entry_id</ColNames>
+    <index id="328" parent="300" name="idx_attach_entry">
+      <ColNames>entry_id
+display_order</ColNames>
       <Type>btree</Type>
-      <Unique>1</Unique>
     </index>
     <key id="329" parent="300" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="330" parent="300" name="entry_id">
-      <UnderlyingIndexName>entry_id</UnderlyingIndexName>
-    </key>
-    <column id="331" parent="301" name="attachment_id">
+    <column id="330" parent="301" name="comment_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="332" parent="301" name="entry_id">
+    <column id="331" parent="301" name="entry_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="333" parent="301" name="attachment_type">
-      <Position>3</Position>
-      <StoredType>enum(&apos;IMAGE&apos;, &apos;VIDEO&apos;, &apos;AUDIO&apos;, &apos;FILE&apos;)|0e</StoredType>
-    </column>
-    <column id="334" parent="301" name="path_or_url">
-      <Position>4</Position>
-      <StoredType>varchar(255)|0s</StoredType>
-    </column>
-    <column id="335" parent="301" name="display_order">
-      <Position>5</Position>
-      <StoredType>smallint|0s</StoredType>
-    </column>
-    <column id="336" parent="301" name="attachment_created_at">
-      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
-      <NotNull>1</NotNull>
-      <Position>6</Position>
-      <StoredType>datetime|0s</StoredType>
-    </column>
-    <foreign-key id="337" parent="301" name="fk_attach_entry">
-      <ColNames>entry_id</ColNames>
-      <OnDelete>cascade</OnDelete>
-      <OnUpdate>cascade</OnUpdate>
-      <RefColNames>entry_id</RefColNames>
-      <RefTableName>diary_entries</RefTableName>
-    </foreign-key>
-    <index id="338" parent="301" name="PRIMARY">
-      <ColNames>attachment_id</ColNames>
-      <Type>btree</Type>
-      <Unique>1</Unique>
-    </index>
-    <index id="339" parent="301" name="idx_attach_entry">
-      <ColNames>entry_id
-display_order</ColNames>
-      <Type>btree</Type>
-    </index>
-    <key id="340" parent="301" name="PRIMARY">
-      <NameSurrogate>1</NameSurrogate>
-      <Primary>1</Primary>
-      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
-    </key>
-    <column id="341" parent="302" name="comment_id">
-      <AutoIncrement>1</AutoIncrement>
-      <NotNull>1</NotNull>
-      <Position>1</Position>
-      <StoredType>bigint|0s</StoredType>
-    </column>
-    <column id="342" parent="302" name="entry_id">
-      <NotNull>1</NotNull>
-      <Position>2</Position>
-      <StoredType>bigint|0s</StoredType>
-    </column>
-    <column id="343" parent="302" name="user_id">
+    <column id="332" parent="301" name="user_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="344" parent="302" name="parent_id">
+    <column id="333" parent="301" name="parent_id">
       <Position>4</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="345" parent="302" name="comment_content">
+    <column id="334" parent="301" name="comment_content">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="346" parent="302" name="is_deleted">
+    <column id="335" parent="301" name="is_deleted">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>tinyint(1)|0s</StoredType>
     </column>
-    <column id="347" parent="302" name="created_at">
+    <column id="336" parent="301" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="348" parent="302" name="updated_at">
+    <column id="337" parent="301" name="updated_at">
       <Position>8</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <foreign-key id="349" parent="302" name="fk_comment_entry">
+    <foreign-key id="338" parent="301" name="fk_comment_entry">
       <ColNames>entry_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>entry_id</RefColNames>
       <RefTableName>diary_entries</RefTableName>
     </foreign-key>
-    <foreign-key id="350" parent="302" name="fk_comment_user">
+    <foreign-key id="339" parent="301" name="fk_comment_user">
       <ColNames>user_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>user_id</RefColNames>
       <RefTableName>users</RefTableName>
     </foreign-key>
-    <foreign-key id="351" parent="302" name="fk_comment_parent">
+    <foreign-key id="340" parent="301" name="fk_comment_parent">
       <ColNames>parent_id</ColNames>
       <OnDelete>set-null</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>comment_id</RefColNames>
       <RefTableName>diary_comments</RefTableName>
     </foreign-key>
-    <index id="352" parent="302" name="PRIMARY">
+    <index id="341" parent="301" name="PRIMARY">
       <ColNames>comment_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="353" parent="302" name="idx_comment_entry">
+    <index id="342" parent="301" name="idx_comment_entry">
       <ColNames>entry_id
 created_at</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="354" parent="302" name="fk_comment_user">
+    <index id="343" parent="301" name="fk_comment_user">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="355" parent="302" name="fk_comment_parent">
+    <index id="344" parent="301" name="fk_comment_parent">
       <ColNames>parent_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="356" parent="302" name="PRIMARY">
+    <key id="345" parent="301" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="357" parent="303" name="entry_id">
-      <AutoIncrement>21</AutoIncrement>
+    <trigger id="346" parent="301" name="trg_soft_delete_child_comments">
+      <Definer>root@localhost</Definer>
+      <Events>U</Events>
+      <SourceTextLength>151</SourceTextLength>
+    </trigger>
+    <column id="347" parent="302" name="entry_id">
+      <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="358" parent="303" name="user_id">
+    <column id="348" parent="302" name="user_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="359" parent="303" name="shared_diary_id">
+    <column id="349" parent="302" name="shared_diary_id">
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="360" parent="303" name="entry_date">
+    <column id="350" parent="302" name="entry_date">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>date|0s</StoredType>
     </column>
-    <column id="361" parent="303" name="title">
-      <Position>5</Position>
-      <StoredType>varchar(255)|0s</StoredType>
-    </column>
-    <column id="362" parent="303" name="diary_content">
+    <column id="351" parent="302" name="diary_content">
       <NotNull>1</NotNull>
-      <Position>6</Position>
+      <Position>5</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <column id="363" parent="303" name="visibility">
+    <column id="352" parent="302" name="visibility">
       <NotNull>1</NotNull>
-      <Position>7</Position>
+      <Position>6</Position>
       <StoredType>enum(&apos;PRIVATE&apos;, &apos;FRIENDS&apos;, &apos;PUBLIC&apos;)|0e</StoredType>
     </column>
-    <column id="364" parent="303" name="diary_created_at">
+    <column id="353" parent="302" name="diary_created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <column id="354" parent="302" name="diary_updated_at">
       <Position>8</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="365" parent="303" name="diary_updated_at">
-      <Position>9</Position>
-      <StoredType>datetime|0s</StoredType>
-    </column>
-    <foreign-key id="366" parent="303" name="fk_diary_user">
+    <foreign-key id="355" parent="302" name="fk_diary_user">
       <ColNames>user_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>user_id</RefColNames>
       <RefTableName>users</RefTableName>
     </foreign-key>
-    <foreign-key id="367" parent="303" name="fk_diary_shared">
+    <foreign-key id="356" parent="302" name="fk_diary_shared">
       <ColNames>shared_diary_id</ColNames>
       <OnDelete>set-null</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>shared_diary_id</RefColNames>
       <RefTableName>shared_diaries</RefTableName>
     </foreign-key>
-    <index id="368" parent="303" name="PRIMARY">
+    <index id="357" parent="302" name="PRIMARY">
       <ColNames>entry_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="369" parent="303" name="idx_diary_user_date">
+    <index id="358" parent="302" name="idx_diary_user_date">
       <ColNames>user_id
 entry_date</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="370" parent="303" name="fk_diary_shared">
+    <index id="359" parent="302" name="fk_diary_shared">
       <ColNames>shared_diary_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="371" parent="303" name="idx_diary_visibility">
+    <index id="360" parent="302" name="idx_diary_visibility">
       <ColNames>visibility</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="372" parent="303" name="PRIMARY">
+    <key id="361" parent="302" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <trigger id="373" parent="303" name="trg_set_updated_at_on_update">
+    <trigger id="362" parent="302" name="trg_set_updated_at_on_insert">
+      <Definer>root@localhost</Definer>
+      <Events>I</Events>
+      <SourceTextLength>47</SourceTextLength>
+      <Turn>before-row</Turn>
+    </trigger>
+    <trigger id="363" parent="302" name="trg_set_updated_at_on_update">
       <Definer>root@localhost</Definer>
       <Events>U</Events>
       <SourceTextLength>47</SourceTextLength>
       <Turn>before-row</Turn>
     </trigger>
-    <column id="374" parent="304" name="user_id">
+    <trigger id="364" parent="302" name="trg_delete_analysis_with_entry">
+      <Definer>root@localhost</Definer>
+      <Events>D</Events>
+      <SourceTextLength>71</SourceTextLength>
+    </trigger>
+    <column id="365" parent="303" name="user_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="375" parent="304" name="friend_id">
+    <column id="366" parent="303" name="friend_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="376" parent="304" name="friendship_status">
+    <column id="367" parent="303" name="friendship_status">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>enum(&apos;PENDING&apos;, &apos;ACCEPTED&apos;, &apos;REJECTED&apos;)|0e</StoredType>
     </column>
-    <column id="377" parent="304" name="requested_at">
+    <column id="368" parent="303" name="requested_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="378" parent="304" name="responded_at">
+    <column id="369" parent="303" name="responded_at">
       <Position>5</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <foreign-key id="379" parent="304" name="fk_friend_user">
+    <foreign-key id="370" parent="303" name="fk_friend_user">
       <ColNames>user_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>user_id</RefColNames>
       <RefTableName>users</RefTableName>
     </foreign-key>
-    <foreign-key id="380" parent="304" name="fk_friend_friend">
+    <foreign-key id="371" parent="303" name="fk_friend_friend">
       <ColNames>friend_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>user_id</RefColNames>
       <RefTableName>users</RefTableName>
     </foreign-key>
-    <index id="381" parent="304" name="PRIMARY">
+    <index id="372" parent="303" name="PRIMARY">
       <ColNames>user_id
 friend_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="382" parent="304" name="fk_friend_friend">
+    <index id="373" parent="303" name="fk_friend_friend">
       <ColNames>friend_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="383" parent="304" name="PRIMARY">
+    <key id="374" parent="303" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <trigger id="384" parent="304" name="trg_friendship_no_self">
+    <trigger id="375" parent="303" name="trg_friendship_no_self">
       <Definer>root@localhost</Definer>
       <Events>I</Events>
       <SourceTextLength>159</SourceTextLength>
       <Turn>before-row</Turn>
     </trigger>
-    <column id="385" parent="305" name="keyword_image">
+    <column id="376" parent="304" name="mapping_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="386" parent="305" name="keywords">
+    <column id="377" parent="304" name="keyword_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StoredType>text|0s</StoredType>
+      <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="387" parent="305" name="analyzed_id">
+    <column id="378" parent="304" name="image_name">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StoredType>bigint|0s</StoredType>
+      <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="388" parent="305" name="user_id">
-      <NotNull>1</NotNull>
+    <column id="379" parent="304" name="display_order">
       <Position>4</Position>
-      <StoredType>bigint|0s</StoredType>
+      <StoredType>smallint|0s</StoredType>
     </column>
-    <column id="389" parent="305" name="created_at">
+    <column id="380" parent="304" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <foreign-key id="390" parent="305" name="fk_kimg_analysis">
-      <ColNames>analyzed_id</ColNames>
+    <foreign-key id="381" parent="304" name="fk_ki_keyword">
+      <ColNames>keyword_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
-      <RefColNames>analysis_id</RefColNames>
-      <RefTableName>diary_analysis</RefTableName>
+      <RefColNames>keyword_id</RefColNames>
+      <RefTableName>keywords</RefTableName>
     </foreign-key>
-    <foreign-key id="391" parent="305" name="fk_kimg_user">
-      <ColNames>user_id</ColNames>
-      <OnDelete>cascade</OnDelete>
-      <OnUpdate>cascade</OnUpdate>
-      <RefColNames>user_id</RefColNames>
-      <RefTableName>users</RefTableName>
-    </foreign-key>
-    <index id="392" parent="305" name="PRIMARY">
-      <ColNames>keyword_image</ColNames>
+    <index id="382" parent="304" name="PRIMARY">
+      <ColNames>mapping_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="393" parent="305" name="idx_kimg_analysis">
-      <ColNames>analyzed_id</ColNames>
+    <index id="383" parent="304" name="idx_ki_keyword">
+      <ColNames>keyword_id
+display_order</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="394" parent="305" name="idx_kimg_user_created">
-      <ColNames>user_id
-created_at</ColNames>
-      <Type>btree</Type>
-    </index>
-    <key id="395" parent="305" name="PRIMARY">
+    <key id="384" parent="304" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="396" parent="306" name="shared_diary_id">
+    <column id="385" parent="305" name="keyword_id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="397" parent="306" name="shared_diary_title">
+    <column id="386" parent="305" name="keyword_name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>varchar(100)|0s</StoredType>
+    </column>
+    <index id="387" parent="305" name="PRIMARY">
+      <ColNames>keyword_id</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="388" parent="305" name="keyword_name">
+      <ColNames>keyword_name</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <key id="389" parent="305" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
+    </key>
+    <key id="390" parent="305" name="keyword_name">
+      <UnderlyingIndexName>keyword_name</UnderlyingIndexName>
+    </key>
+    <trigger id="391" parent="305" name="trg_delete_keyword_images">
+      <Definer>root@localhost</Definer>
+      <Events>D</Events>
+      <SourceTextLength>75</SourceTextLength>
+    </trigger>
+    <column id="392" parent="306" name="shared_diary_id">
+      <AutoIncrement>1</AutoIncrement>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>bigint|0s</StoredType>
+    </column>
+    <column id="393" parent="306" name="shared_diary_title">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(200)|0s</StoredType>
     </column>
-    <column id="398" parent="306" name="owner_id">
+    <column id="394" parent="306" name="owner_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="399" parent="306" name="created_at">
+    <column id="395" parent="306" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="400" parent="306" name="updated_at">
+    <column id="396" parent="306" name="updated_at">
       <Position>5</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <foreign-key id="401" parent="306" name="fk_shared_diaries_owner">
+    <foreign-key id="397" parent="306" name="fk_shared_diaries_owner">
       <ColNames>owner_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>user_id</RefColNames>
       <RefTableName>users</RefTableName>
     </foreign-key>
-    <index id="402" parent="306" name="PRIMARY">
+    <index id="398" parent="306" name="PRIMARY">
       <ColNames>shared_diary_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="403" parent="306" name="fk_shared_diaries_owner">
+    <index id="399" parent="306" name="fk_shared_diaries_owner">
       <ColNames>owner_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="404" parent="306" name="PRIMARY">
+    <key id="400" parent="306" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="405" parent="307" name="shared_diary_id">
+    <column id="401" parent="307" name="shared_diary_id">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="406" parent="307" name="user_id">
+    <column id="402" parent="307" name="user_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="407" parent="307" name="owner_id">
+    <column id="403" parent="307" name="owner_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="408" parent="307" name="created_at">
+    <column id="404" parent="307" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <foreign-key id="409" parent="307" name="fk_sdm_diary">
+    <foreign-key id="405" parent="307" name="fk_sdm_diary">
       <ColNames>shared_diary_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>shared_diary_id</RefColNames>
       <RefTableName>shared_diaries</RefTableName>
     </foreign-key>
-    <foreign-key id="410" parent="307" name="fk_sdm_user">
+    <foreign-key id="406" parent="307" name="fk_sdm_user">
       <ColNames>user_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>user_id</RefColNames>
       <RefTableName>users</RefTableName>
     </foreign-key>
-    <foreign-key id="411" parent="307" name="fk_sdm_owner">
+    <foreign-key id="407" parent="307" name="fk_sdm_owner">
       <ColNames>owner_id</ColNames>
       <OnDelete>cascade</OnDelete>
       <OnUpdate>cascade</OnUpdate>
       <RefColNames>user_id</RefColNames>
       <RefTableName>users</RefTableName>
     </foreign-key>
-    <index id="412" parent="307" name="PRIMARY">
+    <index id="408" parent="307" name="PRIMARY">
       <ColNames>shared_diary_id
 user_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="413" parent="307" name="fk_sdm_user">
+    <index id="409" parent="307" name="fk_sdm_user">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="414" parent="307" name="fk_sdm_owner">
+    <index id="410" parent="307" name="fk_sdm_owner">
       <ColNames>owner_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="415" parent="307" name="PRIMARY">
+    <key id="411" parent="307" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="416" parent="308" name="user_id">
-      <AutoIncrement>2</AutoIncrement>
+    <trigger id="412" parent="307" name="trg_shared_diary_member_no_dup">
+      <Definer>root@localhost</Definer>
+      <Events>I</Events>
+      <SourceTextLength>288</SourceTextLength>
+      <Turn>before-row</Turn>
+    </trigger>
+    <column id="413" parent="308" name="user_id">
+      <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="417" parent="308" name="nickname">
+    <column id="414" parent="308" name="nickname">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="418" parent="308" name="login_id">
+    <column id="415" parent="308" name="login_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(50)|0s</StoredType>
     </column>
-    <column id="419" parent="308" name="password">
+    <column id="416" parent="308" name="password">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="420" parent="308" name="user_email">
+    <column id="417" parent="308" name="user_email">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="421" parent="308" name="character_type">
+    <column id="418" parent="308" name="character_type">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StoredType>varchar(20)|0s</StoredType>
     </column>
-    <column id="422" parent="308" name="user_created_at">
+    <column id="419" parent="308" name="user_created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>7</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="423" parent="308" name="user_updated_at">
+    <column id="420" parent="308" name="user_updated_at">
       <Position>8</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <index id="424" parent="308" name="PRIMARY">
+    <index id="421" parent="308" name="PRIMARY">
       <ColNames>user_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="425" parent="308" name="login_id">
+    <index id="422" parent="308" name="login_id">
       <ColNames>login_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="426" parent="308" name="uq_users_email">
-      <ColNames>user_email</ColNames>
-      <Type>btree</Type>
-      <Unique>1</Unique>
-    </index>
-    <index id="427" parent="308" name="idx_users_nickname">
+    <index id="423" parent="308" name="idx_users_nickname">
       <ColNames>nickname</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="428" parent="308" name="PRIMARY">
+    <key id="424" parent="308" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <key id="429" parent="308" name="login_id">
+    <key id="425" parent="308" name="login_id">
       <UnderlyingIndexName>login_id</UnderlyingIndexName>
-    </key>
-    <key id="430" parent="308" name="uq_users_email">
-      <UnderlyingIndexName>uq_users_email</UnderlyingIndexName>
     </key>
   </database-model>
 </dataSource>

@@ -96,6 +96,7 @@ public class MainController {
             }
         });
 
+
         System.out.println("windowHotspot bounds=" + windowHotspot.getBoundsInParent());
         System.out.println("characterPane bounds=" + characterPane.getBoundsInParent());
 
@@ -217,4 +218,6 @@ public class MainController {
             ex.printStackTrace();
         }
     }
+
+
 }

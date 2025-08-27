@@ -1,3 +1,4 @@
+// src/main/java/com/share/dairy/repo/imageGen/JdbcImageDbRepository.java
 package com.share.dairy.repo.imageGen;
 
 import org.springframework.jdbc.core.JdbcTemplate;

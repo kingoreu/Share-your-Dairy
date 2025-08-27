@@ -49,7 +49,7 @@ public class DiaryEntryDao {
             ORDER BY entry_date DESC, entry_id DESC
         """;
         try    (var con = DBConnection.getConnection();
-             var ps  = con.prepareStatement(sql)) {
+                var ps  = con.prepareStatement(sql)) {
             ps.setLong(1, sharedDiaryId);
             try (var rs = ps.executeQuery()) {
                 List<DiaryEntry> list = new ArrayList<>();
@@ -89,7 +89,7 @@ public class DiaryEntryDao {
             VALUES (?, ?, ?, ?, ?, ?, NOW())
         """;
         try    (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, entry.getUserId());
 
