@@ -44,8 +44,8 @@ public class SharedDiaryDao {
 
     public record CardRow(long diaryId, String title, String membersCsv, Timestamp createdAt) {}
 
-    public List<CardRow> findCardsForUser(long userId) throws SQLException {
-        String sql = """
+public List<CardRow> findCardsForUser(long userId) throws SQLException {
+    String sql = """
         SELECT sd.shared_diary_id,
                sd.shared_diary_title,
                sd.created_at AS created_at,
@@ -63,23 +63,23 @@ public class SharedDiaryDao {
         GROUP BY sd.shared_diary_id, sd.shared_diary_title, sd.created_at
         ORDER BY sd.created_at DESC
     """;
-        try (var con = DBConnection.getConnection();
-             var ps  = con.prepareStatement(sql)) {
-            ps.setLong(1, userId);
-            ps.setLong(2, userId);
-            try (var rs = ps.executeQuery()) {
-                var list = new ArrayList<CardRow>();
-                while (rs.next()) {
-                    list.add(new CardRow(
-                            rs.getLong("shared_diary_id"),
-                            rs.getString("shared_diary_title"),
-                            rs.getString("members"),
-                            rs.getTimestamp("created_at")));
-                }
-                return list;
+    try (var con = DBConnection.getConnection();
+         var ps  = con.prepareStatement(sql)) {
+        ps.setLong(1, userId);
+        ps.setLong(2, userId);
+        try (var rs = ps.executeQuery()) {
+            var list = new ArrayList<CardRow>();
+            while (rs.next()) {
+                list.add(new CardRow(
+                        rs.getLong("shared_diary_id"),
+                        rs.getString("shared_diary_title"),
+                        rs.getString("members"),
+                        rs.getTimestamp("created_at")));
             }
+            return list;
         }
     }
+}
 
     public long insert(Connection con, SharedDiary s) throws SQLException {
         try (var ps = con.prepareStatement("""

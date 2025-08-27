@@ -75,6 +75,18 @@ public class MainController {
             characterPaneController.setOverlayHost(overlayHost);
         }
 
+
+            //  홈 진입 시 캐릭터 강제 갱신
+            var user = UserSession.get();
+//            if (user != null && user.getCharacterType() != null) {
+//                // 기본 캐릭터 (enum 기반)
+//                var type = user.getCharacterType();
+//                characterPaneController.updateCharacter(
+//                        getClass().getResource(type.getImagePath()).toExternalForm()
+//                );
+//            }
+
+
         // ESC로 닫기 (scene 준비 후 1회 등록)
         contentPane.sceneProperty().addListener((obs, oldScene, scene) -> {
             if (scene != null) {
@@ -98,7 +110,7 @@ public class MainController {
     }
     // @FXML private void onWindowClicked(MouseEvent e)     { loadView("/fxml/moodGraph/mood-graph-view.fxml"); }
     @FXML private void onLaptopClicked(MouseEvent e)     { loadView("/fxml/diary/diary_hub/diary-hub-shell.fxml"); }
-    @FXML private void onBookshelfClicked(MouseEvent e)  { /* TODO: 책장 화면 */ }
+    @FXML private void onBookshelfClicked(MouseEvent e)  { loadView("/fxml/mainFrame/BookshelfPane.fxml"); }
     @FXML private void onRadioClicked(MouseEvent e)      { loadView("/fxml/calendar/calendar.fxml"); }
     // @FXML private void onCharacterClicked(MouseEvent e)  { loadView("/fxml/FriendList/MyInfoPanel.fxml"); }
 
@@ -179,6 +191,11 @@ public class MainController {
         contentPane.setStyle("-fx-background-color: transparent;");
         contentPane.toBack();                       // ✅ 배경으로 내리기
         setOverlayVisible(true);
+
+        // 홈 진입 시 항상 캐릭터 새로고침
+//        if (CharacterPaneController.getInstance() != null) {
+//            CharacterPaneController.getInstance().refreshCharacter();
+//        }
     }
 
     /* ===================== Animation ===================== */

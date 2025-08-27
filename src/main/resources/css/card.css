@@ -1,0 +1,31 @@
+/* 포토 앨범 카꾸 */
+.card {
+    -fx-background-color: #fdeaf4;
+    -fx-background-radius: 20;
+    -fx-padding: 5;
+    -fx-spacing: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5,0,0,3);
+    -fx-alignment: CENTER;
+}
+.card > Label {
+    -fx-font-size: 20px;
+    -fx-text-fill: #333;
+    -fx-font-weight: bold;
+}
+
+/* 로그인 버튼 */
+.button {
+    -fx-background-color: #f8cfe0;
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+.button:hover {
+    -fx-background-color: #f2a6ca;
+}
+
+* {
+    -fx-font-family: "DungGeunmo";
+    -fx-text-fill: #333;
+}

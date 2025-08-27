@@ -295,8 +295,8 @@ public class FriendshipDao {
                 List<BuddyRow> list = new ArrayList<>();
                 while (rs.next()) {
                     list.add(new BuddyRow(
-                            rs.getLong("buddy_id"),
-                            rs.getString("nickname")
+                        rs.getLong("buddy_id"),
+                        rs.getString("nickname")
                     ));
                 }
                 return list;
