@@ -7,7 +7,8 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.BuddyDiaryController"
             prefWidth="700" prefHeight="560"
-            style="-fx-background-color: transparent;">
+            styleClass="root"
+            stylesheets="@/css/friendlist.css">
 
     <HBox spacing="12"
           AnchorPane.topAnchor="0"

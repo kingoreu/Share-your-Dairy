@@ -190,6 +190,13 @@
 }
 .diary-card .label { -fx-text-fill: #333; -fx-font-size: 14px; }
 
+.diar:selected {
+    /* 선택 시 더 진한 분홍 + 글자색 반전 */
+    -fx-background-color: white;
+    -fx-border-color: rgb(224, 224, 224);
+    -fx-text-fill: black;
+}
+
 /* 허브 전체 배경 */
 .hub-root { -fx-background-color: #fdeaf4; }
 

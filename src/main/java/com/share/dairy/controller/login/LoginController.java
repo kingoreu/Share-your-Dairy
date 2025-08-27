@@ -136,9 +136,11 @@ public class LoginController {
     }
 
     // 이거 쓰는거임?
+    // null/빈칸 우선 처리
     private static String firstNonEmpty(String a, String b){
         return (a != null && !a.isBlank()) ? a : b;
     }
+    // 숫자 변환 실패시 기본값 반환
     private static long parseLong(String s, long def){
         try { return (s==null || s.isBlank()) ? def : Long.parseLong(s.trim()); }
         catch (Exception e) { return def; }

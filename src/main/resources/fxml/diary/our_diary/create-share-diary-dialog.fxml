@@ -6,7 +6,8 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.CreateShareDiaryDialogController"
             prefWidth="520" prefHeight="520"
-            style="-fx-background-color: transparent;">
+            styleClass="root"
+            stylesheets="@/css/friendlist.css">
   <children>
     <VBox spacing="16"
           AnchorPane.topAnchor="24" AnchorPane.bottomAnchor="24"

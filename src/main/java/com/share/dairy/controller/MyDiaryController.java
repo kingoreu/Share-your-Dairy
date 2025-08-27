@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
-import com.share.dairy.util.game.AvoidRocksPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
+import com.share.dairy.util.game.DodgeHellPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -39,6 +39,8 @@ import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
+import static com.share.dairy.auth.UserSession.currentId;
+
 /**
  * MyDiaryController (교체본)
  * ------------------------------------------------------------
@@ -61,7 +63,7 @@ public class MyDiaryController {
 
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
     // ✅ 수정: 하드코딩 제거(=FK 오류 원인). 외부에서 로그인 유저 ID 주입받도록 함.
-   
+
 
     // ===== 서버 URL/HTTP 클라이언트 =====
     private static final String BASE_URL = "http://localhost:8080";
@@ -83,7 +85,7 @@ public class MyDiaryController {
     private Stage loadingStage;
     private ProgressBar overlayProgress;
     private Label overlayPercent, overlayMsg;
-    private AvoidRocksPane gamePane;
+    private DodgeHellPane gamePane;
 
     // (옵션) 상태 API 없을 때 테스트용 가짜 진행률 모드
     private static final boolean FAKE_STATUS_MODE = false;
@@ -117,7 +119,7 @@ public class MyDiaryController {
     @FXML
     private void onSave() {
         try {
-            Long uid = com.share.dairy.auth.UserSession.currentId();
+            Long uid = currentId();
             String title   = (titleField  != null) ? titleField.getText().trim()  : "";
             String content = (contentArea != null) ? contentArea.getText().trim() : "";
 
@@ -193,26 +195,25 @@ public class MyDiaryController {
 
     /** 목록 렌더 */
     private void refreshList() {
-    if (listContainer == null) return;
+        if (listContainer == null) return;
 
-    Long uid = com.share.dairy.auth.UserSession.currentId();
-    if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
-        listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
-        return;
+        Long uid = currentId();
+        if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
+            listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
+            return;
+        }
+
+        List<DiaryEntry> rows;
+        try {
+            rows = diaryWriteService.loadMyDiaryList(uid); // ✅ 내 것만
+        } catch (RuntimeException ex) {
+            listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
+            return;
+        }
+
+        listContainer.getChildren().clear();
+        for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
     }
-
-    List<DiaryEntry> rows;
-    try {
-        rows = diaryWriteService.loadMyDiaryList(uid); // ✅ 내 것만
-    } catch (RuntimeException ex) {
-        listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
-        return;
-    }
-
-    listContainer.getChildren().clear();
-    for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
-}
-
 
     /** 카드: 단순 표시(클릭 동작 없음 — 안정 상태) */
     private VBox makeCard(DiaryEntry d) {
@@ -330,7 +331,8 @@ public class MyDiaryController {
         prog.setAlignment(Pos.CENTER);
 
         // === 별도 파일로 분리된 '돌 피하기' 게임 삽입 ===
-        gamePane = new AvoidRocksPane(520, 280);
+        gamePane = new DodgeHellPane(520, 280);
+        gamePane.start();      
 
         Button closeBtn = new Button("오버레이 닫기"); // 작업 취소 아님, UI만 닫기
         closeBtn.setOnAction(e -> { if (loadingStage != null) loadingStage.close(); });
@@ -398,19 +400,20 @@ public class MyDiaryController {
     }
 
     /** 진행률/메시지 UI 갱신 + 게임 배경 틴트 반영 */
-    private void updateOverlay(int progress, String msg, String status) {
-        if (progress >= 0) {
-            overlayProgress.setProgress(progress / 100.0);
-            overlayPercent.setText(progress + "%");
-        } else {
-            overlayProgress.setProgress(-1);
-            overlayPercent.setText("");
+private void updateOverlay(int progress, String msg, String status) {
+    if (progress >= 0) {
+        overlayProgress.setProgress(progress / 100.0);
+        overlayPercent.setText(progress + "%");
+        if (gamePane != null) {
+            gamePane.setProgressTint(progress);                   // 기존
+            gamePane.setDifficultyScale(0.9 + (progress / 100.0) * 0.6); // ★ 추가: 0.9 ~ 1.5
         }
-        overlayMsg.setText((msg == null || msg.isBlank()) ? ("상태: " + status) : msg);
-
-        // 진행률에 따라 게임 배경을 조금 밝게
-        if (gamePane != null && progress >= 0) gamePane.setProgressTint(progress);
+    } else {
+        overlayProgress.setProgress(-1);
+        overlayPercent.setText("");
     }
+    overlayMsg.setText((msg == null || msg.isBlank()) ? ("상태: " + status) : msg);
+}
 
     /** DONE 처리: 오버레이 닫고 최종 Alert/콜백/리프레시/모달 닫기 */
     private void onImageDone(long entryId) {
