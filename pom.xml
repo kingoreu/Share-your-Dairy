@@ -18,8 +18,10 @@
 
   <properties>
     <java.version>21</java.version>
-    <!-- ★ 실행 스택에 맞춰 OpenJFX 버전 통일 -->
+
+    <!-- ★ OpenJFX를 실행 스택(로그에 21.0.8)과 동일하게 통일 -->
     <javafx.version>21.0.8</javafx.version>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>5.10.2</junit.version>
   </properties>
@@ -46,7 +48,7 @@
       <version>8.0.33</version>
     </dependency>
 
-    <!-- JavaFX (모두 같은 버전) -->
+    <!-- JavaFX (모두 같은 버전으로) -->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
@@ -67,7 +69,7 @@
       <artifactId>javafx-media</artifactId>
       <version>${javafx.version}</version>
     </dependency>
-    <!-- 필요 없으면 swing 제거 가능
+    <!-- swing이 필요 없으면 이 의존성은 제거하세요
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-swing</artifactId>
@@ -107,6 +109,11 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>2.17.2</version>
+    </dependency>
 
     <!-- 기타 -->
     <dependency>
@@ -137,6 +144,7 @@
 
   <build>
     <plugins>
+      <!-- 컴파일 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -147,21 +155,31 @@
         </configuration>
       </plugin>
 
-      <!-- Spring Boot: 서버 실행/패키징 용 -->
+      <!-- 서버(Spring Boot) 실행/패키징 -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>3.3.2</version>
+        <configuration>
+          <mainClass>com.share.dairy.ServerApplication</mainClass>
+        </configuration>
       </plugin>
 
-      <!-- ★ JavaFX: 데스크톱 실행(module-path 자동 설정) -->
+      <!-- ★ 데스크톱(JavaFX) 실행: module-path 자동 설정 -->
       <plugin>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
         <version>0.0.8</version>
         <configuration>
-          <mainClass>com.share.dairy.app.HelloApplication</mainClass>
+          <mainClass>com.share.dairy.app.Launcher</mainClass>
           <addModules>javafx.controls,javafx.fxml,javafx.web,javafx.media</addModules>
         </configuration>
+        <executions>
+          <execution>
+            <id>run-javafx</id>
+            <goals><goal>run</goal></goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

@@ -238,7 +238,7 @@ public class MyDiaryController {
     }
 
         // 백그라운드로 분석 → 이미지 생성 트리거 → 오버레이+폴링
-        new Thread(() -> {
+        /*new Thread(() -> {
             try {
                 // 1) GPT 분석
                 new DiaryAnalysisService().process(entryId);
@@ -261,7 +261,7 @@ public class MyDiaryController {
                               "분석/이미지 생성 중 오류: " + ex.getMessage()).showAndWait()
                 );
             }
-        }).start();
+        }).start();*/
 
     } catch (Exception e) {
         new Alert(Alert.AlertType.ERROR, "저장 중 오류: " + e.getMessage()).showAndWait();
