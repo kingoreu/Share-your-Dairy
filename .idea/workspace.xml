@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/moodGraph/mood-graph-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/moodGraph/mood-graph-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/game/TetrisPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/game/TetrisPane.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,8 +19,8 @@
       <list>
         <option value="Enum" />
         <option value="CSS File" />
-        <option value="FxmlFile" />
         <option value="Class" />
+        <option value="FxmlFile" />
       </list>
     </option>
   </component>
@@ -166,7 +167,7 @@
       <workItem from="1755615636116" duration="5270000" />
       <workItem from="1756167084116" duration="28696000" />
       <workItem from="1756253512356" duration="27095000" />
-      <workItem from="1756340206959" duration="2010000" />
+      <workItem from="1756340206959" duration="11772000" />
     </task>
     <servers />
   </component>

@@ -6,11 +6,9 @@ import com.share.dairy.model.enums.Visibility;
 import com.share.dairy.service.diary.DiaryWriteService;
 import com.share.dairy.service.diary_analysis.DiaryAnalysisService;
 
-// ===== [추가] 진행률 상태 파싱용 Jackson =====
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
 import com.share.dairy.util.game.TetrisPane;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -38,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
@@ -47,19 +46,14 @@ import javafx.event.EventHandler;
 import static com.share.dairy.auth.UserSession.currentId;
 
 /**
- * MyDiaryController (교체본)
- * ------------------------------------------------------------
- * - 일기 저장 → 분석 → (서버 트리거) 이미지 생성
- * - 생성 동안 '로딩 오버레이(진행률 바 + 돌 피하기 게임)' 표시
- * - 2초 폴링으로 /images/status 조회 → DONE 시 최종 완료 처리
- *
- * 백엔드 필요(이미 안내/구현함):
- *   POST /api/diary/{id}/images/auto      → 이미지 생성 비동기 시작
- *   GET  /api/diary/{id}/images/status    → {status, progress, message}
+ * MyDiaryController
+ * - 일기 저장 → 분석 → 서버 트리거로 이미지 생성
+ * - 진행 중 로딩 오버레이(진행률 + TetrisPane)
+ * - /images/status 2초 폴링 → DONE 시 완료 처리
  */
 public class MyDiaryController {
 
-    /* 작성 화면 필드(있을 수도 있고 없을 수도 있음) */
+    /* 작성 화면 */
     @FXML private TextField titleField, placeField, musicField, timeField;
     @FXML private TextArea contentArea;
 
@@ -67,24 +61,21 @@ public class MyDiaryController {
     @FXML private VBox listContainer;
 
     private final DiaryWriteService diaryWriteService = new DiaryWriteService();
-    // ✅ 수정: 하드코딩 제거(=FK 오류 원인). 외부에서 로그인 유저 ID 주입받도록 함.
 
-
-    // ===== 서버 URL/HTTP 클라이언트 =====
+    /* 서버/HTTP */
     private static final String BASE_URL = "http://localhost:8080";
     private static final HttpClient HTTP = HttpClient.newHttpClient();
 
-    /* 저장 후 후처리(목록 갱신 등) */
+    /* 저장 후 후처리/콜백 */
     private Runnable afterSave;
     public void setAfterSave(Runnable r) { this.afterSave = r; }
 
-    /* 새 일기 모달 모드 & 저장 콜백(필요 시) */
     private boolean dialogMode = false;
     private Consumer<Long> onSaved;
     public void setDialogMode(boolean dialogMode) { this.dialogMode = dialogMode; }
     public void setOnSaved(Consumer<Long> onSaved) { this.onSaved = onSaved; }
 
-    // ===== [추가] 상태 폴링/오버레이 관련 필드 =====
+    /* 상태 폴링/오버레이 */
     private final ObjectMapper mapper = new ObjectMapper();
     private ScheduledExecutorService poller;
     private Stage loadingStage;
@@ -92,7 +83,7 @@ public class MyDiaryController {
     private Label overlayPercent, overlayMsg;
     private TetrisPane gamePane;
 
-    // (옵션) 상태 API 없을 때 테스트용 가짜 진행률 모드
+    /* (옵션) 가짜 진행률 */
     private static final boolean FAKE_STATUS_MODE = false;
     private ScheduledFuture<?> fakeFuture;
     private int fakeProgress = 0;
@@ -114,13 +105,7 @@ public class MyDiaryController {
         if (contentArea != null) contentArea.setDisable(false);
     }
 
-    /**
-     * SAVE: 일기 저장 → 분석 → (서버 트리거) 이미지 생성 → 오버레이+폴링 시작
-     *
-     * ⚠️ 변경 포인트:
-     *   - 예전처럼 트리거 직후에 "완료" Alert를 즉시 띄우지 않는다.
-     *   - 최종 Alert는 /status 가 DONE을 반환했을 때 띄운다.
-     */
+    /** SAVE: 저장 → 분석 → 이미지 생성 트리거 → 오버레이+폴링 */
     @FXML
     private void onSave() {
         try {
@@ -140,31 +125,20 @@ public class MyDiaryController {
             entry.setDiaryContent(content);
             entry.setVisibility(Visibility.PRIVATE);
 
-            // DB 저장 (entry_id 획득)
+            // DB 저장
             DiaryEntryDao dao = new DiaryEntryDao();
             long entryId = dao.save(entry);
 
-            // 분석/이미지 생성 트리거는 백그라운드로
+            // 분석/이미지 생성 트리거는 백그라운드
             new Thread(() -> {
                 try {
-                    // 1) GPT 분석
-                    new DiaryAnalysisService().process(entryId);
-
-                    // 2) 분석 완료 안내(비차단)
+                    new DiaryAnalysisService().process(entryId); // 분석
                     Platform.runLater(() ->
                             new Alert(Alert.AlertType.INFORMATION,
                                     "분석 완료! 키워드/캐릭터 이미지 생성을 시작합니다.").show()
                     );
-
-                    // 3) 이미지 생성 시작(서버 트리거)
-                    triggerAutoImage(entryId);
-
-                    // 4) 로딩 오버레이 + 상태 폴링 시작
-                    Platform.runLater(() -> showImageGenOverlayAndPoll(entryId));
-
-                    // ⚠️ 최종 완료는 showImageGenOverlayAndPoll() 내부에서
-                    //     /status = DONE 시점에 처리한다.
-
+                    triggerAutoImage(entryId);                    // 이미지 트리거
+                    Platform.runLater(() -> showImageGenOverlayAndPoll(entryId)); // 오버레이+폴링
                 } catch (Exception ex) {
                     Platform.runLater(() ->
                             new Alert(Alert.AlertType.ERROR,
@@ -178,7 +152,7 @@ public class MyDiaryController {
         }
     }
 
-    /** 목록 화면에서 연필(FAB) → 새 일기 모달 띄우기 */
+    /** 새 일기 모달 띄우기 */
     @FXML
     private void onClickFabPencil() throws IOException {
         FXMLLoader fxml = new FXMLLoader(getClass().getResource("/fxml/diary/my_diary/my_diary.fxml"));
@@ -198,19 +172,19 @@ public class MyDiaryController {
         refreshList();
     }
 
-    /** 목록 렌더 */
+    /** 목록 갱신 */
     private void refreshList() {
         if (listContainer == null) return;
 
         Long uid = currentId();
-        if (uid == null|| uid <= 0) { // ✅ 로그인 이전에 불릴 수 있으니 가드
+        if (uid == null || uid <= 0) {
             listContainer.getChildren().setAll(new Label("로그인 후 내 일기를 볼 수 있어요."));
             return;
         }
 
         List<DiaryEntry> rows;
         try {
-            rows = diaryWriteService.loadMyDiaryList(uid); // ✅ 내 것만
+            rows = diaryWriteService.loadMyDiaryList(uid);
         } catch (RuntimeException ex) {
             listContainer.getChildren().setAll(new Label("일기 목록 조회 실패"));
             return;
@@ -220,64 +194,53 @@ public class MyDiaryController {
         for (DiaryEntry d : rows) listContainer.getChildren().add(makeCard(d));
     }
 
-    /** 카드: 단순 표시(클릭 동작 없음 — 안정 상태) */
-    /** 카드: 클릭(더블클릭/Enter) 시 해당 일기 뷰어 열기 */
+    /** 카드(클릭/키보드로 열기) */
     private VBox makeCard(DiaryEntry d) {
-    VBox card = new VBox(6);
-    card.setPadding(new Insets(12));
-    card.setStyle("-fx-background-color:white;-fx-background-radius:12;"
-            + "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 3);");
-    card.setPickOnBounds(true);          // 패딩 영역도 클릭 인식
-    card.setCursor(Cursor.HAND);         // 마우스 커서 손모양
-    card.setFocusTraversable(true);      // 키보드 포커스 가능
+        VBox card = new VBox(6);
+        card.setPadding(new Insets(12));
+        card.setStyle("-fx-background-color:white;-fx-background-radius:12;"
+                + "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 3);");
+        card.setPickOnBounds(true);
+        card.setCursor(Cursor.HAND);
+        card.setFocusTraversable(true);
 
-    // 날짜
-    Label date = new Label("DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null));
-    date.setStyle("-fx-text-fill:#666;-fx-font-size:12;");
+        Label date = new Label("DATE " + Optional.ofNullable(d.getEntryDate()).orElse(null));
+        date.setStyle("-fx-text-fill:#666;-fx-font-size:12;");
 
-    // 제목
-    String titleTxt = Optional.ofNullable(d.getTitle()).map(String::trim)
-            .filter(s -> !s.isEmpty()).orElse("(제목 없음)");
-    Label title = new Label("TITLE " + titleTxt);
-    title.setStyle("-fx-font-size:15;-fx-font-weight:700;");
+        String titleTxt = Optional.ofNullable(d.getTitle()).map(String::trim)
+                .filter(s -> !s.isEmpty()).orElse("(제목 없음)");
+        Label title = new Label("TITLE " + titleTxt);
+        title.setStyle("-fx-font-size:15;-fx-font-weight:700;");
 
-    // 본문 프리뷰
-    String body = Optional.ofNullable(d.getDiaryContent()).orElse("");
-    String preview = body.length() > 200 ? body.substring(0, 200) + "…" : body;
-    Label content = new Label("CONTENTS " + preview);
-    content.setWrapText(true);
+        String body = Optional.ofNullable(d.getDiaryContent()).orElse("");
+        String preview = body.length() > 200 ? body.substring(0, 200) + "…" : body;
+        Label content = new Label("CONTENTS " + preview);
+        content.setWrapText(true);
 
-    card.getChildren().addAll(date, title, content);
+        card.getChildren().addAll(date, title, content);
 
-    // 🔑 클릭 핸들러 (카드 + 자식들 모두에 붙여 안전하게)
-    EventHandler<MouseEvent> open = e -> {
-        if (e.getButton() == MouseButton.PRIMARY) {
-            openDiaryViewer(d);
-            e.consume();
-        }
-    };
-    card.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
-    for (Node n : card.getChildren()) {
-        n.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
+        EventHandler<MouseEvent> open = e -> {
+            if (e.getButton() == MouseButton.PRIMARY) {
+                openDiaryViewer(d);
+                e.consume();
+            }
+        };
+        card.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
+        for (Node n : card.getChildren()) n.addEventHandler(MouseEvent.MOUSE_CLICKED, open);
+
+        card.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case ENTER, SPACE -> openDiaryViewer(d);
+            }
+        });
+
+        card.setOnMouseEntered(e -> card.setStyle(card.getStyle() + "-fx-background-color:#fff7fd;"));
+        card.setOnMouseExited(e -> card.setStyle(card.getStyle().replace("-fx-background-color:#fff7fd;", "")));
+
+        return card;
     }
 
-    // 키보드 접근성(Enter/Space로 열기)
-    card.setOnKeyPressed(e -> {
-        switch (e.getCode()) {
-            case ENTER, SPACE -> openDiaryViewer(d);
-        }
-    });
-
-    // (선택) hover 효과
-    card.setOnMouseEntered(e ->
-        card.setStyle(card.getStyle() + "-fx-background-color:#fff7fd;"));
-    card.setOnMouseExited(e ->
-        card.setStyle(card.getStyle().replace("-fx-background-color:#fff7fd;", "")));
-
-    return card;
-}
-
-    /** 읽기 전용 모달 (나중용) */
+    /** 읽기 전용 모달 */
     private void openDiaryViewer(DiaryEntry d) {
         Stage dlg = new Stage();
 
@@ -323,9 +286,7 @@ public class MyDiaryController {
         return null;
     }
 
-    // =========================
-    // 이미지 자동 생성(서버 트리거)
-    // =========================
+    /* 이미지 자동 생성 트리거 */
     private void triggerAutoImage(long entryId) throws Exception {
         HttpRequest req = HttpRequest.newBuilder(
                         URI.create(BASE_URL + "/api/diary/" + entryId + "/images/auto"))
@@ -340,11 +301,7 @@ public class MyDiaryController {
         }
     }
 
-    // =========================
-    // [추가] 상태 조회 + 오버레이(게임) + 폴링
-    // =========================
-
-    /** 상태 조회: /api/diary/{id}/images/status */
+    /* 상태 조회 */
     private JsonNode fetchImageStatus(long entryId) throws Exception {
         HttpRequest req = HttpRequest.newBuilder(
                         URI.create(BASE_URL + "/api/diary/" + entryId + "/images/status"))
@@ -357,17 +314,15 @@ public class MyDiaryController {
         return mapper.readTree(res.body());
     }
 
-    /** 로딩 오버레이 생성 + 2초 폴링 시작 */
+    /** 로딩 오버레이 + 2초 폴링 시작 */
     private void showImageGenOverlayAndPoll(long entryId) {
-        // 이미 떠 있으면 재사용
         if (loadingStage != null && loadingStage.isShowing()) return;
 
-        // ===== 오버레이 UI =====
         Label title = new Label("키워드/캐릭터 이미지 생성 중...");
         title.setTextFill(Color.WHITE);
         title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        overlayProgress = new ProgressBar(-1); // 아직 진행률 모르면 indeterminate
+        overlayProgress = new ProgressBar(-1);
         overlayProgress.setPrefWidth(420);
 
         overlayPercent = new Label("0%");
@@ -381,10 +336,13 @@ public class MyDiaryController {
         HBox prog = new HBox(10, overlayProgress, overlayPercent);
         prog.setAlignment(Pos.CENTER);
 
-        // === 별도 파일로 분리된 '돌 피하기' 게임 삽입 ===
+        // === 게임 ===
         gamePane = new TetrisPane(520, 280);
 
-        Button closeBtn = new Button("오버레이 닫기"); // 작업 취소 아님, UI만 닫기
+        // 닫기 버튼: 키 포커스/디폴트 비활성화 (Space/Enter가 버튼을 누르지 않도록)
+        Button closeBtn = new Button("오버레이 닫기");
+        closeBtn.setFocusTraversable(false);
+        closeBtn.setDefaultButton(false);
         closeBtn.setOnAction(e -> { if (loadingStage != null) loadingStage.close(); });
 
         VBox box = new VBox(14, title, prog, overlayMsg, gamePane, closeBtn);
@@ -400,11 +358,18 @@ public class MyDiaryController {
         loadingStage = new Stage(StageStyle.TRANSPARENT);
         Stage owner = currentStage();
         if (owner != null) loadingStage.initOwner(owner);
-        loadingStage.initModality(Modality.NONE); // 필요 시 APPLICATION_MODAL 로 변경
+        loadingStage.initModality(Modality.NONE);
         loadingStage.setScene(new Scene(root, Color.TRANSPARENT));
         loadingStage.setTitle("이미지 생성 중…");
 
-        // 창 닫힐 때 리소스 정리
+        // ★ 포커스 회수: 창이 포커스를 얻을 때마다 게임으로 포커스
+        loadingStage.focusedProperty().addListener((o, was, now) -> {
+            if (now) Platform.runLater(() -> gamePane.requestGameFocus());
+        });
+        // ★ 어느 곳을 클릭해도 게임 포커스 회수
+        root.setOnMouseClicked(ev -> gamePane.requestGameFocus());
+
+        // 창 닫힐 때 정리
         loadingStage.setOnCloseRequest(ev -> {
             stopPolling();
             stopFakeProgress();
@@ -412,9 +377,9 @@ public class MyDiaryController {
         });
 
         loadingStage.show();
-        gamePane.requestGameFocus();
+        Platform.runLater(() -> gamePane.requestGameFocus()); // 최초 포커스
 
-        // ===== 폴링 시작 (또는 FAKE 모드) =====
+        // 폴링
         if (FAKE_STATUS_MODE) {
             startFakeProgress(entryId);
             return;
@@ -449,7 +414,7 @@ public class MyDiaryController {
         }, 0, 2, TimeUnit.SECONDS);
     }
 
-    /** 진행률/메시지 UI 갱신 + 게임 배경 틴트 반영 */
+    /** 진행률/메시지 UI 갱신 + 게임 틴트 반영 */
     private void updateOverlay(int progress, String msg, String status) {
         if (progress >= 0) {
             overlayProgress.setProgress(progress / 100.0);
@@ -460,11 +425,10 @@ public class MyDiaryController {
         }
         overlayMsg.setText((msg == null || msg.isBlank()) ? ("상태: " + status) : msg);
 
-        // 진행률에 따라 게임 배경을 조금 밝게
         if (gamePane != null && progress >= 0) gamePane.setProgressTint(progress);
     }
 
-    /** DONE 처리: 오버레이 닫고 최종 Alert/콜백/리프레시/모달 닫기 */
+    /** DONE 처리 */
     private void onImageDone(long entryId) {
         if (loadingStage != null) loadingStage.close();
         if (gamePane != null) gamePane.stop();
@@ -497,7 +461,7 @@ public class MyDiaryController {
         }
     }
 
-    // ===== (옵션) 상태 API 없을 때 테스트용 가짜 진행률 =====
+    /** (옵션) 가짜 진행률 */
     private void startFakeProgress(long entryId) {
         stopFakeProgress();
         overlayProgress.setProgress(0);
@@ -507,14 +471,13 @@ public class MyDiaryController {
 
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         fakeFuture = ex.scheduleAtFixedRate(() -> {
-            fakeProgress += 2; // 2%씩 증가 → ~100초
+            fakeProgress += 2;
             Platform.runLater(() -> updateOverlay(fakeProgress, "샘플 상태: 진행 중", "RUNNING"));
             if (fakeProgress >= 100) {
                 stopFakeProgress();
                 Platform.runLater(() -> onImageDone(entryId));
             }
         }, 0, 2, TimeUnit.SECONDS);
-        // 정리 편의상 poller로도 참조
         poller = ex;
     }
 
