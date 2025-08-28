@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // ===== [추가] JavaFX UI 구성/게임/오버레이 관련 =====
-import com.share.dairy.util.game.TetrisPane; // ← 별도 파일로 분리된 '돌 피하기' 게임 컴포넌트
+import com.share.dairy.util.game.TetrisPane;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
