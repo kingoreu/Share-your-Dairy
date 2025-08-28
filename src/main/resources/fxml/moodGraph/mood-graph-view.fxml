@@ -11,6 +11,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.share.dairy.controller.MoodGraph.MoodGraphController"
+            stylesheets="@/css/style.css"
             style="-fx-background-color: #fdeaf4;">
 
     <!-- ✅ CSS 연결 (올바른 문법) -->
