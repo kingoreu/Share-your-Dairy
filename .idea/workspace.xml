@@ -5,9 +5,152 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="da3ceca1-a0b6-48ad-99a3-4d11aec776cb" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385/storage_v2/_src_/schema/mysql.osA4Bg.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385/storage_v2/_src_/schema/sys.zb4BAA.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.mvn/jvm.config" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/101_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/101_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/132_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/132_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/133_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/133_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/134_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/134_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/145_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/145_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/146_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/146_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/147_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/147_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/2_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/2_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/35_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/35_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/3_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/3_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/4_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/4_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/90_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/90_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/91_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/91_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/92_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/92_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/95_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/95_keyword.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/96_character.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generated-images/96_keyword.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620/storage_v2/_src_/schema/dairy.096uBQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/9ada1b3c-11e5-4328-bef8-854c1be0c385/storage_v2/_src_/schema/dairy.096uBQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f283e13d-8b69-42c2-8e86-c3ecbe8c3620/storage_v2/_src_/schema/dairy.096uBQ.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/42_character.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/42_keyword.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/49_character.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/49_keyword.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/55_character.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated-images/55_keyword.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" afterPath="$PROJECT_DIR$/mvnw" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/TestDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/TestDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/diary/DiaryAttachmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/diary/DiaryAttachmentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/diary/DiaryCommentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/diary/DiaryCommentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/diary/DiaryRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/diary/DiaryRestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/sharedDiary/MemberRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/sharedDiary/MemberRestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/sharedDiary/SharedDiaryRestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/sharedDiary/SharedDiaryRestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/youtube/DairyYtServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/youtube/DairyYtServerApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/youtube/YouTubeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/youtube/YouTubeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/youtube/YouTubeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/api/youtube/YouTubeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/music/MusicDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/app/music/MusicDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/AsyncConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/AsyncConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/BinderConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/BinderConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/Calendar/CalendarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/Calendar/CalendarController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/CreateShareDiaryDialogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/CreateShareDiaryDialogController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/DiaryHubController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/DiaryHubController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/HelloController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/HelloController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MoodGraph/MoodGraphController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/moodGraph/MoodGraphController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/MyDiaryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/game/TetrisPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/game/TetrisPane.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/NewShareDiaryDialogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/NewShareDiaryDialogController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/OurDiaryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/OurDiaryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/TestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/TestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/AfterSignUpController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/controller/login/AfterSignUpController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/diary/DiaryAnalysisDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/diary/DiaryAnalysisDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/diary/DiaryAttachmentDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/diary/DiaryAttachmentDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/diary/DiaryCommentDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/diary/DiaryCommentDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/friend/FriendshipDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/friend/FriendshipDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/sharedDiary/SharedDiaryDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/sharedDiary/SharedDiaryDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/sharedDiary/SharedDiaryMemberDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dao/sharedDiary/SharedDiaryMemberDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryAttachment/CreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryAttachment/CreateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryAttachment/ResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryAttachment/ResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryComment/CreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryComment/CreateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryComment/ResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryComment/ResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryEntry/ResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryEntry/ResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryEntry/ShareRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryEntry/ShareRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryEntry/UpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/diary/diaryEntry/UpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/friend/FriendRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/friend/FriendRequestDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/friend/FriendResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/friend/FriendResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/keyword/keywordImage/WithKeywordsDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/keyword/keywordImage/WithKeywordsDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/MemberAddRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/MemberAddRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/MemberResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/MemberResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/SharedDiaryCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/SharedDiaryCreateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/SharedDiaryResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/SharedDiaryResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/SharedDiaryUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/sharedDiary/SharedDiaryUpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/PendingSignUp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/PendingSignUp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/UserUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/dto/user/UserUpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/exception/ApiErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/exception/ApiErrorResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/RowMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/RowMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryAnalysisMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryAnalysisMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryAttachmentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryAttachmentMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryCommentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryCommentMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryEntryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/diary/DiaryEntryMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/sharedDiary/SharedDiaryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/sharedDiary/SharedDiaryMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/sharedDiary/SharedDiaryMemberMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/sharedDiary/SharedDiaryMemberMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/user/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/mapper/user/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/Friend.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/Friend.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryAnalysis.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryAnalysis.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryAttachment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryAttachment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryComment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryComment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryEntry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/diary/DiaryEntry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/enums/AttachmentType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/enums/AttachmentType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/enums/FriendshipStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/enums/FriendshipStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/enums/Visibility.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/enums/Visibility.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/keyword/Keyword.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/keyword/Keyword.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/sharedDiary/SharedDiary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/sharedDiary/SharedDiary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/sharedDiary/SharedDiaryMember.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/sharedDiary/SharedDiaryMember.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/user/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/model/user/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary/DiaryAttachmentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary/DiaryAttachmentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary/DiaryCommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary/DiaryCommentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary_analysis/DiaryAnalysisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/diary_analysis/DiaryAnalysisService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/JobStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/JobStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ProgressRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/imageGen/ProgressRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/sharedDiary/MemberService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/sharedDiary/MemberService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/sharedDiary/SharedDiaryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/service/sharedDiary/SharedDiaryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/DBConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/DBConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/Tx.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/share/dairy/util/Tx.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/css/friendlist.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/css/friendlist.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/css/login/login.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/css/login/login.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/AddFriendsPanel.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/FriendList/AddFriendsPanel.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/calendar/calendar.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/calendar/calendar.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/diary_hub/diary-hub-shell.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/diary_hub/diary-hub-shell.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/diary_hub/diary-hub-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/diary_hub/diary-hub-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/diary_hub/hub-list.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/diary_hub/hub-list.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/my_diary/my-diary-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/my_diary/my-diary-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/create-share-diary-dialog.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/create-share-diary-dialog.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/newShareDiaryDialog.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/newShareDiaryDialog.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/our-diary-room.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/diary/our_diary/our-diary-room.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/login/AfterSignUp.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/AfterSignUp.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/login/CharacterSelect.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/CharacterSelect.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/login/Login.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/login/Login.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sql/dairy_drop.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/sql/dairy_drop.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sql/dairy_trigger.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/sql/dairy_trigger.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,32 +200,32 @@
     <option name="showLibraryContents" value="true" />
     <option name="showScratchesAndConsoles" value="false" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Maven.dairy [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.dairy [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;wook2&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.tools&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
-    &quot;애플리케이션.HelloApplication.executor&quot;: &quot;Run&quot;,
-    &quot;애플리케이션.Launcher.executor&quot;: &quot;Run&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.dairy [clean].executor": "Run",
+    "Maven.dairy [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "wook2 병합 중",
+    "kotlin-language-version-configured": "true",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "configurable.group.tools",
+    "vue.rearranger.settings.migration": "true",
+    "애플리케이션.HelloApplication.executor": "Run",
+    "애플리케이션.Launcher.executor": "Run"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\IntelliJ IDEA 2025.2\dairy\src\main\java\com\share\dairy\util\game" />
