@@ -2,6 +2,7 @@ package com.share.dairy.service.keyword;
 
 import com.share.dairy.dao.keyword.KeywordImageDao;
 import com.share.dairy.dto.keyword.keywordImage.CreateRequest;
+import com.share.dairy.dto.keyword.keywordImage.ResponseDto;
 import com.share.dairy.dto.keyword.keywordImage.WithKeywordsDto;
 import com.share.dairy.model.keyword.KeywordImage;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class KeywordImageService {
         var m = new KeywordImage();
         m.setAnalysisId(req.getAnalysisId());
         m.setUserId(req.getUserId());
+        m.setPathOrUrl(req.getPathOrUrl());
         m.setCreatedAt(LocalDateTime.now()); // 테이블 DEFAULT 없으니 여기서 세팅
         return dao.insert(m);
     }
@@ -45,4 +47,13 @@ public class KeywordImageService {
     public int deleteById(long id) throws SQLException {
         return dao.deleteById(id);
     }
+
+    public static ResponseDto toDto(KeywordImage e) {
+        ResponseDto dto = new ResponseDto();
+        dto.setId(e.getKeywordImage());
+        dto.setPathOrUrl(e.getPathOrUrl());
+        dto.setCreatedAt(e.getCreatedAt());
+        return dto;
+    }
+
 }

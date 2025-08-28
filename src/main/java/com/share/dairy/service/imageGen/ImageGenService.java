@@ -18,8 +18,13 @@ import java.util.*;
 
 /**
  * 이미지 2장 생성 서비스
- *  - (1) 키워드 일러스트: /v1/images/generations (JSON)
- *  - (2) 캐릭터 액션(무마스크 편집): /v1/images/edits (multipart/form-data)
+ *
+ * ✨ 변경된 정책
+ *  - (1) "요약(scene)" 이미지: /v1/images/edits (무마스크 편집)
+ *        → diary_analysis.summary(없으면 keyword) 기반으로
+ *        → 파일명: <entry>_keyword.png (기존 파일명 유지)
+ *  - (2) "키워드 액션" 이미지: /v1/images/edits (무마스크 편집)
+ *        → 파일명: <entry>_character.png
  *
  * 생성 후:
  *  - /generated-images/<entry>_keyword.png, <entry>_character.png 저장
@@ -27,8 +32,8 @@ import java.util.*;
  *    (실제 DB 저장은 DiaryWorkflowService가 수행)
  *
  * 주의:
- *  - 일부 배포에서 response_format/background 미지원 → 사용 안 함
  *  - 응답은 b64_json 또는 url → 둘 다 처리
+ *  - baseCharPng(캐릭터 원본 PNG)는 반드시 투명 배경이어야 결과도 투명 유지가 쉽다.
  */
 @Service
 public class ImageGenService {
@@ -37,7 +42,7 @@ public class ImageGenService {
     public record Result(String keywordUrl, String characterUrl) {}
 
     // OpenAI 이미지 엔드포인트
-    private static final String GEN_ENDPOINT  = "https://api.openai.com/v1/images/generations";
+    private static final String GEN_ENDPOINT  = "https://api.openai.com/v1/images/generations"; // (현재 미사용: 남겨둠)
     private static final String EDIT_ENDPOINT = "https://api.openai.com/v1/images/edits";
 
     // HTTP 클라이언트 & JSON 매퍼
@@ -84,11 +89,23 @@ public class ImageGenService {
         return "";
     }
 
+    /** 긴 텍스트를 과도하게 넣지 않도록 안전하게 자르기 */
+    private static String clamp(String s, int max) {
+        if (s == null) return "";
+        String t = s.strip();
+        if (t.length() <= max) return t;
+        return t.substring(0, max) + "...";
+    }
+
     /**
      * 캐릭터 "라벨"(예: HAMSTER, RACCOON ...)을 프롬프트에도 반영.
      *
      * ✅ 트랜잭션 없음: 외부 API 호출은 느릴 수 있으므로 서비스 레벨에서 트랜잭션을 열지 않는다.
      * @param useCache true면 파일 2개가 이미 있으면 OpenAI 호출 생략
+     *
+     * ✨ 변경점 요약
+     *  - _keyword.png  : 'summary 기반 캐릭터 장면' 을 edits API로 생성
+     *  - _character.png: '키워드 액션' 을 edits API로 생성
      */
     public Result generateTwoWithBase_NoMask(long entryId, String keyword,
                                              String characterLabel, Path baseCharPng,
@@ -112,15 +129,16 @@ public class ImageGenService {
             var ctx = ctxOpt.get();
             System.out.println("[ImageGenService] ctx.analysisId=" + ctx.analysisId()
                     + ", userId=" + ctx.userId()
-                    + ", keyword=" + ctx.analysisKeywords()
+                    + ", analysisKeywords=" + ctx.analysisKeywords()
                     + ", character=" + characterLabel);
 
             // 2) 저장 위치/URL 계산
             Path dir = Path.of(mediaRootDir).toAbsolutePath();
             Files.createDirectories(dir);
 
-            String kwName = entryId + "_keyword.png";
-            String chName = entryId + "_character.png";
+            // 파일명 유지
+            String kwName = entryId + "_keyword.png";   // ← '요약 장면' 저장
+            String chName = entryId + "_character.png"; // ← '키워드 액션' 저장
             Path kwPath = dir.resolve(kwName);
             Path chPath = dir.resolve(chName);
 
@@ -131,47 +149,59 @@ public class ImageGenService {
             String sz = (sizeSq == null || sizeSq.isBlank()) ? "1024" : sizeSq;
             String sizeStr = sz + "x" + sz;
 
-            // 3) 캐시 미사용 또는 캐시 없으면 OpenAI 호출
+            // 3) 프롬프트 텍스트 준비
+            //    - summary 우선 사용, 비어있으면 keyword로 폴백
+            String summary = null;
+            try {
+                // 인터페이스가 summary()를 제공한다는 전제
+                summary = ctx.summary();
+            } catch (Throwable ignored) {
+                // 만약 구버전 인터페이스라면 NPE 회피 → 아래에서 keyword로 폴백
+            }
+            String sceneText = isBlank(summary) ? keyword : clamp(summary, 300);
+
+            // 4) 캐시 미사용 또는 캐시 없으면 OpenAI 호출
             if (!useCache || !cacheExists) {
                 System.out.println("[ImageGenService] generating... size=" + sizeStr + ", cache=" + useCache);
 
-                // (1) 키워드 일러스트
-                String promptKeyword = """
-                        A minimal, flat icon-style illustration that intuitively represents the keyword “%s”.
-                        Simple geometric shapes, crisp clean outlines, 2–3 colors max, no text, no gradients, no shadows.
-                        Centered composition with even padding. Transparent background (PNG), no background elements.
-                    """.formatted(keyword);
-                byte[] keywordPng = requestImageGenerate(apiKey, promptKeyword, sizeStr);
-
-                // (2) 캐릭터 액션
                 if (!Files.exists(baseCharPng)) {
                     throw new IllegalStateException("캐릭터 PNG가 존재하지 않습니다: " + baseCharPng);
                 }
-                String actionPrompt = """
-                        Keep the exact same character as “%s”: preserve facial markings, body shape, and fur color.
-                        Show the character doing “%s” using only pose and small props; do not alter face patterns or body shape.
-                        Same art style and proportions as the original, clean outlines, no text. Transparent background (PNG), no background.   
-                    """.formatted(characterLabel, keyword);
-                byte[] characterPng = requestImageEdit_NoMask(apiKey, actionPrompt, baseCharPng, sizeStr);
 
-                // 파일 저장(덮어쓰기)
-                try (OutputStream os = Files.newOutputStream(kwPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) { os.write(keywordPng); }
-                try (OutputStream os = Files.newOutputStream(chPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) { os.write(characterPng); }
+                // (1) '요약 장면' → _keyword.png (무마스크 편집)
+                String promptSummaryScene = """
+                    Keep the exact same character as "%s": preserve facial markings, body shape, outfit colors, and body proportions.
+                    Illustrate a single-frame scene that matches this diary summary: "%s".
+                    Include a clear, coherent background environment (e.g., room, street, café, park) that supports the scene described in the summary.
+                    Keep the character central and readable; use pose and small props to convey action and context.
+                    Maintain the original art style; avoid any text or logos. PNG output (opaque background is fine).
+                """.formatted(characterLabel, sceneText);
+
+                byte[] summaryPng = requestImageEdit_NoMask(apiKey, promptSummaryScene, baseCharPng, sizeStr);
+                try (OutputStream os = Files.newOutputStream(kwPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    os.write(summaryPng);
+                }
+
+                // (2) '키워드 액션' → _character.png (무마스크 편집)
+                String actionPrompt = """
+                    Keep the exact same character as "%s": preserve facial markings, body shape, and fur color.
+                    Show the character doing "%s" using only pose and small props; do not change face patterns or body shape.
+                    Same art style and proportions as the original. Transparent PNG, no background, no text.
+                """.formatted(characterLabel, keyword);
+
+                byte[] characterPng = requestImageEdit_NoMask(apiKey, actionPrompt, baseCharPng, sizeStr);
+                try (OutputStream os = Files.newOutputStream(chPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    os.write(characterPng);
+                }
             } else {
                 System.out.println("[ImageGenService] cache hit → " + kwPath + " , " + chPath);
             }
 
-            // 4) ✅ DB 기록은 여기서 하지 않는다.
-            //    (예전 코드)
-            //    imageDbRepo.upsertAttachment(entryId, kwUrl, 10);
-            //    imageDbRepo.upsertAttachment(entryId, chUrl, 20);
-            //
-            //    (새 정책)
-            //    DiaryWorkflowService가
-            //    insertKeywordImageIfAbsent / insertCharacterImageIfAbsent 를 호출해 저장한다.
-
+            // 5) ✅ DB 기록은 여기서 하지 않는다. 워크플로우에서 저장.
             System.out.println("[ImageGenService] saved → " + kwPath + " / " + chPath);
-            return new Result(kwUrl, chUrl); // ✅ URL만 반환 → 워크플로우가 DB에 저장
+
+            // ✅ 의미만 변경: keywordUrl == '요약 장면' URL, characterUrl == '키워드 액션' URL
+            return new Result(kwUrl, chUrl);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -188,6 +218,7 @@ public class ImageGenService {
     }
 
     // ------- OpenAI 호출 유틸: 텍스트→이미지 -------
+    // ※ 현재는 사용하지 않지만, 향후 아이콘/스티커 스타일 생성 시 재사용 가능하므로 유지
     private byte[] requestImageGenerate(String apiKey, String prompt, String size) throws Exception {
         Map<String,Object> body = new LinkedHashMap<>();
         body.put("model", "gpt-image-1");

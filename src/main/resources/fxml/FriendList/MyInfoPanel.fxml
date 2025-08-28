@@ -105,8 +105,8 @@
                             <!-- 좌: 캐릭터 프리뷰 카드 -->
                             <StackPane GridPane.columnIndex="0" alignment="CENTER">
                                 <StackPane fx:id="card" styleClass="character-card"
-                                minWidth="260" prefWidth="380" maxWidth="420"
-                                minHeight="260" prefHeight="380" maxHeight="420">
+                                           minWidth="260" prefWidth="380" maxWidth="420"
+                                           minHeight="260" prefHeight="380" maxHeight="420">
                                     <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
                                     <!-- 컨트롤러가 동적으로 이미지 세팅 -->
                                     <ImageView fx:id="imgCharacter" preserveRatio="true"/>

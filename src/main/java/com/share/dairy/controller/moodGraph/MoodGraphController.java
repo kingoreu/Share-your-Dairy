@@ -1,5 +1,6 @@
 package com.share.dairy.controller.MoodGraph;
 
+import com.share.dairy.auth.UserSession;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 

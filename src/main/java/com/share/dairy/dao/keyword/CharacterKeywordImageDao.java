@@ -34,6 +34,28 @@ public class CharacterKeywordImageDao {
         }
     }
 
+//    public long insert(CharacterKeywordImage e) throws SQLException {
+//        String sql = """
+//        INSERT INTO character_keyword_images (analysis_id, user_id, path_or_url, character_type, created_at)
+//        VALUES (?, ?, ?, ?, ?)
+//    """;
+//        try (var con = DBConnection.getConnection();
+//             var ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+//            ps.setLong(1, e.getAnalysisId());
+//            ps.setLong(2, e.getUserId());
+//            ps.setString(3, e.getPathOrUrl());
+//            ps.setString(4, e.getCharacterType() != null ? e.getCharacterType().name() : null);
+//            if (e.getCreatedAt() != null) ps.setTimestamp(5, Timestamp.valueOf(e.getCreatedAt()));
+//            else ps.setNull(5, Types.TIMESTAMP);
+//
+//            ps.executeUpdate();
+//            try (var keys = ps.getGeneratedKeys()) {
+//                return keys.next() ? keys.getLong(1) : 0L;
+//            }
+//        }
+//    }
+
+
     public Optional<CharacterKeywordImage> findById(long id) throws SQLException {
         String sql = "SELECT * FROM character_keyword_images WHERE keyword_image = ?";
         try (var con = DBConnection.getConnection();

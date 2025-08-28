@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
-import javafx.scene.web.WebView;
 
-import java.awt.Desktop;
-import java.net.*;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -52,17 +54,29 @@ public class MusicDialog {
 
     private volatile long searchSeq = 0;
 
+    // UI 필드(깔끔 버전)
+    private StageLike stage;
+    private TextField searchField;
+    private Button searchBtn;
+    private ProgressIndicator loading;
+    private ListView<MusicItem> listView;
+
+    /** 다이얼로그 표시 (상단 검색 + 중앙 결과 리스트 + 하단 닫기) */
     public void show() {
-        Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("MUSIC");
+        stage = new StageLike("MUSIC");
 
-        TextField search = new TextField();
-        search.setPromptText("노래/아티스트 검색");
-        Button btn = new Button("검색");
+        searchField = new TextField();
+        searchField.setPromptText("노래/아티스트 검색");
 
-        ListView<MusicItem> list = new ListView<>();
-        list.setPlaceholder(new Label("검색 결과가 없어요"));
-        list.setCellFactory(v -> new ListCell<>() {
+        searchBtn = new Button("검색");
+
+        loading = new ProgressIndicator();
+        loading.setMaxSize(22, 22);
+        loading.setVisible(false);
+
+        listView = new ListView<>();
+        listView.setPlaceholder(new Label("검색 결과가 없어요"));
+        listView.setCellFactory(v -> new ListCell<>() {
             @Override protected void updateItem(MusicItem it, boolean empty) {
                 super.updateItem(it, empty);
                 if (empty || it == null) { setText(null); return; }
@@ -70,43 +84,38 @@ public class MusicDialog {
             }
         });
 
-        WebView preview = new WebView();
-        Hyperlink openInYoutube = new Hyperlink("YouTube에서 열기");
-        openInYoutube.setVisible(false);
-        openInYoutube.setOnAction(e -> {
-            MusicItem sel = list.getSelectionModel().getSelectedItem();
-            if (sel != null && sel.url() != null && !sel.url().isBlank()) {
-                try { Desktop.getDesktop().browse(URI.create(sel.url())); } catch (Exception ignored) {}
-            }
+        // 선택 방식: 더블클릭 또는 Enter 로 확정
+        listView.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) selectCurrent();
+        });
+        listView.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) selectCurrent();
         });
 
-        ProgressIndicator loading = new ProgressIndicator();
-        loading.setMaxSize(22, 22);
-        loading.setVisible(false);
+        searchBtn.setOnAction(e -> doSearch(searchField.getText(), listView, loading));
+        searchField.setOnAction(e -> searchBtn.fire());
 
-        btn.setOnAction(e -> doSearch(search.getText(), list, loading));
-        search.setOnAction(e -> btn.fire());
+        Button close = new Button("닫기");
+        close.setOnAction(e -> stage.close());
 
-        HBox top = new HBox(8, search, btn, loading);
-        VBox right = new VBox(6, preview, openInYoutube);
-        VBox.setVgrow(preview, Priority.ALWAYS);
+        HBox top = new HBox(8, searchField, searchBtn, loading);
+        top.setPadding(new Insets(0, 0, 4, 0));
 
-        SplitPane split = new SplitPane(new StackPane(list), right);
-        split.setDividerPositions(0.35);
+        HBox bottom = new HBox(close);
+        bottom.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
 
-        VBox root = new VBox(10, top, split);
+        VBox root = new VBox(8, top, listView, bottom);
         root.setPadding(new Insets(10));
-        dialog.getDialogPane().setContent(root);
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
-        list.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
-            if (n == null) return;
-            if (onPick != null) onPick.accept(n);
-            preview.getEngine().load("https://www.youtube.com/watch?v=" + n.videoId());
-            openInYoutube.setVisible(n.url() != null && !n.url().isBlank());
-        });
+        stage.setScene(new Scene(root, 360, 520));
+        stage.show();
+    }
 
-        dialog.show();
+    private void selectCurrent() {
+        MusicItem item = listView.getSelectionModel().getSelectedItem();
+        if (item == null) return;
+        if (onPick != null) onPick.accept(item);
+        stage.close();
     }
 
     private void doSearch(String q, ListView<MusicItem> list, ProgressIndicator loading) {
@@ -162,8 +171,7 @@ public class MusicDialog {
                             .timeout(Duration.ofSeconds(12))
                             .header("Accept", "application/json")
                             .header("User-Agent",
-                                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+                                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
                             .GET()
                             .build();
 
@@ -212,8 +220,7 @@ public class MusicDialog {
             HttpRequest req = HttpRequest.newBuilder(URI.create(ytUrl))
                     .timeout(Duration.ofSeconds(12))
                     .header("User-Agent",
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                                    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
                     .header("Accept-Language", "ko,en;q=0.9")
                     .header("Cookie", "CONSENT=YES+1")
                     .GET().build();
@@ -279,7 +286,6 @@ public class MusicDialog {
         int idx = html.indexOf("ytInitialData");
         if (idx < 0) return null;
 
-        // "ytInitialData" 이후 첫 '{' 위치
         int start = html.indexOf('{', idx);
         if (start < 0) return null;
 
@@ -381,7 +387,8 @@ public class MusicDialog {
                 .replace("&gt;", ">");
     }
 
-    // 로컬 서버 포맷
+    // ===== 모델 =====
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Result {
         public String videoId;
@@ -413,5 +420,17 @@ public class MusicDialog {
         @Override public String toString() {
             return title + (channel != null ? "  —  " + channel : "");
         }
+    }
+
+    /* ------------------------------------------------------------------
+       아주 가벼운 "Stage 같은" 래퍼: Dialog를 간단히 감싸 동일한 사용감 제공
+       (프로젝트에 Stage 사용이 편하면 실제 Stage로 교체해도 무방)
+    ------------------------------------------------------------------ */
+    private static class StageLike {
+        private final Dialog<Void> dialog = new Dialog<>();
+        StageLike(String title) { dialog.setTitle(title); }
+        void setScene(Scene scene) { dialog.getDialogPane().setContent(scene.getRoot()); }
+        void show() { dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE); dialog.show(); }
+        void close() { dialog.close(); }
     }
 }

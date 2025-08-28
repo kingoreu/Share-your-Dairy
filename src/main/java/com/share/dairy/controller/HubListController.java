@@ -1,8 +1,8 @@
 package com.share.dairy.controller;
 
-import com.share.dairy.app.music.MusicDialog;            // ★ MUSIC 검색 다이얼로그
-import com.share.dairy.dao.diary.DiaryAttachmentDao;     // ★ 첨부 DAO
-import com.share.dairy.model.diary.DiaryAttachment;      // ★ 첨부 모델
+import com.share.dairy.app.music.MusicDialog;
+import com.share.dairy.dao.diary.DiaryAttachmentDao;
+import com.share.dairy.model.diary.DiaryAttachment;
 import com.share.dairy.model.diary.DiaryEntry;
 import com.share.dairy.service.diary.DiaryWriteService;
 
@@ -13,16 +13,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.awt.Desktop;                                  // ★ 유튜브 열기용
-import java.net.URI;                                      // ★ 유튜브 열기용
+import java.awt.Desktop;
+import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +34,6 @@ public class HubListController {
     @FXML private VBox listContainer;
 
     private final DiaryWriteService service = new DiaryWriteService();
-
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     @FXML
@@ -75,9 +74,9 @@ public class HubListController {
         card.setMaxWidth(Double.MAX_VALUE);
         VBox.setMargin(card, new Insets(0, 0, 8, 0));
         card.setStyle(
-            "-fx-background-color:white;" +
-            "-fx-background-radius:12;" +
-            "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.10), 10, 0, 0, 4);"
+                "-fx-background-color:white;" +
+                        "-fx-background-radius:12;" +
+                        "-fx-effect:dropshadow(gaussian, rgba(0,0,0,0.10), 10, 0, 0, 4);"
         );
         card.setCursor(Cursor.HAND);
 
@@ -105,14 +104,14 @@ public class HubListController {
 
         // Hover 느낌
         card.setOnMouseEntered(e ->
-            card.setStyle(card.getStyle() + "-fx-background-color:#fff7fd;"));
+                card.setStyle(card.getStyle() + "-fx-background-color:#fff7fd;"));
         card.setOnMouseExited(e ->
-            card.setStyle(card.getStyle().replace("-fx-background-color:#fff7fd;", "")));
+                card.setStyle(card.getStyle().replace("-fx-background-color:#fff7fd;", "")));
 
         return card;
     }
 
-    /** 읽기 전용 모달 + 하단 BGM 미니바(내장 플레이어) */
+    /** 읽기 전용 모달 (+ BGM 미니바: WebView 실패 시 외부 브라우저 폴백) */
     private void openViewer(DiaryEntry d) {
         Stage dlg = new Stage();
         if (listContainer != null && listContainer.getScene() != null) {
@@ -132,22 +131,10 @@ public class HubListController {
         body.setWrapText(true);
         body.setPrefRowCount(18);
 
-        // ----- BGM 미니바(이 모달 안에서 독립 재생) -----
-        WebView vw = new WebView();                 // 숨겨진 WebView (소리만 재생)
-        vw.setPrefSize(1, 1);
-        vw.setMinSize(1, 1);
-        vw.setMaxSize(1, 1);
-        vw.setOpacity(0);
-        vw.setMouseTransparent(true);
-
-        var eng = vw.getEngine();
-        eng.setUserAgent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-        );
-
-        final boolean[] isMuted   = { false };
-        final String[]  currentUrl = { null };      // 현재 재생 중인 URL (유튜브로 열기용)
+        // ----- BGM 미니바 -----
+        var optVw = tryCreateWebView();  // 안전 생성 (실패 시 empty)
+        final boolean[] isMuted = { false };
+        final String[] currentUrl = { null };
 
         Button muteBtn = new Button("🔈");
         Label  playing = new Label("♪  BGM 재생중");
@@ -155,99 +142,104 @@ public class HubListController {
 
         Hyperlink openLink = new Hyperlink("유튜브로 열기");
         openLink.setDisable(true);
-        openLink.setOnAction(ev -> {
-        String url = currentUrl[0];
-        if (url == null || url.isBlank()) return;
+        openLink.setOnAction(ev -> openExternal(currentUrl[0]));
 
-        // 1) 표준 방식
-        try {
-            if (Desktop.isDesktopSupported() &&
-                Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                Desktop.getDesktop().browse(URI.create(url));
-                return;
-        }
-        } catch (Exception ignore) { }
-
-        // 2) Windows 런처 (Desktop.browse가 막혀있는 PC 대안)
-        try {
-            new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url).start();
-            return;
-        } catch (Exception ignore) { }
-
-        // 3) 또 다른 Windows 폴백
-        try {
-            new ProcessBuilder("cmd", "/c", "start", "", url).start();
-            return;
-        } catch (Exception ignore) { }
-
-        // 4) 마지막 폴백: 숨겨진 WebView에 로드
-        try { eng.load(url); } catch (Exception ignore) { }
-        });
-
-        Button pickBtn = new Button("MUSIC"); // 곡 선택
+        Button pickBtn = new Button("MUSIC");
 
         Region spacer  = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-
         HBox bgmBar = new HBox(12, muteBtn, playing, spacer, openLink, pickBtn);
         bgmBar.setPadding(new Insets(8, 10, 8, 10));
         bgmBar.setStyle("-fx-background-color:#f7e7f7; -fx-background-radius:10;");
 
-        // 공통: videoId로 플레이어 로드 + 링크 활성화
-        java.util.function.BiConsumer<String,String> loadById = (vid, url) -> {
-            if (vid == null || vid.isBlank()) return;
-            currentUrl[0] = url;
-            if (currentUrl[0] != null && !currentUrl[0].isBlank()) openLink.setDisable(false);
+        if (optVw.isPresent()) {
+            // ===== 정상 경로: WebView가 성공적으로 생성됨 → 내장 재생 =====
+            WebView vw = optVw.get();
+            vw.setPrefSize(1, 1); vw.setMinSize(1, 1); vw.setMaxSize(1, 1);
+            vw.setOpacity(0); vw.setMouseTransparent(true);
 
-            String html = viewerPlayerHtml(vid);
-            eng.getLoadWorker().stateProperty().addListener((obs, old, st) -> {
-                if (st == javafx.concurrent.Worker.State.SUCCEEDED) {
-                    try {
-                        // 자동재생 시도 + 음소거 반영
-                        eng.executeScript("try{player.playVideo();}catch(e){}");
-                        if (isMuted[0]) eng.executeScript("__mute()");
-                    } catch (Exception ignored) {}
-                }
-            });
-            eng.loadContent(html, "text/html");
-        };
+            var eng = vw.getEngine();
+            eng.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36");
 
-        // 1) DB에서 저장된 첫 번째 URL 자동 로드 (있으면)
-        String savedUrl = loadFirstAttachmentUrl(d);
-        if (savedUrl != null && !savedUrl.isBlank()) {
-            String vid = extractVideoId(savedUrl);
-            if (vid != null) loadById.accept(vid, savedUrl);
-        }
+            java.util.function.BiConsumer<String, String> loadById = (vid, url) -> {
+                if (vid == null || vid.isBlank()) return;
+                currentUrl[0] = url;
+                if (currentUrl[0] != null && !currentUrl[0].isBlank()) openLink.setDisable(false);
 
-        // 2) MUSIC 클릭 → 검색창에서 선택한 곡 재생 (이 뷰어 안에서만)
-        pickBtn.setOnAction(e -> {
-            new MusicDialog(item -> {
+                String html = viewerPlayerHtml(vid);
+                eng.getLoadWorker().stateProperty().addListener((obs, old, st) -> {
+                    if (st == javafx.concurrent.Worker.State.SUCCEEDED) {
+                        try {
+                            eng.executeScript("try{player.playVideo();}catch(e){}");
+                            if (isMuted[0]) eng.executeScript("__mute()");
+                        } catch (Exception ignored) {}
+                    }
+                });
+                eng.loadContent(html, "text/html");
+            };
+
+            // DB 저장 URL 자동 로드
+            String savedUrl = loadFirstAttachmentUrl(d);
+            if (savedUrl != null && !savedUrl.isBlank()) {
+                String vid = extractVideoId(savedUrl);
+                if (vid != null) loadById.accept(vid, savedUrl);
+            }
+
+            // MUSIC 버튼 → 선택한 곡 재생
+            pickBtn.setOnAction(e -> new MusicDialog(item -> {
                 if (item == null || item.videoId() == null || item.videoId().isBlank()) return;
                 String url = (item.url() != null && !item.url().isBlank())
                         ? item.url()
                         : ("https://www.youtube.com/watch?v=" + item.videoId());
                 loadById.accept(item.videoId(), url);
-            }).show();
-        });
+            }).show());
 
-        // 음소거 토글
-        muteBtn.setOnAction(e -> {
-            isMuted[0] = !isMuted[0];
-            muteBtn.setText(isMuted[0] ? "🔇" : "🔈");
-            try {
-                eng.executeScript(isMuted[0] ? "__mute()" : "__unmute()");
-            } catch (Exception ignored) {}
-        });
-        // --------------------------------------
+            // 음소거
+            muteBtn.setOnAction(e -> {
+                isMuted[0] = !isMuted[0];
+                muteBtn.setText(isMuted[0] ? "🔇" : "🔈");
+                try { eng.executeScript(isMuted[0] ? "__mute()" : "__unmute()"); } catch (Exception ignored) {}
+            });
 
-        Button close = new Button("닫기");
-        close.setOnAction(ev -> dlg.close());
+            Button close = new Button("닫기");
+            close.setOnAction(ev -> dlg.close());
 
-        // WebView(vw)는 보이지 않지만, VBox에 넣어두어야 재생됨
-        VBox root = new VBox(10, date, title, body, bgmBar, vw, close);
-        root.setPadding(new Insets(16));
-        dlg.setScene(new Scene(root, 640, 480));
-        dlg.showAndWait();
+            VBox root = new VBox(10, date, title, body, bgmBar, vw, close);
+            root.setPadding(new Insets(16));
+            dlg.setScene(new Scene(root, 640, 480));
+            dlg.showAndWait();
+
+        } else {
+            // ===== 폴백 경로: WebView 생성 실패 → 외부 브라우저만 사용 =====
+            playing.setText("♪  외부 브라우저 재생");
+            muteBtn.setDisable(true);
+
+            // DB 저장 URL 있으면 링크 활성화
+            String savedUrl = loadFirstAttachmentUrl(d);
+            if (savedUrl != null && !savedUrl.isBlank()) {
+                currentUrl[0] = savedUrl;
+                openLink.setDisable(false);
+            }
+
+            // MUSIC → 외부 브라우저 열기
+            pickBtn.setOnAction(e -> new MusicDialog(item -> {
+                if (item == null || (item.videoId() == null && (item.url() == null || item.url().isBlank()))) return;
+                String url = (item.url() != null && !item.url().isBlank())
+                        ? item.url()
+                        : ("https://www.youtube.com/watch?v=" + item.videoId());
+                currentUrl[0] = url;
+                openLink.setDisable(false);
+                openExternal(url);
+            }).show());
+
+            Button close = new Button("닫기");
+            close.setOnAction(ev -> dlg.close());
+
+            VBox root = new VBox(10, date, title, body, bgmBar, close);
+            root.setPadding(new Insets(16));
+            dlg.setScene(new Scene(root, 640, 480));
+            dlg.showAndWait();
+        }
     }
 
     /** 모달용 간단 임베드 HTML */
@@ -335,5 +327,31 @@ public class HubListController {
             return (cut >= 0) ? tail.substring(0, cut) : tail;
         }
         return null;
+    }
+
+    // ======= 안전 헬퍼들 =======
+
+    /** WebView 안전 생성: 내부 모듈 접근 오류(IllegalAccessError 등) 시 empty 반환 */
+    private Optional<WebView> tryCreateWebView() {
+        try {
+            return Optional.of(new WebView());
+        } catch (Throwable t) { // Error/Exception 모두 잡음
+            System.err.println("[WebView] create failed → fallback to external: " + t);
+            return Optional.empty();
+        }
+    }
+
+    /** OS별 외부 브라우저 열기 (여러 단계 폴백) */
+    private void openExternal(String url) {
+        if (url == null || url.isBlank()) return;
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(URI.create(url));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try { new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url).start(); return; } catch (Exception ignore) { }
+        try { new ProcessBuilder("cmd", "/c", "start", "", url).start(); return; } catch (Exception ignore) { }
+        System.err.println("[ExternalOpen] failed: " + url);
     }
 }

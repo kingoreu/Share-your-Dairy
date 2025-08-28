@@ -2,6 +2,7 @@ package com.share.dairy.api.keyword;
 
 
 import com.share.dairy.dto.keyword.keywordImage.CreateRequest;
+import com.share.dairy.dto.keyword.keywordImage.ResponseDto;
 import com.share.dairy.dto.keyword.keywordImage.WithKeywordsDto;
 import com.share.dairy.model.keyword.KeywordImage;
 import com.share.dairy.service.keyword.KeywordImageService;
@@ -30,16 +31,21 @@ public class KeywordImageController {
 
     // Read (id)
     @GetMapping("/{id}")
-    public ResponseEntity<KeywordImage> get(@PathVariable long id) throws SQLException {
+    public ResponseEntity<ResponseDto> get(@PathVariable long id) throws SQLException {
         return service.findById(id)
+                .map(KeywordImageService::toDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Read (user) — 기본 목록
     @GetMapping
-    public ResponseEntity<List<KeywordImage>> listByUser(@RequestParam long userId) throws SQLException {
-        return ResponseEntity.ok(service.findByUserId(userId));
+    public ResponseEntity<List<ResponseDto>> listByUser(@RequestParam long userId) throws SQLException {
+        var list = service.findByUserId(userId)
+                .stream()
+                .map(KeywordImageService::toDto)
+                .toList();
+        return ResponseEntity.ok(list);
     }
 
     // Read (by user) — 키워드 포함 목록

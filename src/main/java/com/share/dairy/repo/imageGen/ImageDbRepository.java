@@ -1,4 +1,3 @@
-// src/main/java/com/share/dairy/repo/imageGen/ImageDbRepository.java
 package com.share.dairy.repo.imageGen;
 
 import com.share.dairy.model.enums.CharacterType;
@@ -25,6 +24,7 @@ public interface ImageDbRepository {
             long analysisId,
             long userId,
             String analysisKeywords,
+            String summary,          // ✨ 추가
             String characterType
     ) {}
 
